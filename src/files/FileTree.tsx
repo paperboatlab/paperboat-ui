@@ -4,6 +4,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, type ReactNode } from "react";
 
 import { Icon } from "../Icon.tsx";
+import { Menu, type MenuEntry } from "../Menu.tsx";
 import { fileIconFor } from "./types.ts";
 
 export type FileEntry = {
@@ -68,7 +69,10 @@ export const FileTree = forwardRef<FileTreeHandle, {
   actions: FileActions;
   labels?: FileLabels;
   ariaLabel?: string;
-}>(function FileTree({ entries, active, actions, labels = {}, ariaLabel = "Workspace" }, ref) {
+  /** The app's own file menu (REBRAND "File menu": the shared groups, its own group under its name, an
+   *  unavailable item greyed with why); without it the tree offers the actions it was given. */
+  menu?: (entry?: FileEntry) => MenuEntry[];
+}>(function FileTree({ entries, active, actions, labels = {}, ariaLabel = "Workspace", menu: menuFor }, ref) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [menu, setMenu] = useState<Menu | null>(null);
   const [drop, setDrop] = useState<string | null>(null);
@@ -192,7 +196,13 @@ export const FileTree = forwardRef<FileTreeHandle, {
         );
       })}
 
-      {menu && (
+      {menu && menuFor && (
+        <div className="file-menu own" style={{ left: Math.min(menu.x, window.innerWidth - 290), top: Math.min(menu.y, window.innerHeight - 460) }}>
+          {menu.entry && <div className="file-menu-head"><TypeIcon entry={menu.entry} open={false} />{menu.entry.name}</div>}
+          <Menu label={menu.entry ? `${menu.entry.name}: actions` : "New"} items={menuFor(menu.entry)} onClose={close} />
+        </div>
+      )}
+      {menu && !menuFor && (
         <>
           <div className="file-menu-scrim" onPointerDown={close} />
           <div

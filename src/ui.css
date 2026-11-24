@@ -180,6 +180,13 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .theme-choices button[aria-checked="true"] { color: var(--text); font-weight: 600; }
 .theme-choices button[aria-checked="true"] .thumb { outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; }
 .theme-choices button:focus-visible { outline: 2px solid var(--focus); }
+/* the Panels key: the theme picker's previews; the panel itself filled in the accent while shown, dashed while hidden */
+.panels-key .theme-choices button[aria-pressed="true"] { color: var(--text); font-weight: 600; }
+.panels-key .theme-choices kbd { font: 10px var(--font-mono); color: var(--text-muted); padding: 0 4px; white-space: nowrap; font-weight: 400; }
+.panels-thumb .bg { fill: var(--surface-sunken); }
+.panels-thumb .pane { fill: var(--surface-panel); stroke: var(--line-strong); stroke-width: 0.6; }
+.panels-thumb .me { fill: color-mix(in srgb, var(--accent) 50%, var(--surface-panel)); stroke: var(--accent); }
+.panels-key button[aria-pressed="false"] .panels-thumb .me { fill: none; stroke: var(--text-muted); stroke-dasharray: 2 1.5; }
 
 /* ── panels: a card with a head (name, a short count, its hide key); hidden, a slim bar of itself ── */
 .panel { background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; position: relative; }
@@ -205,19 +212,19 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .panel-slim .count { margin-top: auto; font: 11px var(--font-mono); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 
 /* ── the rail: 52 px (icons, tooltips) or 208 px (icon and label), switched only by its foot key ── */
-.rail { flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 5px; display: flex; flex-direction: column; gap: 2px; transition: width var(--slide); position: relative; }
+.rail { box-sizing: border-box; flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 8px 5px; display: flex; flex-direction: column; gap: 2px; transition: width var(--slide); position: relative; }
 .rail.wide { width: 208px; }
-.rail hr { border: 0; border-top: 1px solid var(--line); margin: 5px 6px; }
-.rail-group { position: relative; display: flex; flex-direction: column; gap: 2px; }
-.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 2px; }
-.rail-item { all: unset; box-sizing: border-box; position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 8px; color: var(--text-muted); cursor: pointer; font: 13px var(--font-sans); white-space: nowrap; transition: background var(--motion), color var(--motion); }
+.rail hr { border: 0; border-top: 1px solid var(--line); margin: 12px 6px; }
+.rail-group { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.rail-item { all: unset; box-sizing: border-box; position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 10px; border-radius: 8px; color: var(--text-muted); cursor: pointer; font: 13px var(--font-sans); white-space: nowrap; transition: background var(--motion), color var(--motion); }
 .rail-item .pb-icon { width: 20px; height: 20px; }
 .rail-item:hover { background: var(--surface-sunken); color: var(--text); }
 .rail-item[aria-current="page"] { color: var(--text); font-weight: 500; }
 .rail-item[aria-current="page"]:hover { background: none; }
 .rail-item[aria-pressed="true"] { background: var(--surface-sunken); color: var(--text); }
 .rail-item:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
-.rail-chip { position: absolute; left: 0; right: 0; top: 0; height: 36px; border-radius: 8px; background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); transition: transform var(--slide); z-index: 0; }
+.rail-chip { position: absolute; left: 0; right: 0; top: 0; height: 40px; border-radius: 8px; background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); transition: transform var(--slide); z-index: 0; }
 .rail-label { opacity: 0; transition: opacity var(--motion); }
 .rail.wide .rail-label { opacity: 1; transition: opacity var(--glide) 0.12s; }
 .rail-count { margin-left: auto; font: 11px var(--font-mono); color: var(--text-muted); opacity: 0; transition: opacity var(--motion); display: inline-flex; }

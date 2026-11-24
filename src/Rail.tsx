@@ -17,7 +17,6 @@ export type RailItem = {
   count?: number | string;
 };
 
-const ITEM = 36, GAP = 2;
 
 function Count({ count }: { count: RailItem["count"] }) {
   if (count === undefined || count === "" || count === 0) return null;
@@ -56,7 +55,8 @@ export function Rail({ label, pages, page, onPage, tools = [], open = [], onTool
   const chip = useRef<HTMLSpanElement>(null);
   const [placed, setPlaced] = useState(false);
   useLayoutEffect(() => {
-    if (chip.current) chip.current.style.transform = `translateY(${at * (ITEM + GAP)}px)`;
+    const item = chip.current?.parentElement?.querySelectorAll<HTMLElement>(".rail-item")[at];
+    if (chip.current && item) chip.current.style.transform = `translateY(${item.offsetTop}px)`;
     setPlaced(true);
   }, [at]);
 
