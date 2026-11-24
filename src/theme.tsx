@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDismiss } from "./dismiss.tsx";
 import { Icon } from "./Icon.tsx";
+import { applyTheme } from "./themeTransition.ts";
 
 export type Theme = "light" | "dark" | "system";
 export const THEMES: readonly Theme[] = ["light", "dark", "system"];
@@ -21,7 +22,7 @@ export function useTheme(theme: Theme): "light" | "dark" {
     return () => m.removeEventListener("change", on);
   }, []);
   const shown = theme === "system" ? os : theme;
-  useEffect(() => { document.documentElement.dataset.theme = shown; }, [shown]);
+  useEffect(() => applyTheme(shown), [shown]);  // a cross-fade on a change (themeTransition.ts)
   return shown;
 }
 

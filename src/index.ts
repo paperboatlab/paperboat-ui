@@ -17,6 +17,7 @@ export { Spinner } from "./Spinner.tsx";
 export { GLYPH_FRAMES, GLYPH_FALLBACK, GLYPH_FRAME_MS } from "./glyphs.ts";
 export { Segmented, Tabs, Switch } from "./controls.tsx";
 export { Toasts, useToasts, type Toast } from "./Toasts.tsx";
+export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";
 export { useDismiss, useFocusReturn } from "./dismiss.tsx";
 export * from "./commands.ts";

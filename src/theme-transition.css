@@ -1,0 +1,13 @@
+/* The theme change (themeTransition.ts): the whole window cross-fades on --glide. */
+::view-transition-group(root), ::view-transition-old(root), ::view-transition-new(root) {
+  animation-duration: var(--theme-fade, 300ms);                       /* --glide */
+  animation-timing-function: cubic-bezier(.65, 0, .25, 1);   /* --ease */
+}
+/* without View Transitions: every colour glides instead */
+html.pb-theme-changing, html.pb-theme-changing * {
+  transition: background-color var(--glide), color var(--glide), border-color var(--glide), outline-color var(--glide),
+              fill var(--glide), stroke var(--glide), box-shadow var(--glide) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+}
