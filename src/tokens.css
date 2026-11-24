@@ -362,3 +362,17 @@
   --split-grip: var(--line-strong);    /* muted ink: a tool, never the accent */
   --split-grip-active: var(--line-ink);/* while dragging */
 }
+
+/* Paper: a figure that names its own background (JulixPlot's white, a dark theme of its own) keeps its keys,
+   readouts and help in that paper's colours, whatever the app's theme. The light and dark roles, set on the
+   figure (Plot2D does it from its background; a host draws a whole figure in one with paperClass, @paperboatlab/ui/plot). */
+.pb-paper-light {
+  --surface-raised: var(--grey-50); --surface-sunken: #e1e1dd; --text: var(--grey-900); --text-muted: var(--grey-650);
+  --line: var(--grey-300); --line-strong: var(--grey-500); --line-ink: var(--grey-900); --focus: var(--grey-900);
+  color-scheme: light;
+}
+.pb-paper-dark {
+  --surface-raised: var(--night-100); --surface-sunken: #151515; --text: var(--night-850); --text-muted: var(--night-650);
+  --line: #2e2e2e; --line-strong: #4a4a4a; --line-ink: var(--night-850); --focus: var(--night-850);
+  color-scheme: dark;
+}

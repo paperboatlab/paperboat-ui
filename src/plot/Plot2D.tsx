@@ -13,6 +13,7 @@ import { seriesColor, token } from "./tokens.ts";
 import { drawPlotLayers, layersBounds, sampleLayersAtX, sampleLayersHover, type Plot2DLayer } from "./layers2d.ts";
 import { niceTicks } from "./ticks.ts";
 import { TexText, type Interpreter } from "./TexText.tsx";
+import { isDarkColor, paperClass } from "./paper.ts";
 
 export type PlotText = { text: string; interpreter?: Interpreter };
 
@@ -132,15 +133,7 @@ const PT = 96 / 72;
 
 const isLog = (scale?: string) => scale === "log";
 
-const isDarkColor = (bg?: string): boolean => {
-  if (!bg || bg === "transparent") return false;
-  const m = bg.match(/^#([0-9a-f]{6})$/i);
-  if (!m) return false;
-  const r = parseInt(m[1].slice(0, 2), 16);
-  const g = parseInt(m[1].slice(2, 4), 16);
-  const b = parseInt(m[1].slice(4, 6), 16);
-  return (0.299 * r + 0.587 * g + 0.114 * b) < 128;
-};
+
 
 const resolveColor = (value: string | undefined, fallback: string) => {
   if (!value || value === "none") return value === "none" ? "transparent" : fallback;
@@ -1020,7 +1013,7 @@ export function Plot2D({ series, layers = [], axes, title, className, interactiv
 
   return (
     <div
-      className={`pb-plot2d${className ? ` ${className}` : ""}`}
+      className={`pb-plot2d${ownBg ? ` ${paperClass(bgColor)}` : ""}${className ? ` ${className}` : ""}`}
       style={{ background: bgColor, color: ink }}
       tabIndex={interactive ? 0 : undefined}
       onKeyDown={onKeyDown}
