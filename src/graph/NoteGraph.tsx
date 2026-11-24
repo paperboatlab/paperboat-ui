@@ -25,6 +25,8 @@ function DotNode({ data }: NodeProps<Node<Dot>>) {
   );
 }
 const TYPES = { dot: DotNode };
+// a small hub opens at its own size, not blown up to fill the view
+const FIT = { padding: 0.15, maxZoom: 1.25 };
 
 function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   const flow = useReactFlow();
@@ -57,7 +59,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
       const moving = !!sim.current && sim.current.step() && sim.current.step();
       steps.current += 2;
       tick((t) => t + 1);
-      if (!fitted.current && (steps.current > 60 || !moving)) { fitted.current = true; requestAnimationFrame(() => flow.fitView({ padding: 0.15 })); }
+      if (!fitted.current && (steps.current > 60 || !moving)) { fitted.current = true; requestAnimationFrame(() => flow.fitView(FIT)); }
       raf.current = moving ? requestAnimationFrame(run) : 0;
     };
     raf.current = requestAnimationFrame(run);
@@ -82,7 +84,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
     const p = at.get(n.id), r = 3.5 + Math.sqrt(degree.get(n.id) ?? 0) * 2.2;
     const state = n.id === focus ? "focus" : near ? (near.has(n.id) ? "near" : "far") : "";
     const labelled = showAll ? state !== "far" : n.id === focus || n.id === hover || (!!hover && state === "near");
-    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, data: { label: n.label, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
+    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, width: r * 2, height: r * 2, data: { label: n.label, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
   });
   const rfEdges: Edge[] = links.map((l) => {
     const lit = !!hover && (l.source === hover || l.target === hover);
@@ -98,7 +100,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
         onNodeDrag={(_, n) => { const r = (n.data as Dot).r; sim.current?.hold(n.id, n.position.x + r, n.position.y + r); tick((t) => t + 1); }}
         onNodeDragStart={() => wake()}
         onNodeDragStop={(_, n) => { sim.current?.release(n.id); wake(); }} />
-      {!compact && <span className="note-graph-keys"><Key size="sm" kind="quiet" round icon="screen-full" label="Fit to view" onClick={() => flow.fitView({ padding: 0.15, duration: 300 })} /></span>}
+      {!compact && <span className="note-graph-keys"><Key size="sm" kind="quiet" round icon="screen-full" label="Fit to view" onClick={() => flow.fitView({ ...FIT, duration: 300 })} /></span>}
     </div>
   );
 }
