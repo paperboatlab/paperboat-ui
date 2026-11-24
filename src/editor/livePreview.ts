@@ -18,6 +18,7 @@ const mark = (cls: string, attrs?: Record<string, string>) => Decoration.mark({ 
 const HEAD = [1, 2, 3, 4, 5, 6].map((n) => Decoration.line({ class: `cm-lp-h cm-lp-h${n}` }));
 const QUOTE = Decoration.line({ class: "cm-lp-quote" });
 const FENCE = Decoration.line({ class: "cm-lp-fence" });
+const META = Decoration.line({ class: "cm-lp-meta" });
 const WIKI = /\[\[([^\]|#\n]+)(#[^\]|\n]*)?(?:\|([^\]\n]+))?\]\]/g;
 
 class RunKey extends WidgetType {
@@ -58,7 +59,10 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
       from, to,
       enter: (n) => {
         const name = n.name;
-        if (name === "FrontMatter" || name === "Frontmatter") return false;
+        if (name === "Frontmatter" || name === "FrontMatter") {   // the properties: kept, quiet
+          for (let l = state.doc.lineAt(n.from).number; l <= state.doc.lineAt(n.to).number; l++) add(state.doc.line(l).from, state.doc.line(l).from, META);
+          return false;
+        }
         const h = /^ATXHeading(\d)$/.exec(name);
         if (h) { add(state.doc.lineAt(n.from).from, state.doc.lineAt(n.from).from, HEAD[+h[1] - 1]); return; }
         if (name === "Blockquote") { for (let l = state.doc.lineAt(n.from).number; l <= state.doc.lineAt(n.to).number; l++) add(state.doc.line(l).from, state.doc.line(l).from, QUOTE); return; }

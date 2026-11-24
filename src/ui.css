@@ -303,6 +303,9 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .cm-live .cm-lp-em { font-style: italic; }
 .cm-live .cm-lp-strike { text-decoration: line-through; }
 .cm-live .cm-lp-code { font-family: var(--font-mono); background: var(--surface-sunken); border-radius: var(--radius-sm); padding: 0 3px; }
+.cm-live .cm-lp-link * { color: inherit !important; }  /* the highlighter colours a [label] inside it */
+.cm-live .cm-lp-meta { font-family: var(--font-mono); font-size: 0.85em; color: var(--text-muted); }
+.cm-live .cm-lp-meta * { color: inherit !important; }
 .cm-live .cm-lp-link { color: var(--link-live, var(--accent-text)); text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
 .cm-live .cm-lp-quote { border-left: 2px solid var(--line-strong); padding-left: 12px; color: var(--text-muted); }
 .cm-live .cm-lp-fence { font-family: var(--font-mono); background: var(--surface-sunken); }
