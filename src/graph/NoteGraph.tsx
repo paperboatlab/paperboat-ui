@@ -25,6 +25,9 @@ function DotNode({ data }: NodeProps<Node<Dot>>) {
   );
 }
 const TYPES = { dot: DotNode };
+// each frame hands React Flow new nodes, which drops the handles it measured; links are drawn from these
+// instead (both ends at the dot's centre), so they never vanish while the layout moves or a dot is dragged
+const centre = (id: string, r: number) => (["source", "target"] as const).map((type) => ({ id: null, nodeId: id, type, position: Position.Top, x: r, y: r, width: 0, height: 0 }));
 // a small hub opens at its own size, not blown up to fill the view
 const FIT = { padding: 0.15, maxZoom: 1.25 };
 
@@ -84,7 +87,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
     const p = at.get(n.id), r = 3.5 + Math.sqrt(degree.get(n.id) ?? 0) * 2.2;
     const state = n.id === focus ? "focus" : near ? (near.has(n.id) ? "near" : "far") : "";
     const labelled = showAll ? state !== "far" : n.id === focus || n.id === hover || (!!hover && state === "near");
-    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, width: r * 2, height: r * 2, data: { label: n.label, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
+    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, width: r * 2, height: r * 2, handles: centre(n.id, r), data: { label: n.label, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
   });
   const rfEdges: Edge[] = links.map((l) => {
     const lit = !!hover && (l.source === hover || l.target === hover);
