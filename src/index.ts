@@ -26,4 +26,8 @@ export * from "./commands.ts";
 export { fuzzy } from "./fuzzy.ts";
 export { parseToml, patchToml, formatToml, type TomlTable, type TomlValue } from "./toml.ts";
 export { readStored, writeStored } from "./storage.ts";
+export { HelpWindow, sanitizeHtml } from "./Help.tsx";
+export * from "./help.ts";
+export { VariableEditor } from "./ValueTable.tsx";
+export * from "./valueTable.ts";
 export { compareVersions, newerRelease } from "./versions.ts";
