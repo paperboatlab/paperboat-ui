@@ -34,6 +34,10 @@
       "types": "./src/files/index.ts",
       "default": "./src/files/index.ts"
     },
+    "./graph": {
+      "types": "./src/graph/index.ts",
+      "default": "./src/graph/index.ts"
+    },
     "./plot": {
       "types": "./src/plot/index.ts",
       "default": "./src/plot/index.ts"
