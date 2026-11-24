@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { fromBytes, toBytes, widen } from "../../src/editor/language.ts";
 import { jsonProblems, tomlProblems } from "../../src/editor/lang/data/index.ts";
 import { languageFor } from "../../src/editor/lang/index.ts";
-import { EDITOR_THEMES, paletteOf, type EditorPalette } from "../../src/editor/themes/index.ts";
+import { DEFAULT_EDITOR_THEME, EDITOR_THEMES, paletteOf, type EditorPalette } from "../../src/editor/themes/index.ts";
 
 // WCAG 2 contrast
 const lum = (hex: string) => {
@@ -31,14 +31,14 @@ test("the cursor is never the accent and red is only for errors", () => {
     }
 });
 
-test("Ink is the default and follows light and dark; a user theme starts from its base", () => {
-  assert.equal(paletteOf("ink", "light").dark, false);
-  assert.equal(paletteOf("ink", "dark").dark, true);
-  assert.equal(paletteOf("nope", "dark").background, paletteOf("ink", "dark").background);
-  assert.equal(paletteOf("harbor", "light").dark, true);  // a fixed theme stays itself
-  const mine = paletteOf("mine", "light", { mine: { base: "sepia", keyword: "#123456" } });
+test("Fleet is the default and follows light and dark; a user theme starts from its base", () => {
+  assert.equal(DEFAULT_EDITOR_THEME, "fleet");
+  assert.equal(paletteOf("fleet", "light").dark, false);
+  assert.equal(paletteOf("fleet", "dark").background, "#181818");  // Fleet Dark
+  assert.equal(paletteOf("ink", "dark").background, paletteOf("fleet", "dark").background);  // a retired theme falls back
+  const mine = paletteOf("mine", "light", { mine: { base: "paperboat", keyword: "#123456" } });
   assert.equal(mine.keyword, "#123456");
-  assert.equal(mine.background, paletteOf("sepia", "light").background);
+  assert.equal(mine.background, paletteOf("paperboat", "light").background);
 });
 
 test("a file's language: whole names first, then the ending", () => {
@@ -72,3 +72,4 @@ test("JSON and TOML are checked here, with the place of the problem", async () =
   assert.equal(t.length, 1);
   assert.ok(t[0].from >= 11, `toml problem on line 2 (at ${t[0].from})`);
 });
+
