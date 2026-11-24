@@ -1,8 +1,9 @@
 # Paperboat UI
 
 The Paperboat look as React components (`@paperboatlab/ui`): the design tokens, keys, pills, the
-spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search and the app
-marks with their idle fold, the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
+spinner, the rail, panels, dialogs, menus and the menu bar, toasts, the theme picker, the floating
+search, the app marks with their idle fold, the file tree (`/files`), plots and the Scope (`/plot`,
+`/scope`), help, messages, the console, the run dock, the value table and the package panel (`/packages`), the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
 layout, ports, snapping, undo), and the code editor (`@paperboatlab/ui/editor`: languages in
 `src/editor/lang/` — Julia, Python, Modelica, JSON, TOML, Markdown, plain text — and a theme collection
 in `src/editor/themes/`). Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it

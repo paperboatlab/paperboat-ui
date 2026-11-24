@@ -1,7 +1,7 @@
 """Write src/icons.ts from the icon registry (GUIDELINES §4 "One registry for icons").
 
-Every icon of agent-docs/rebrand/icons.toml that is in use or free for its meaning (not retired, not
-in conflict) goes in: Codicons from rebrand/refs/codicons (classic v0.0.36), rail icons from
+Every icon of agent-docs/rebrand/icons.toml that is in use, free for its meaning or in conflict (not
+retired) goes in: Codicons from rebrand/refs/codicons (classic v0.0.36), rail icons from
 rebrand/apps/launcher/rail-icons.svg, our UI glyphs from logogen/src/system.jl BRAND_ICONS. An icon that isn't in the registry can't be drawn by <Icon>.
     python3 scripts/icons.py ~/Cloud/gdrive/Projects/paperboatlab/agent-docs/rebrand
 """
@@ -20,7 +20,7 @@ brand_src = brand_src[:brand_src.index("\nconst ")]
 brand = dict(re.findall(r'"([\w-]+)" => "(<.*?)"(?=[,)])', brand_src))
 out, meaning = {}, {}
 for i in registry:
-    if i["status"] in ("retired", "conflict") or i["from"] == "mark":
+    if i["status"] == "retired" or i["from"] == "mark":  # a conflict keeps its registered meaning; its note names the misuse
         continue
     line = i["from"] == "brand"  # our UI glyphs: drawn as 1 px lines (.pb-icon.line)
     if line:

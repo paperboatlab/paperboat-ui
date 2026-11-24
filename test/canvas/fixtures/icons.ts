@@ -1,4 +1,4 @@
-import type { Connectors, IconDef } from "../../../src/canvas/types.ts";
+import type { Connectors, IconDef } from "../../src/protocol.ts";
 
 /** Hand-written §3 icons, as the importer will emit them. */
 export const Resistor: IconDef = {

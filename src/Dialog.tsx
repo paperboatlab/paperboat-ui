@@ -5,11 +5,13 @@ import { useRef, type ReactNode } from "react";
 import { useDismiss, useFocusReturn } from "./dismiss.tsx";
 import { RemoveKey } from "./Key.tsx";
 
-export function Dialog({ title, tags = [], wide, wait, onClose, actions, children }: {
+export function Dialog({ title, tags = [], wide, wait, className = "", onClose, actions, children }: {
   title: string;
   /** Short facts beside the title: a version, a backend. */
   tags?: (string | false | undefined | null)[];
   wide?: boolean;
+  /** Sizes it for one use (help-window, a value editor). */
+  className?: string;
   /** Must be answered: no ×, no outside press. Esc still takes the safe choice. */
   wait?: boolean;
   onClose: () => void;
@@ -22,7 +24,7 @@ export function Dialog({ title, tags = [], wide, wait, onClose, actions, childre
   useFocusReturn(box);
   return (
     <div className="dialog-scrim" data-own-keys>
-      <div ref={box} className={`dialog${wide ? " wide" : ""}`} role="dialog" aria-modal="true" aria-label={title}>
+      <div ref={box} className={`dialog${wide ? " wide" : ""}${className ? ` ${className}` : ""}`} role="dialog" aria-modal="true" aria-label={title}>
         <header className="dialog-head">
           <h2>{title}</h2>
           {tags.filter((t): t is string => !!t).map((t) => <span key={t} className="tag">{t}</span>)}

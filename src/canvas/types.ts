@@ -2,7 +2,6 @@
 // Simplicial's protocol (paperboat-shared-legacy src/protocol.ts) so any app's node canvas can use it;
 // an app's protocol may extend these shapes, never contradict them.
 
-
 export type VectorComponent = {
   /** The component's label, in vector order. */
   id: string;
@@ -230,6 +229,20 @@ export type BlockDef = {
   flows?: FlowType[];
 };
 
+export type StationObject = {
+  id: string;
+  type: string;
+  props?: Record<string, ParamValue>;
+  /** Link slot to the id of the station object filling it. */
+  links?: Record<string, string>;
+  /** Where it sits in the Station's graph view. */
+  pos?: [number, number];
+};
+
+export type Station = {
+  objects: StationObject[];
+};
+
 /** A param's value: a number, true / false (a boolean param), or text (text, key and file params). Or a reference (#36): {"var": name} takes a variable's value; {"expr": formula} (number and boolean params) a formula over variables. The station resolves references before it makes blocks and objects. */
 export type ParamValue = number | boolean | string | {
   /** A variable's name. */
@@ -245,6 +258,43 @@ export type Form = {
   inputs: PortDef[];
   outputs: PortDef[];
 };
+
+/** A named, typed value (#36), used by reference in block params and station props. Exactly one of value and expr. */
+export type Variable = {
+  /** Letters, digits and _; not t, pi, e or a function's name. */
+  name: string;
+  /** matrix: a matrix by its rows ("1 2; 3 4"), either a flow file variable or a live Julix variable (source mx). */
+  type: "number" | "boolean" | "enum" | "text" | "file" | "matrix";
+  /** Of its type: a number, true / false, text (enum: one of options), or matrix rows ("1 2; 3 4"). A live matrix too large to share has none and says why in note. */
+  value?: number | boolean | string;
+  /** A number or boolean variable's formula over other variables, instead of a value. */
+  expr?: string;
+  /** A number's unit (m, N, rad…). */
+  unit?: string;
+  /** UI only: a live variable broadcast by Julix, not saved in the flow file. */
+  source?: "mx";
+  min?: number;
+  max?: number;
+  /** How much one nudge in the UI changes it. */
+  step?: number;
+  /** A whole number. */
+  whole?: boolean;
+  /** An enum's choices. */
+  options?: string[];
+  /** One line: what it's for. */
+  note?: string;
+  /** Where it's listed (Cart-pole, Controller…). */
+  group?: string;
+  /** Also a control on the Board (a Controls tile), for operators. */
+  exposed?: boolean;
+  /** Also a control in the run dock. */
+  dock?: boolean;
+  /** A number or boolean (not a formula) that can change during a run: the blocks bound to it take the new value live if they can. */
+  tunable?: boolean;
+};
+
+/** The variables of a station (its defaults) or the user's. */
+export type Variables = Variable[];
 
 /** Where a block's ports sit on the Flow canvas: the port ids on each side, in order. A port not listed keeps its place (inputs on the left, outputs on the right, after the listed ones). Stations ignore it. */
 export type PortSides = {

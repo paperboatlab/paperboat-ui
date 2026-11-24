@@ -1,4 +1,4 @@
-// The TOML the Studios' config file needs, and no more: [tables] and [dotted.tables], bare keys,
+// The TOML an app's settings file needs, and no more: [tables] and [dotted.tables], bare keys,
 // and strings ("basic" or 'literal'), numbers and true/false. Anything else is an error naming its
 // line, so a hand edit that goes past the subset is told so instead of being half read.
 // patchToml rewrites single values in place, keeping the user's comments and layout.

@@ -268,7 +268,9 @@
        text a warm off-white (white and yellowish text tire least: Fan et al. 2024), contrast high
        but under APCA's ~Lc 90 halation ceiling; labels at least Lc 60, body text at least Lc 75. */
   --text-muted: var(--grey-650);
-  /* The accent is the one colour: live, look here, the primary action, what is selected. */
+  
+
+/* The accent is the one colour: live, look here, the primary action, what is selected. */
   --accent: var(--slate-700);
   --accent-text: var(--slate-700);
   --text-on-accent: #ffffff;
@@ -309,3 +311,43 @@
 :root[data-theme="dark"][data-app="articula"]   { --accent: var(--blue-300);  --accent-text: var(--blue-300); }
 :root[data-theme="dark"][data-app="julix"]      { --accent: var(--purple-300); --accent-text: var(--purple-300); }
 :root[data-theme="dark"][data-app="malachite"]  { --accent: var(--green-300); --accent-text: var(--green-300); }
+
+/* ── Data and code (brand.html §14, 2026-11-24) ──
+ * Series: six slots in a fixed order, never cycled, and never the app's accent (a series is an
+ * identity, not "look here"). Validated with the dataviz checks (lightness band, chroma, CVD ΔE ≥ 8,
+ * normal-vision ΔE ≥ 15): light on the paper, dark on the dark paper and on the black screen. On the
+ * light paper four slots sit under 3:1, so a figure always carries its legend and direct labels.
+ * A seventh series folds into "other" or a second figure.
+ * Syntax: Ink (the default: weight and greys, like the rest of the UI) or Muted colour (opt in); every
+ * colour reads at ≥ 4.5:1 on the panel. Red stays for errors only; the accent never colours code. */
+:root {
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
+  --series-4: #eda100; --series-5: #e87ba4; --series-6: #6250d6;
+  --syn-keyword: var(--text);   --syn-keyword-weight: 600;
+  --syn-string: var(--text);    --syn-number: var(--text);   --syn-type: var(--text);
+  --syn-comment: var(--text-muted); --syn-punct: var(--text-muted);
+  --code-line: color-mix(in srgb, var(--text) 5%, transparent);           /* the cursor's line: a soft band */
+  --code-selection: color-mix(in srgb, var(--accent) 22%, transparent);   /* selection: the accent, soft */
+  --code-match: color-mix(in srgb, var(--text) 14%, transparent);         /* find matches */
+}
+:root[data-theme="dark"], .screen {
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
+  --series-4: #c98500; --series-5: #d55181; --series-6: #9085e9;
+}
+[data-syntax="colour"] {
+  --syn-keyword: #3f5a8f; --syn-string: #4f6b2c; --syn-number: #8a4f23; --syn-type: #6e4a7d;
+}
+:root[data-theme="dark"] [data-syntax="colour"] {
+  --syn-keyword: #9fb6e6; --syn-string: #b2c98a; --syn-number: #e2ad7f; --syn-type: #cdb0d9;
+}
+
+/* File types (brand.html §11): our formats and languages in their app's muted accent, the rest a muted
+   type colour; light, then dark. */
+:root {
+  --file-simplicial: #a85c3d; --file-articula: #4767a2; --file-julix: #675492; --file-malachite: #417565;
+  --file-folder: #8a7650; --file-amber: #957530; --file-green: #4f7840; --file-steel: #56687d; --file-rose: #94546e; --file-slate: #66666b;
+}
+:root[data-theme="dark"] {
+  --file-simplicial: #f3b78b; --file-articula: #abc6ed; --file-julix: #cdbbf6; --file-malachite: #99d0ba;
+  --file-folder: #cdb98e; --file-amber: #d6bd7a; --file-green: #a8c98f; --file-steel: #a9b8ca; --file-rose: #d6a2b7; --file-slate: #b0b0b5;
+}

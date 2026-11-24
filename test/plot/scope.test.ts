@@ -1,0 +1,68 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { test } from "node:test";
+import { fileURLToPath } from "node:url";
+import { yScaleRange } from "../../src/scope/interact.ts";
+import { findTrigger, spectrum, stats, toCsv, valueAt } from "../../src/scope/math.ts";
+
+test("trigger, spectrum, stats, values and CSV", () => {
+  const t = [0, 1, 2, 3, 4, 5], v = [0, 2, 0, 2, 0, 2];
+  assert.equal(findTrigger(t, v, 1, "rising"), 4.5);
+  assert.equal(findTrigger(t, v, 1, "rising", 3), 2.5);
+  assert.equal(findTrigger(t, v, 1, "falling"), 3.5);
+  assert.equal(findTrigger(t, [0, 0], 1), null);
+
+  const dt = 1 / 64, n = 256;
+  const sine = Array.from({ length: n }, (_, i) => Math.sin(2 * Math.PI * 8 * i * dt));
+  const { f, db } = spectrum(sine, dt);
+  const peak = db.indexOf(Math.max(...db));
+  assert.equal(f[peak], 8);
+  assert.ok(Math.abs(db[peak]) < 1.5, `peak ${db[peak]} dB`); // amplitude 1 reads about 0 dB
+
+  const st = stats(t, v);
+  assert.deepEqual([st.min, st.max, st.mean, st.n], [0, 2, 1, 6]);
+  assert.equal(valueAt(t, v, 0.5), 1);
+  assert.equal(valueAt(t, v, 9), null);
+  assert.equal(toCsv([{ label: "a", unit: "m", t: [0, 1], v: [1, 2] }, { label: "b,c", t: [1], v: [3] }]), 't (s),a (m),"b,c"\n0,1,\n1,2,3\n');
+});
+
+test("scope tracking vs squishing time span behavior", () => {
+  // Tracking mode: constant window W follows latest time [t1 - W, t1]
+  const t0 = 0, t1 = 25, W = 10;
+  const trackingRange = [t1 - W, t1];
+  assert.deepEqual(trackingRange, [15, 25]);
+
+  // Squishing mode: full bounds [t0, t1]
+  const squishingRange = [t0, t1];
+  assert.deepEqual(squishingRange, [0, 25]);
+});
+
+test("yScaleRange keeps log-y bounds strictly positive", () => {
+  assert.deepEqual(yScaleRange(null, null, { log: true }), [0.1, 10]);
+  assert.deepEqual(yScaleRange(0, 0, { log: true }), [0.1, 10]);
+  assert.deepEqual(yScaleRange(-2, 5, { log: true }), [0.1, 10]);
+  assert.deepEqual(yScaleRange(1, 1, { log: true }), [0.1, 10]);
+  const [lo, hi] = yScaleRange(0.01, 1, { log: true });
+  assert.ok(lo > 0 && lo < 0.01 && hi > 1);
+  // Non-positive cached linear zoom view is ignored when log mode is active.
+  assert.deepEqual(yScaleRange(1, 100, { log: true, view: [-1, 2] }).map((v) => v > 0), [true, true]);
+  assert.deepEqual(yScaleRange(2, 8, { log: true, view: [2, 8] }), [2, 8]);
+  // Linear mode behavior is unchanged.
+  assert.deepEqual(yScaleRange(null, null), [-1, 1]);
+  assert.deepEqual(yScaleRange(0, 0), [-1, 1]);
+  assert.deepEqual(yScaleRange(0, 10), [-0.8, 10.8]);
+});
+
+test("the scope imports only React, uPlot and the kit's token reader, so any app can mount it", () => {
+  const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../src/scope");
+  const files = fs.readdirSync(dir, { recursive: true, encoding: "utf8" }).filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith(".test.ts"));
+  for (const file of files) {
+    const src = fs.readFileSync(path.join(dir, file), "utf8");
+    for (const m of src.matchAll(/^(import|export)\s+(type\s+)?[^;]*?from\s+"([^"]+)"/gms)) {
+      const [, , type, from] = m;
+      const ok = from.startsWith("./") || ["react", "react/jsx-runtime", "uplot"].includes(from) || from.startsWith("uplot/") || (from === "../widget.ts" && type) || (from === "@paperboat/host" && type) || from === "../plot/tokens.ts";
+      assert.ok(ok, `${file} imports ${from}`);
+    }
+  }
+});

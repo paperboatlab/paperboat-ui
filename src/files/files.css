@@ -1,0 +1,71 @@
+/* The Files tree and the rail around it (FileRail), shared by every app with files (§14). */
+.files-tree { flex: 1; min-height: 0; overflow: auto; padding: 4px 6px; }
+.file-row {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; height: 26px; padding: 0 8px; margin: 1px 0;
+  border: 0; border-radius: 6px; background: none; color: var(--text); text-align: left;
+  font: 12.5px var(--font-mono); cursor: pointer;
+}
+.file-row:hover { background: var(--surface-sunken); color: var(--text); }
+.file-row:focus-visible { outline-offset: -2px; }
+.file-row.on { background: color-mix(in srgb, var(--accent) var(--tint), transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent); }  /* tinted, never a bar beside it */
+.file-row.on .nm { font-weight: 500; }
+.file-row.drop-target { background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--line-ink); }  /* dropping into a folder */
+.file-row .caret { width: 14px; flex: none; display: inline-flex; color: var(--text-muted); }
+.file-row .file-icon { width: 16px; height: 16px; flex: none; display: inline-grid; place-items: center; }
+.file-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-row .k { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.files-empty { margin: 0; padding: var(--space-3); font: 400 var(--size-2xs) var(--font-sans); color: var(--text-muted); }
+.file-menu-scrim { position: fixed; inset: 0; z-index: 119; }
+.file-menu {
+  position: fixed; z-index: 120; min-width: 200px; padding: 5px;
+  display: flex; flex-direction: column;
+  background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+.file-menu button { border: 0; background: none; padding: 6px 10px; border-radius: 5px; text-align: left; font: 13px var(--font-sans); color: var(--text); cursor: pointer; }
+.file-menu button:hover { background: var(--surface-sunken); }
+.file-menu button.danger { color: var(--danger-text); }
+.file-menu hr { border: 0; border-top: 1px solid var(--line); margin: 5px 4px; }
+
+/* The rail: tab strip, body (the files panel and any other tab), and a standing tab when folded.
+   The app places the rail and sizes it; folded, it should give the rail ~30px. */
+.file-rail { position: relative; display: flex; flex-direction: column; min-height: 0; }
+.file-rail-tabs { display: flex; align-items: center; gap: var(--space-3); min-height: var(--panel-head-height); padding: 0 var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface-raised); }
+.file-rail-tab { border: 0; background: none; padding: 0; font: 13px var(--font-sans); color: var(--text-muted); cursor: pointer; }
+.file-rail-tab:hover { color: var(--text); }
+.file-rail-tab { position: relative; height: 100%; display: inline-flex; align-items: center; }
+.file-rail-tab.on { color: var(--text); }
+.file-rail-tab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }  /* tabs are underlined */
+/* One size in every app, above an app's own .key.small. */
+.file-rail-tabs .key.rail-add { margin-left: auto; height: 22px; min-width: 24px; padding: 0 6px; }
+.rail-add + .panel-toggle { margin-left: 2px; }
+.file-rail-tab + .panel-toggle { margin-left: auto; }
+.file-rail-body { flex: 1; min-height: 0; display: flex; min-width: 0; }
+.file-rail-body > [hidden] { display: none; }
+.files-panel { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.files-head { display: flex; align-items: center; gap: var(--space-2); box-sizing: border-box; height: var(--panel-head-height); padding: 0 6px 0 12px; border-bottom: 1px solid var(--line); }
+.files-head .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 13px var(--font-display); }
+.files-head .lbl { margin-left: auto; white-space: nowrap; }
+.files-foot { margin: 0; padding: 6px var(--space-3); border-top: 1px solid var(--line); font: 400 11px var(--font-mono); color: var(--text-muted); }
+
+/* Fold: the chevron in the strip, and the standing tab that brings the rail back. */
+.panel-toggle { flex: none; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--text-muted); display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion), color var(--motion); }
+.panel-toggle:hover { color: var(--text); background: var(--surface-sunken); }
+.panel-toggle svg, .panel-stand svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.panel-stand {
+  position: absolute; inset: 4px; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 7px 0;
+  border: 0; border-radius: var(--radius-lg); background: var(--surface-panel);
+  color: var(--text-muted); cursor: pointer; font: inherit;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity var(--motion), visibility 0s linear 150ms;
+}
+.panel-stand:hover { color: var(--text); }
+.panel-stand span { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 12.5px var(--font-sans); }  /* the slim bar of §10: the name up the edge */
+.rail > .rail-tabs, .rail > .file-rail-body { transition: opacity var(--motion); }
+.rail.collapsed > .rail-tabs, .rail.collapsed > .file-rail-body { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--motion), visibility 0s linear 150ms; }
+.file-rail.collapsed > .panel-stand { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--motion), visibility 0s; }
+@media (prefers-reduced-motion: reduce) {
+  .rail > .rail-tabs, .rail > .file-rail-body, .panel-stand { transition: none !important; }
+}
