@@ -10,6 +10,7 @@ export type { HeatmapProps } from "./Heatmap.tsx";
 export { Scatter } from "./Scatter.tsx";
 export type { ScatterProps } from "./Scatter.tsx";
 export { Plot2D } from "./Plot2D.tsx";
+export { isDarkColor, paperClass } from "./paper.ts";
 export type { Plot2DProps, PlotAxes, PlotSeries, PlotLegend, PlotLegendEntry, PlotText, PlotViewLimits, PlotViewState } from "./Plot2D.tsx";
 export { drawMarkerSymbol, drawPlotLayers, layersBounds, sampleLayersAtX, sampleLayersHover } from "./layers2d.ts";
 export type { NumericArray, Plot2DLayer, Plot2DLayerBase } from "./layers2d.ts";

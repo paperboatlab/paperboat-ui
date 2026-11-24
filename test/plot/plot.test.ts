@@ -88,3 +88,17 @@ test("layers2d computes bounds and hover/cursor readouts across inline and typed
   assert.equal(curveHit?.y, 3);
   assert.equal(curveHit?.snap, true);
 });
+
+test("a figure's own paper keeps its keys in the paper's colours, not the theme's", async () => {
+  const { isDarkColor, paperClass } = await import("../../src/plot/paper.ts");
+  assert.equal(paperClass("#ffffff"), "pb-paper-light");
+  assert.equal(paperClass("#121212"), "pb-paper-dark");
+  assert.equal(paperClass("rgba(20,20,24,0.900)"), "pb-paper-dark");   // JulixPlot's translucent paper
+  assert.equal(isDarkColor("transparent"), false);
+  const fs = await import("node:fs");
+  const css = fs.readFileSync(new URL("../../src/tokens.css", import.meta.url), "utf8");
+  for (const c of ["pb-paper-light", "pb-paper-dark"]) {
+    const rule = new RegExp(`\\.${c} \\{([^}]*)\\}`).exec(css)?.[1] ?? "";
+    for (const role of ["--text:", "--text-muted:", "--surface-raised:", "--surface-sunken:", "--line:", "--focus:"]) assert.ok(rule.includes(role), `${c} sets ${role}`);
+  }
+});

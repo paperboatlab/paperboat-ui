@@ -217,6 +217,12 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .panel.side.hidden .panel-slim { opacity: 1; visibility: visible; transition: opacity var(--glide) 0.25s, color var(--motion); }
 .panel-slim:hover { color: var(--text); }
 .panel-slim .name { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 12.5px var(--font-sans); }
+/* a bottom panel: hidden, it keeps its head (set its height; it slides to the head) and the key flips up */
+.panel.bottom { flex: none; transition: height var(--slide); }
+.panel.bottom.hidden { height: var(--panel-head-height) !important; }
+.panel.bottom.hidden > .panel-body { visibility: hidden; }
+.panel.bottom .hide-key svg { transition: transform var(--slide); }
+.panel.bottom.hidden .hide-key svg { transform: scaleY(-1); }
 .panel-slim .count { margin-top: auto; font: 11px var(--font-mono); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 
 /* ── the rail: 52 px (icons, tooltips) or 208 px (icon and label), switched only by its foot key ── */

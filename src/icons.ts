@@ -148,6 +148,8 @@ export const ICONS = {
   "question": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M7.5 1a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zm0 12a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm1.55-8.42a1.84 1.84 0 0 0-.61-.42A2.25 2.25 0 0 0 7.53 4a2.16 2.16 0 0 0-.88.17c-.239.1-.45.254-.62.45a1.89 1.89 0 0 0-.38.62 3 3 0 0 0-.15.72h1.23a.84.84 0 0 1 .506-.741.72.72 0 0 1 .304-.049.86.86 0 0 1 .27 0 .64.64 0 0 1 .22.14.6.6 0 0 1 .16.22.73.73 0 0 1 .06.3c0 .173-.037.343-.11.5a2.4 2.4 0 0 1-.27.46l-.35.42c-.12.13-.24.27-.35.41a2.33 2.33 0 0 0-.27.45 1.18 1.18 0 0 0-.1.5v.66H8v-.49a.94.94 0 0 1 .11-.42 3.09 3.09 0 0 1 .28-.41l.36-.44a4.29 4.29 0 0 0 .36-.48 2.59 2.59 0 0 0 .28-.55 1.91 1.91 0 0 0 .11-.64 2.18 2.18 0 0 0-.1-.67 1.52 1.52 0 0 0-.35-.55zM6.8 9.83h1.17V11H6.8V9.83z\"/>"],
   /** Widen or narrow the rail */
   "layout-sidebar-left": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2 1L1 2V14L2 15H14L15 14V2L14 1H2ZM14 14H7V2H14V14Z\"/>"],
+  /** A cloud folder: a hub on Google Drive, OneDrive or Dropbox, and its account */
+  "cloud": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M11.957 6h.05a2.99 2.99 0 0 1 2.116.879 3.003 3.003 0 0 1 0 4.242 2.99 2.99 0 0 1-2.117.879v-.013L12 12H4.523a3.486 3.486 0 0 1-2.628-1.16 3.502 3.502 0 0 1 1.958-5.78 3.462 3.462 0 0 1 1.468.04 3.486 3.486 0 0 1 3.657-2.06A3.479 3.479 0 0 1 11.957 6zM5 11h7.01a1.994 1.994 0 0 0 1.992-2 2.002 2.002 0 0 0-1.996-2h-.914l-.123-.857a2.49 2.49 0 0 0-2.126-2.122A2.478 2.478 0 0 0 6.231 5.5l-.333.762-.809-.189A2.49 2.49 0 0 0 4.523 6c-.662 0-1.297.263-1.764.732A2.503 2.503 0 0 0 4.523 11H5z\"/>"],
   /** Hide this panel (it goes to the left edge): the key in a panel's head */
   "hide-left": ["0 0 16 16", "<path d='M3.5 3v10M11 4.5 7.5 8l3.5 3.5'/>", true],
   /** Hide this panel (it goes to the right edge) */
@@ -158,12 +160,6 @@ export const ICONS = {
   "show-left": ["0 0 16 16", "<path d='M6 4.5 9.5 8 6 11.5'/>", true],
   /** Show the hidden panel (on its slim bar, right) */
   "show-right": ["0 0 16 16", "<path d='M10 4.5 6.5 8l3.5 3.5'/>", true],
-  /** Show or hide the left panel (a layout key in the bar) */
-  "layout-left": ["0 0 16 16", "<rect x='1.5' y='2.5' width='13' height='11' rx='1'/><path d='M5.5 2.5v11'/><rect class='strip' x='2' y='3' width='3.5' height='10'/>", true],
-  /** Show or hide the bottom panel (a layout key in the bar) */
-  "layout-bottom": ["0 0 16 16", "<rect x='1.5' y='2.5' width='13' height='11' rx='1'/><path d='M1.5 9.5h13'/><rect class='strip' x='2' y='9.5' width='12' height='3.5'/>", true],
-  /** Show or hide the right panel (a layout key in the bar) */
-  "layout-right": ["0 0 16 16", "<rect x='1.5' y='2.5' width='13' height='11' rx='1'/><path d='M10.5 2.5v11'/><rect class='strip' x='10.5' y='3' width='3.5' height='10'/>", true],
   /** Panels: the one bar key that opens the panel picker (show or hide each panel, from previews) */
   "layout-panels": ["0 0 16 16", "<rect x='1.5' y='2.5' width='13' height='11' rx='1'/><path d='M5.5 2.5v11M10.5 2.5v11M5.5 10h5'/>", true],
   /** Light (a theme, beside its word) */
