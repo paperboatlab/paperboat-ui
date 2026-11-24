@@ -21,7 +21,9 @@ const FENCE = Decoration.line({ class: "cm-lp-fence" });
 const WIKI = /\[\[([^\]|#\n]+)(#[^\]|\n]*)?(?:\|([^\]\n]+))?\]\]/g;
 
 class RunKey extends WidgetType {
-  constructor(readonly line: number, readonly onRun: (line: number) => void) { super(); }
+  readonly line: number;
+  readonly onRun: (line: number) => void;
+  constructor(line: number, onRun: (line: number) => void) { super(); this.line = line; this.onRun = onRun; }
   eq(o: RunKey) { return o.line === this.line; }
   toDOM() {
     const b = document.createElement("button");
