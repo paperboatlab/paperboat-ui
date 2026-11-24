@@ -6,8 +6,8 @@
 export type SimNode = { id: string; x: number; y: number; vx: number; vy: number; fixed: boolean };
 export type SimLink = { source: string; target: string };
 
-const REPEL = 2600;      // how hard two notes push apart
-const LENGTH = 70;       // a link's rest length
+const REPEL = 7000;      // how hard two notes push apart
+const LENGTH = 120;       // a link's rest length
 const SPRING = 0.1;      // how hard a link pulls toward it
 const CENTRE = 0.012;    // the pull to the middle, so islands don't drift away
 const DAMP = 0.62;       // velocity kept per step
