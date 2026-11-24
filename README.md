@@ -2,7 +2,8 @@
 
 The Paperboat look as React components (`@paperboatlab/ui`): the design tokens, keys, pills, the
 spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search and the app
-marks with their idle fold. Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it
+marks with their idle fold, and the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
+layout, ports, snapping, undo). Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it
 (the Launcher, Malachite, Simplicial, Articula, Julix). It holds no app logic. It replaces
 [paperboat-shared-legacy](https://github.com/paperboatlab/paperboat-shared-legacy).
 

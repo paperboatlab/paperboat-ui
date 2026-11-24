@@ -1,7 +1,7 @@
 {
   "name": "@paperboatlab/ui",
   "version": "0.1.0",
-  "description": "The Paperboat look as React components: tokens, keys, pills, the spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search, app marks. No app logic.",
+  "description": "The Paperboat look as React components: tokens, keys, pills, the spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search, app marks, and the node canvas (React Flow): wire routing, layout, ports, snapping, undo. No app logic.",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -21,20 +21,25 @@
     "./tokens.css": "./src/tokens.css",
     "./ui.css": "./src/ui.css",
     "./fonts/*": "./src/fonts/*",
-    "./marks/*": "./src/marks/*"
+    "./marks/*": "./src/marks/*",
+    "./canvas": {
+      "types": "./src/canvas/index.ts",
+      "default": "./src/canvas/index.ts"
+    }
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts",
+    "test": "node --test test/*.test.ts test/canvas/*.test.ts",
     "icons": "python3 scripts/icons.py ${REBRAND:-../../../Cloud/gdrive/Projects/paperboatlab/agent-docs/rebrand}",
     "demo": "esbuild demo/demo.tsx --bundle --format=esm --outdir=demo/out --loader:.woff2=file --loader:.woff=file --jsx=automatic --log-level=warning && cp -r src/marks demo/out/"
   },
   "peerDependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "@xyflow/react": "^12.12.1"
   },
   "dependencies": {
     "@fontsource/funnel-display": "^5.3.0",
@@ -48,6 +53,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "typescript": "^7.0.2",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "@xyflow/react": "^12.12.1"
   }
 }
