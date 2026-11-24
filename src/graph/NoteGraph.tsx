@@ -28,8 +28,6 @@ const TYPES = { dot: DotNode };
 // each frame hands React Flow new nodes, which drops the handles it measured; links are drawn from these
 // instead (both ends at the dot's centre), so they never vanish while the layout moves or a dot is dragged
 const centre = (id: string, r: number) => (["source", "target"] as const).map((type) => ({ id: null, nodeId: id, type, position: Position.Top, x: r, y: r, width: 0, height: 0 }));
-// a small hub opens at its own size, not blown up to fill the view
-const FIT = { padding: 0.15, maxZoom: 1.25 };
 
 function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   const flow = useReactFlow();
@@ -37,6 +35,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   const [hover, setHover] = useState<string | null>(null);
   const [, tick] = useState(0);
   const sim = useRef<Force | null>(null);
+  const box = useRef<HTMLDivElement>(null);
   const fitted = useRef(false), touched = useRef(false);  // touched: the user moved the view or a dot
 
   const degree = useMemo(() => {
@@ -54,6 +53,17 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   }, [hover, focus, links]);
 
   // a new set of notes or links: a new layout, keeping where known notes were; then it runs until it rests
+  // fits the layout to the view from its own coordinates (React Flow's fitView waits on measuring, which
+  // nodes that come with their size skip); a small hub opens at its own size, never blown up past 1.25
+  const fit = (duration: number) => {
+    const ns = sim.current?.nodes, el = box.current;
+    if (!ns?.length || !el) return;
+    const xs = ns.map((n) => n.x), ys = ns.map((n) => n.y), pad = 40;
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys) + 16];  // + a label's height
+    const zoom = Math.min(1.25, (el.clientWidth - 2 * pad) / Math.max(1, x1 - x0), (el.clientHeight - 2 * pad) / Math.max(1, y1 - y0));
+    flow.setViewport({ x: el.clientWidth / 2 - ((x0 + x1) / 2) * zoom, y: el.clientHeight / 2 - ((y0 + y1) / 2) * zoom, zoom }, { duration });
+  };
+
   // one animation loop: it runs while the layout moves and stops when it rests; a drag wakes it
   const raf = useRef(0), steps = useRef(0);
   const wake = () => {
@@ -62,9 +72,9 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
       const moving = !!sim.current && sim.current.step() && sim.current.step();
       steps.current += 2;
       tick((t) => t + 1);
-      if (!fitted.current && (steps.current > 60 || !moving)) { fitted.current = true; requestAnimationFrame(() => flow.fitView(FIT)); }
+      if (!fitted.current && (steps.current > 60 || !moving)) { fitted.current = true; fit(0); }
       // it fits once spread out, and again at rest (the layout grows as it settles) unless the user took over
-      if (!moving && !touched.current) requestAnimationFrame(() => flow.fitView({ ...FIT, duration: 300 }));
+      if (!moving && !touched.current) fit(300);
       raf.current = moving ? requestAnimationFrame(run) : 0;
     };
     raf.current = requestAnimationFrame(run);
@@ -98,7 +108,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   });
 
   return (
-    <div className={`note-graph${compact ? " compact" : ""}`}>
+    <div ref={box} className={`note-graph${compact ? " compact" : ""}`}>
       <ReactFlow nodes={rfNodes} edges={rfEdges} nodeTypes={TYPES} aria-label={ariaLabel} proOptions={{ hideAttribution: true }}
         nodesConnectable={false} elementsSelectable={false} zoomOnDoubleClick={false} zoomOnScroll={!compact} preventScrolling={!compact} panOnDrag minZoom={0.1} maxZoom={4}
         onNodeMouseEnter={(_, n) => setHover(n.id)} onNodeMouseLeave={() => setHover(null)}
@@ -107,7 +117,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
         onNodeDragStart={() => { touched.current = true; wake(); }}
         onMoveStart={(e) => { if (e) touched.current = true; }}
         onNodeDragStop={(_, n) => { sim.current?.release(n.id); wake(); }} />
-      {!compact && <span className="note-graph-keys"><Key size="sm" kind="quiet" round icon="screen-full" label="Fit to view" onClick={() => flow.fitView({ ...FIT, duration: 300 })} /></span>}
+      {!compact && <span className="note-graph-keys"><Key size="sm" kind="quiet" round icon="screen-full" label="Fit to view" onClick={() => fit(300)} /></span>}
     </div>
   );
 }
