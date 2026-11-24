@@ -3,6 +3,7 @@
 // No app logic here: an app's own canvas, notebooks or pages live in the app.
 export { AppMark } from "./AppMark.tsx";
 export { APPS, FRAMES, FOLD_MS, frameAt, restMs, type App } from "./fold.ts";
+export { Console, ConsoleWindow, logText, type Log } from "./Console.tsx";
 export { Dialog } from "./Dialog.tsx";
 export { Icon } from "./Icon.tsx";
 export { ICONS, type IconName } from "./icons.ts";
