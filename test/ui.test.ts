@@ -7,7 +7,7 @@ import { GLYPH_FRAMES } from "../src/glyphs.ts";
 
 const read = (f: string) => fs.readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8");
 
-const STYLES = ["ui.css", "parts.css", "canvas/canvas.css", "files/files.css", "plot/plot.css", "scope/scope.css", "packages/packages.css"];
+const STYLES = ["ui.css", "split.css", "parts.css", "canvas/canvas.css", "files/files.css", "plot/plot.css", "scope/scope.css", "packages/packages.css"];
 const css = (f: string) => read(f).replace(/\/\*[\s\S]*?\*\//g, "");
 
 test("every token the components use is defined", () => {

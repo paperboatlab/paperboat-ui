@@ -1,10 +1,12 @@
 // The file tree (brand.html §14), shared by every app with files: Articula's Modelica packages and
 // classes, Julix's and Malachite's scripts and folders. It owns only the interaction state (collapse,
 // menu, drop); the host owns the entries and the mutations. Icons by file type (§11), from the registry.
-import { forwardRef, useEffect, useImperativeHandle, useState, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, type DragEvent, type ReactNode } from "react";
 
 import { Icon } from "../Icon.tsx";
+import { Menu, type MenuEntry } from "../Menu.tsx";
 import { fileIconFor } from "./types.ts";
+import { dropTarget, parentsOf, within } from "./tree.ts";
 
 export type FileEntry = {
   path: string;
@@ -68,10 +70,16 @@ export const FileTree = forwardRef<FileTreeHandle, {
   actions: FileActions;
   labels?: FileLabels;
   ariaLabel?: string;
-}>(function FileTree({ entries, active, actions, labels = {}, ariaLabel = "Workspace" }, ref) {
+  /** The app's own file menu (REBRAND "File menu": the shared groups, its own group under its name, an
+   *  unavailable item greyed with why); without it the tree offers the actions it was given. */
+  menu?: (entry?: FileEntry) => MenuEntry[];
+}>(function FileTree({ entries, active, actions, labels = {}, ariaLabel = "Workspace", menu: menuFor }, ref) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const [menu, setMenu] = useState<Menu | null>(null);
+  // the folder a drag would land in ("" = the root) and the path being dragged
   const [drop, setDrop] = useState<string | null>(null);
+  const dragged = useRef<string | null>(null);
+  const parents = useMemo(() => parentsOf(entries), [entries]);
   const rows = visible(entries, collapsed);
   const DND = "application/x-paperboat-file";
 
@@ -106,6 +114,27 @@ export const FileTree = forwardRef<FileTreeHandle, {
     if (from) actions.onMove(from, target);
   };
 
+  // over a row: the folder that holds it takes the drop (the row itself when it is a folder)
+  const over = (e: DragEvent, row: FileEntry | undefined) => {
+    if (!dragged.current || !e.dataTransfer.types.includes(DND)) return;
+    const t = dropTarget(entries, parents, row, dragged.current);
+    e.stopPropagation();
+    if (!t.ok) { setDrop(null); return; }
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDrop(t.folder?.path ?? "");
+  };
+  const land = (e: DragEvent, row: FileEntry | undefined) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const source = dragged.current ?? e.dataTransfer.getData(DND);
+    dragged.current = null;
+    setDrop(null);
+    if (!source) return;
+    const t = dropTarget(entries, parents, row, source);
+    if (t.ok) move(source, t.folder);
+  };
+
   const parentOf = (entry?: FileEntry) => (entry?.kind === "folder" ? entry : undefined);
   const menuAt = (entry: FileEntry | undefined, x: number, y: number) => setMenu({ entry, x, y });
 
@@ -118,12 +147,9 @@ export const FileTree = forwardRef<FileTreeHandle, {
       className="files-tree"
       role="tree"
       aria-label={ariaLabel}
-      onDragOver={(e) => { if (e.dataTransfer.types.includes(DND)) e.preventDefault(); }}
-      onDrop={(e) => {
-        const source = e.dataTransfer.getData(DND);
-        setDrop(null);
-        if (source) move(source);
-      }}
+      onDragOver={(e) => over(e, undefined)}
+      onDrop={(e) => land(e, undefined)}
+      onDragEnd={() => { dragged.current = null; setDrop(null); }}
     >
       {rows.length === 0 && <p className="files-empty">{labels.empty ?? "No files here yet."}</p>}
       {rows.map((entry) => {
@@ -136,29 +162,18 @@ export const FileTree = forwardRef<FileTreeHandle, {
             role="treeitem"
             aria-expanded={entry.kind === "folder" ? open : undefined}
             aria-selected={entry.kind === "file" ? here : undefined}
-            className={`file-row${here ? " on" : ""}${drop === entry.path ? " drop-target" : ""}`}
+            className={`file-row${here ? " on" : ""}${drop && drop === entry.path ? " drop-target" : ""}${drop && entry.path !== drop && within(parents, parents.get(entry.path), drop) ? " drop-inside" : ""}`}
             style={{ paddingLeft: 8 + entry.depth * 14 }}
             title={entry.path}
             draggable={!!actions.onMove}
             onDragStart={(e) => {
               if (!actions.onMove) return;
+              dragged.current = entry.path;
               e.dataTransfer.setData(DND, entry.path);
               e.dataTransfer.effectAllowed = "move";
             }}
-            onDragOver={(e) => {
-              if (entry.kind !== "folder" || !e.dataTransfer.types.includes(DND)) return;
-              e.preventDefault();
-              setDrop(entry.path);
-            }}
-            onDragLeave={() => setDrop((current) => (current === entry.path ? null : current))}
-            onDrop={(e) => {
-              if (entry.kind !== "folder") return;
-              e.preventDefault();
-              e.stopPropagation();
-              const source = e.dataTransfer.getData(DND);
-              setDrop(null);
-              if (source) move(source, entry);
-            }}
+            onDragOver={(e) => over(e, entry)}
+            onDrop={(e) => land(e, entry)}
             onClick={() => (entry.kind === "folder" ? toggle(entry.path) : actions.onOpen?.(entry))}
             onKeyDown={(e) => {
               if ((e.key === "Delete" || e.key === "Backspace") && actions.onDelete) {
@@ -192,7 +207,13 @@ export const FileTree = forwardRef<FileTreeHandle, {
         );
       })}
 
-      {menu && (
+      {menu && menuFor && (
+        <div className="file-menu own" style={{ left: Math.min(menu.x, window.innerWidth - 290), top: Math.min(menu.y, window.innerHeight - 460) }}>
+          {menu.entry && <div className="file-menu-head"><TypeIcon entry={menu.entry} open={false} />{menu.entry.name}</div>}
+          <Menu label={menu.entry ? `${menu.entry.name}: actions` : "New"} items={menuFor(menu.entry)} onClose={close} />
+        </div>
+      )}
+      {menu && !menuFor && (
         <>
           <div className="file-menu-scrim" onPointerDown={close} />
           <div

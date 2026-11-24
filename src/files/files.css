@@ -10,7 +10,8 @@
 .file-row:focus-visible { outline-offset: -2px; }
 .file-row.on { background: color-mix(in srgb, var(--accent) var(--tint), transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent); }  /* tinted, never a bar beside it */
 .file-row.on .nm { font-weight: 500; }
-.file-row.drop-target { background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--line-ink); }  /* dropping into a folder */
+.file-row.drop-target { background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--line-ink); }  /* the folder a drop lands in */
+.file-row.drop-inside { background: var(--surface-sunken); }  /* and what it already holds: dropping on any of these lands there too */
 .file-row .caret { width: 14px; flex: none; display: inline-flex; color: var(--text-muted); }
 .file-row .file-icon { width: 16px; height: 16px; flex: none; display: inline-grid; place-items: center; }
 .file-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -27,6 +28,10 @@
 .file-menu button:hover { background: var(--surface-sunken); }
 .file-menu button.danger { color: var(--danger-text); }
 .file-menu hr { border: 0; border-top: 1px solid var(--line); margin: 5px 4px; }
+/* the app's own menu: the kit's Menu under a head that names the file */
+.file-menu.own { padding: 0; background: none; border: 0; box-shadow: none; width: 280px; }
+.file-menu.own .menu { position: static; width: 100%; box-sizing: border-box; border-top-left-radius: 0; border-top-right-radius: 0; }
+.file-menu-head { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-bottom: 0; border-radius: var(--radius-md) var(--radius-md) 0 0; font: 11.5px var(--font-mono); color: var(--text-muted); box-shadow: var(--shadow-1); }
 
 /* The rail: tab strip, body (the files panel and any other tab), and a standing tab when folded.
    The app places the rail and sizes it; folded, it should give the rail ~30px. */

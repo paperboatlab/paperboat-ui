@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
 import { Editor, DEFAULT_EDITOR_SETTINGS, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
-import { AppMark, Dialog, Icon, Key, Menu, Panel, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+import { AppMark, Dialog, Icon, Key, Menu, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const JL = `using DifferentialEquations
 using JulixPlot
@@ -40,6 +40,7 @@ function Demo() {
         <b style={{ font: "600 17px var(--font-display)" }}>Paperboat</b>
         <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
           <Key icon="search" size="sm" shortcut="Ctrl K" onClick={() => setSearch(true)}>Search</Key>
+          <PanelsKey panels={[{ id: "l", label: "Runtimes", keys: "Ctrl B", shown: !left }]} layout={{ l: [4, 4, 16, 36], m: [22, 4, 38, 36] }} onToggle={() => setLeft((h) => !h)} />
           <ThemePicker theme={theme} onChange={setTheme} />
         </span>
       </header>
