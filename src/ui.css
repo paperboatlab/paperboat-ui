@@ -311,6 +311,7 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .cm-live .cm-lp-fence { font-family: var(--font-mono); background: var(--surface-sunken); }
 .cm-live .cm-lp-run { all: unset; margin-left: 10px; font: 500 11px var(--font-sans); color: var(--text); padding: 1px 8px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-raised); cursor: pointer; }
 .cm-live .cm-lp-run:hover { border-color: var(--line-ink); }
+.cm-live .cm-lp-cell { padding: 6px 0; font-family: var(--font-sans); white-space: normal; cursor: text; }
 .pb-editor .cm-editor.cm-focused { outline: none; }
 /* git changes since the last commit: grey shapes, never green and red */
 .cm-git-gutter .cm-gutterElement { width: 8px; padding: 0 2px; display: flex; align-items: center; }

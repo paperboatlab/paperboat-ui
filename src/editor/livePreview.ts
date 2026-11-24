@@ -1,9 +1,11 @@
 // Live preview (Obsidian's): Markdown drawn as it reads while you type in it. Headings take their size,
 // emphasis, code and links their look, and the marks that make them (#, **, _, `, [[ ]], a link's URL)
 // are hidden except on the lines the caret or a selection is on, so what you edit is still the plain text.
-// A fenced cell (```julia, ```python) carries a Run key on its opening line when the app runs cells.
+// A fenced cell (```julia, ```python) carries a Run key on its opening line when the app runs cells, or
+// the app draws it whole (`cells`: its own cell, outputs and all) until the caret goes into its code. The
+// front matter can hide, for an app that shows the properties itself (`frontMatter: "hide"`).
 import { syntaxTree } from "@codemirror/language";
-import { RangeSetBuilder, type EditorState, type Extension } from "@codemirror/state";
+import { RangeSetBuilder, StateField, type EditorState, type Extension, type Range } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, type ViewUpdate } from "@codemirror/view";
 
 export type LivePreviewOptions = {
@@ -11,6 +13,11 @@ export type LivePreviewOptions = {
   onLink?: (target: string, wiki: boolean) => void;
   /** Languages whose fenced blocks run; the key calls `onRun` with the fence's 1-based line. */
   run?: { langs: readonly string[]; onRun: (line: number) => void };
+  /** Fenced blocks the app draws itself while the caret is outside them: `mount` fills the element (a React
+   *  portal, say), `unmount` lets it go. A click on the drawn block (not on its keys) puts the caret in its code. */
+  cells?: { langs: readonly string[]; mount: (el: HTMLElement, cell: { lang: string; code: string }) => void; unmount?: (el: HTMLElement) => void };
+  /** "quiet" (the default): the front matter stays, small and muted; "hide": the app shows the properties. */
+  frontMatter?: "quiet" | "hide";
 };
 
 const hide = Decoration.replace({});
@@ -59,6 +66,7 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
       from, to,
       enter: (n) => {
         const name = n.name;
+        if ((name === "Frontmatter" || name === "FrontMatter") && o.frontMatter === "hide") return false;   // the blocks field hides it
         if (name === "Frontmatter" || name === "FrontMatter") {   // the properties: kept, quiet
           for (let l = state.doc.lineAt(n.from).number; l <= state.doc.lineAt(n.to).number; l++) add(state.doc.line(l).from, state.doc.line(l).from, META);
           return false;
@@ -68,6 +76,7 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
         if (name === "Blockquote") { for (let l = state.doc.lineAt(n.from).number; l <= state.doc.lineAt(n.to).number; l++) add(state.doc.line(l).from, state.doc.line(l).from, QUOTE); return; }
         if (name === "FencedCode") {
           const first = state.doc.lineAt(n.from), info = /^\s*(`{3,}|~{3,})\s*([\w+-]*)/.exec(first.text)?.[2]?.toLowerCase() ?? "";
+          if (o.cells?.langs.includes(info) && !editing(state, n.from, n.to)) return false;   // drawn by the app (the blocks field)
           for (let l = first.number; l <= state.doc.lineAt(n.to).number; l++) add(state.doc.line(l).from, state.doc.line(l).from, FENCE);
           if (o.run && o.run.langs.includes(info)) add(first.to, first.to, Decoration.widget({ widget: new RunKey(first.number, o.run.onRun), side: 1 }));
           return false;   // code stays code
@@ -107,6 +116,54 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
   return out.finish();
 }
 
+/** The caret or a selection is in the block from–to. */
+const editing = (state: EditorState, from: number, to: number) => state.selection.ranges.some((r) => r.to >= from && r.from <= to);
+
+class CellBlock extends WidgetType {
+  readonly lang: string;
+  readonly code: string;
+  readonly o: NonNullable<LivePreviewOptions["cells"]>;
+  constructor(lang: string, code: string, o: NonNullable<LivePreviewOptions["cells"]>) { super(); this.lang = lang; this.code = code; this.o = o; }
+  eq(w: CellBlock) { return w.lang === this.lang && w.code === this.code; }
+  toDOM(view: EditorView) {
+    const el = document.createElement("div");
+    el.className = "cm-lp-cell";
+    el.addEventListener("mousedown", (e) => {
+      if ((e.target as HTMLElement).closest("button, a, input, select, textarea, [data-keep]")) return;
+      e.preventDefault();
+      const at = view.posAtDOM(el), first = view.state.doc.lineAt(at);
+      view.dispatch({ selection: { anchor: Math.min(first.to + 1, view.state.doc.length) } });
+      view.focus();
+    });
+    this.o.mount(el, { lang: this.lang, code: this.code });
+    return el;
+  }
+  destroy(el: HTMLElement) { this.o.unmount?.(el); }
+  ignoreEvent() { return true; }
+}
+
+/** The blocks: the front matter hidden, cells drawn by the app. Block decorations must come from a field. */
+function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
+  const out: Range<Decoration>[] = [];
+  syntaxTree(state).iterate({
+    enter: (n) => {
+      if ((n.name === "Frontmatter" || n.name === "FrontMatter") && o.frontMatter === "hide") {
+        out.push(Decoration.replace({ block: true }).range(n.from, Math.min(state.doc.lineAt(n.to).to + (n.to < state.doc.length ? 1 : 0), state.doc.length)));
+        return false;
+      }
+      if (n.name !== "FencedCode" || !o.cells) return;
+      const first = state.doc.lineAt(n.from), last = state.doc.lineAt(n.to);
+      const open = /^\s*(`{3,}|~{3,})\s*([\w+-]*)/.exec(first.text), lang = open?.[2]?.toLowerCase() ?? "";
+      if (!o.cells.langs.includes(lang) || editing(state, first.from, last.to)) return false;
+      const closed = last.number > first.number && /^\s*(`{3,}|~{3,})\s*$/.test(last.text);
+      const code = state.sliceDoc(Math.min(first.to + 1, last.from), closed ? Math.max(first.to + 1, last.from - 1) : last.to);
+      out.push(Decoration.replace({ block: true, widget: new CellBlock(lang, code, o.cells) }).range(first.from, last.to));
+      return false;
+    },
+  });
+  return Decoration.set(out, true);
+}
+
 const inCode = (state: EditorState, pos: number) => {
   for (let n: ReturnType<ReturnType<typeof syntaxTree>["resolveInner"]> | null = syntaxTree(state).resolveInner(pos, 1); n; n = n.parent) {
     if (n.name === "InlineCode" || n.name === "FencedCode" || n.name === "CodeBlock") return true;
@@ -136,5 +193,10 @@ export function livePreview(o: LivePreviewOptions = {}): Extension {
       return true;
     },
   });
-  return [plugin, links, EditorView.contentAttributes.of({ class: "cm-live" })];
+  const field = StateField.define<DecorationSet>({
+    create: (state) => blocks(state, o),
+    update: (deco, tr) => (tr.docChanged || tr.selection || syntaxTree(tr.startState) !== syntaxTree(tr.state) ? blocks(tr.state, o) : deco),
+    provide: (f) => EditorView.decorations.from(f),
+  });
+  return [plugin, links, ...(o.cells || o.frontMatter === "hide" ? [field] : []), EditorView.contentAttributes.of({ class: "cm-live" })];
 }
