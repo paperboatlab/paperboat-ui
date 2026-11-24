@@ -37,7 +37,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   const [hover, setHover] = useState<string | null>(null);
   const [, tick] = useState(0);
   const sim = useRef<Force | null>(null);
-  const fitted = useRef(false);
+  const fitted = useRef(false), touched = useRef(false);  // touched: the user moved the view or a dot
 
   const degree = useMemo(() => {
     const d = new Map<string, number>();
@@ -63,6 +63,8 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
       steps.current += 2;
       tick((t) => t + 1);
       if (!fitted.current && (steps.current > 60 || !moving)) { fitted.current = true; requestAnimationFrame(() => flow.fitView(FIT)); }
+      // it fits once spread out, and again at rest (the layout grows as it settles) unless the user took over
+      if (!moving && !touched.current) requestAnimationFrame(() => flow.fitView({ ...FIT, duration: 300 }));
       raf.current = moving ? requestAnimationFrame(run) : 0;
     };
     raf.current = requestAnimationFrame(run);
@@ -75,6 +77,7 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
     const before = new Map((sim.current?.nodes ?? []).map((n) => [n.id, { x: n.x, y: n.y }]));
     sim.current = new Force(nodes.map((n) => n.id), links, before);
     fitted.current = false;
+    touched.current = false;
     steps.current = 0;
     wake();
     // `key` stands for nodes and links
@@ -101,7 +104,8 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
         onNodeMouseEnter={(_, n) => setHover(n.id)} onNodeMouseLeave={() => setHover(null)}
         onNodeClick={(_, n) => onOpen?.(n.id)}
         onNodeDrag={(_, n) => { const r = (n.data as Dot).r; sim.current?.hold(n.id, n.position.x + r, n.position.y + r); tick((t) => t + 1); }}
-        onNodeDragStart={() => wake()}
+        onNodeDragStart={() => { touched.current = true; wake(); }}
+        onMoveStart={(e) => { if (e) touched.current = true; }}
         onNodeDragStop={(_, n) => { sim.current?.release(n.id); wake(); }} />
       {!compact && <span className="note-graph-keys"><Key size="sm" kind="quiet" round icon="screen-full" label="Fit to view" onClick={() => flow.fitView({ ...FIT, duration: 300 })} /></span>}
     </div>
