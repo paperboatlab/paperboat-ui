@@ -148,7 +148,7 @@ function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
   syntaxTree(state).iterate({
     enter: (n) => {
       if ((n.name === "Frontmatter" || n.name === "FrontMatter") && o.frontMatter === "hide") {
-        out.push(Decoration.replace({ block: true }).range(n.from, Math.min(state.doc.lineAt(n.to).to + (n.to < state.doc.length ? 1 : 0), state.doc.length)));
+        out.push(Decoration.replace({ block: true }).range(n.from, state.doc.lineAt(n.to).to));   // its lines, not the next one's start
         return false;
       }
       if (n.name !== "FencedCode" || !o.cells) return;
