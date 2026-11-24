@@ -1,5 +1,7 @@
-/* Paperboat design tokens: the base (from paperboat-shared, now legacy), then the rebrand
- * (agent-docs/rebrand/tokens.css). Edit the rebrand there first, then copy it here. */
+/* Paperboat design tokens: the ONE source of truth for the rebranded UI. Edit them here, nowhere
+ * else: agent-docs/rebrand/out/brand.html (logogen/src/system.jl) and the rebrand mockups
+ * (rebrand/apps/*/build.py via apps/uitokens.py) read this file when they are built. The base came
+ * from paperboat-shared (now legacy); the rebrand's layer follows it below. */
 /*
  * Paperboat design tokens (agent-docs/rebrand; was apps/web/DESIGN.md). Three layers: primitives are raw values;
  * semantic tokens name a role; component tokens belong to one component. Components use
