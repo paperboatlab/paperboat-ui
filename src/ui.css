@@ -257,3 +257,18 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 @media (prefers-reduced-motion: reduce) {
   .spinner i, .spinner em, .pill.live, .search-box { animation: none; }
 }
+
+/* ── the code editor (brand.html §14): Editor in editor/ ── */
+.pb-editor { height: 100%; min-height: 0; }
+.pb-editor .cm-editor { height: 100%; }
+.pb-editor .cm-editor.cm-focused { outline: none; }
+/* git changes since the last commit: grey shapes, never green and red */
+.cm-git-gutter .cm-gutterElement { width: 8px; padding: 0 2px; display: flex; align-items: center; }
+.cm-git-add, .cm-git-mod { display: block; width: 4px; height: 12px; border-radius: 1px; }
+.cm-git-add { background: var(--text-muted); }
+.cm-git-mod { border: 1px solid var(--text-muted); box-sizing: border-box; }
+.cm-git-del { display: block; width: 0; height: 0; border-left: 5px solid var(--text-muted); border-top: 4px solid transparent; border-bottom: 4px solid transparent; margin-top: -10px; }
+.pb-editor .cm-panel.cm-search { padding: 6px 8px; font: 12.5px var(--font-sans); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pb-editor .cm-panel.cm-search input[type=text] { background: var(--surface-well); box-shadow: var(--well-shadow); border: 0; border-radius: var(--radius-md); padding: 4px 8px; font: 12.5px var(--font-mono); color: var(--text); }
+.pb-editor .cm-panel.cm-search button { background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: 12px var(--font-sans); color: var(--text); padding: 2px 8px; }
+.pb-editor .cm-panel.cm-search label { font-size: 12px; color: var(--text-muted); display: inline-flex; gap: 4px; align-items: center; }

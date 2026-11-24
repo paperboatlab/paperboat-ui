@@ -3,11 +3,24 @@ import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
+import { Editor, DEFAULT_EDITOR_SETTINGS, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
 import { AppMark, Dialog, Icon, Key, Menu, Panel, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+
+const JL = `using DifferentialEquations
+using JulixPlot
+
+# a damped pendulum: θ'' = -(g/L) sin θ - c θ'
+const g, L, c = 9.81, 2.2, 0.3
+
+function pendulum!(du, u, p, t)
+    θ, ω = u
+    du[1] = ω
+    du[2] = -(g / L) * sin(θ) - c * ω  # "drag"
+end
+`;
 
 function Demo() {
   const [theme, setTheme] = useState<Theme>((new URLSearchParams(location.search).get("theme") as Theme) || "light");
-  useTheme(theme);
   const [page, setPage] = useState("runtimes");
   const [wide, setWide] = useState(new URLSearchParams(location.search).has("wide"));
   const [seg, setSeg] = useState<"all" | "kernels" | "stations">("all");
@@ -18,6 +31,8 @@ function Demo() {
   const [menu, setMenu] = useState(new URLSearchParams(location.search).has("menu"));
   const [search, setSearch] = useState(new URLSearchParams(location.search).has("search"));
   const { toasts, show, dismiss } = useToasts();
+  const [edTheme, setEdTheme] = useState(new URLSearchParams(location.search).get("ed") || "ink");
+  const shown = useTheme(theme);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gridTemplateRows: "48px 1fr", gap: 10, padding: 10, height: "100vh", boxSizing: "border-box", background: "var(--surface-ground)", color: "var(--text)", font: "13px var(--font-sans)" }}>
       <header className="panel" style={{ gridColumn: "1 / -1", flexDirection: "row", alignItems: "center", gap: 10, padding: "0 10px" }}>
@@ -41,6 +56,17 @@ function Demo() {
             <Pill state="failed" label="failed · exit 1" />
             <Pill state="progress" label="42 %" progress={0.42} />
             <span><Tag>sandboxed</Tag> <Tag ask><Icon name="shield" />+ camera</Tag></span>
+          </div>
+        </Panel>
+        <Panel name="pendulum.jl" count="Julia · Ink">
+          <div style={{ padding: "8px 12px" }}><Segmented label="Editor theme" value={edTheme} onChange={setEdTheme} options={EDITOR_THEMES.map((t) => ({ value: t.id, label: t.label }))} /></div>
+          <div style={{ height: 250, borderTop: "1px solid var(--line)" }}>
+            <Editor key={"jl"} ariaLabel="pendulum.jl" language={languageFor("pendulum.jl")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme }} appTheme={shown} base={JL.replace("0.3", "0.25").replace("using DifferentialEquations\n", "")}
+              value={JL} />
+          </div>
+          <div style={{ height: 120, borderTop: "1px solid var(--line)" }}>
+            <Editor key={"toml"} ariaLabel="Project.toml" language={languageFor("Project.toml")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme }} appTheme={shown}
+              value={'name = "pendulum"\nversion = \n[deps]\nJulixPlot = "6f2a"\n'} />
           </div>
         </Panel>
         <Panel name="Julia 1.11.6" count="podman · ready">
