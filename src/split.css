@@ -1,0 +1,20 @@
+/* Panel size (Split.tsx): the gutter between two panes is the handle. Quiet until pointed at; then a grip in
+   muted ink, ink while dragging (never the accent: it is a tool, not "look here"). */
+.split { display: flex; min-width: 0; min-height: 0; flex: 1; }
+.split.row { flex-direction: row; }
+.split.column { flex-direction: column; }
+.split-pane { display: flex; min-width: 0; min-height: 0; flex: none; }
+.split-pane:not([style]) { flex: 1; }
+.split-pane > * { flex: 1; min-width: 0; min-height: 0; }
+.split-handle { flex: none; position: relative; outline: none; touch-action: none; }
+.split.row > .split-handle { width: var(--split-hit); cursor: col-resize; }
+.split.column > .split-handle { height: var(--split-hit); cursor: row-resize; }
+.split-handle::after { content: ""; position: absolute; border-radius: 2px; background: var(--split-grip); opacity: 0; transition: opacity var(--motion), background var(--motion); }
+.split.row > .split-handle::after { top: 50%; left: 50%; width: var(--split-grip-width); height: var(--split-grip-length); transform: translate(-50%, -50%); }
+.split.column > .split-handle::after { top: 50%; left: 50%; height: var(--split-grip-width); width: var(--split-grip-length); transform: translate(-50%, -50%); }
+.split-handle:hover::after, .split-handle:focus-visible::after { opacity: 1; }
+.split.dragging > .split-handle::after { opacity: 1; background: var(--split-grip-active); }
+.split-handle:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); border-radius: 4px; }
+.split.dragging { cursor: col-resize; user-select: none; }
+.split.column.dragging { cursor: row-resize; }
+.split.dragging .split-pane { pointer-events: none; }  /* an iframe or canvas under the pointer must not take the drag */

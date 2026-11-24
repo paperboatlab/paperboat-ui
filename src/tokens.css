@@ -353,3 +353,12 @@
   --file-simplicial: #f3b78b; --file-articula: #abc6ed; --file-julix: #cdbbf6; --file-malachite: #99d0ba;
   --file-folder: #cdb98e; --file-amber: #d6bd7a; --file-green: #a8c98f; --file-steel: #a9b8ca; --file-rose: #d6a2b7; --file-slate: #b0b0b5;
 }
+
+/* Panel size (brand.html §14 "Panel size", Split.tsx): the gutter is the handle */
+:root {
+  --split-hit: var(--gutter);          /* the handle is the gutter between the cards: 14 px to grab */
+  --split-grip-width: 2px;             /* the grip shown on hover or focus */
+  --split-grip-length: 32px;
+  --split-grip: var(--line-strong);    /* muted ink: a tool, never the accent */
+  --split-grip-active: var(--line-ink);/* while dragging */
+}

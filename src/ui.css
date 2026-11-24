@@ -15,6 +15,7 @@
 @import "./packages/packages.css";
 @import "./parts.css";
 @import "./theme-transition.css";
+@import "./split.css";
 
 @font-face {
   font-family: "Paperboat Glyphs";

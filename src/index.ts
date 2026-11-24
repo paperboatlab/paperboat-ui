@@ -9,6 +9,8 @@ export { ICONS, type IconName } from "./icons.ts";
 export { Key, RemoveKey, type KeyProps } from "./Key.tsx";
 export { Menu, type MenuEntry } from "./Menu.tsx";
 export { Panel } from "./Panel.tsx";
+export { Split } from "./Split.tsx";
+export { resolveSize, keySize, maxSize, SPLIT_SNAP, SPLIT_STEP, SPLIT_STEP_BIG, type SplitLimits } from "./split.ts";
 export { PanelsKey, type PaneRect, type PanelChoice } from "./PanelsKey.tsx";
 export { Pill, Tag, type PillState } from "./Pill.tsx";
 export { Rail, type RailItem } from "./Rail.tsx";
