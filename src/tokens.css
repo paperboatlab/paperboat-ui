@@ -1,0 +1,311 @@
+/* Paperboat design tokens: the base (from paperboat-shared, now legacy), then the rebrand
+ * (agent-docs/rebrand/tokens.css). Edit the rebrand there first, then copy it here. */
+/*
+ * Paperboat design tokens (agent-docs/rebrand; was apps/web/DESIGN.md). Three layers: primitives are raw values;
+ * semantic tokens name a role; component tokens belong to one component. Components use
+ * only semantic and component tokens, never a primitive or a raw hex.
+ *
+ * Two themes on the same roles: light and dark. The theme follows the system unless the
+ * user picks one (html[data-theme="light" | "dark"]).
+ */
+
+@import "@fontsource/geist-sans/400.css";
+@import "@fontsource/geist-sans/500.css";
+@import "@fontsource/geist-sans/600.css";
+@import "@fontsource/geist-mono/400.css";
+@import "@fontsource/geist-mono/500.css";
+@import "@fontsource/funnel-display/500.css";
+@import "@fontsource/funnel-display/600.css";
+
+:root {
+  /* ---- Primitives ---------------------------------------------------------------- */
+  --grey-50: #f2f2ef;
+  --grey-100: #eaeae6;
+  --grey-200: #dcdcd8;
+  --grey-300: #cfcfca;
+  --grey-500: #9d9d97;
+  --grey-600: #55554f;  /* labels: dark enough to read at 12px */
+  --grey-900: #161616;
+  --night-50: #2a2a2a;
+  --night-100: #222222;
+  --night-200: #1a1a1a;
+  --night-300: #111111;
+  --night-500: #6b6b66;
+  --night-600: #a3a39d;
+  --night-900: #e9e9e4;
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --screen-text: #f2f2ee;
+  --screen-dim: #8a8a84;   /* labels on the black screen: at least 4.5:1 in both themes */
+  --orange: #ff5a1f;      /* placeholder for the one colour (#48) */
+  --orange-dark: #ff6a30;
+  --red: #d92d20;
+  --red-dark: #ff5c4d;
+
+  /* The logo's own palette (DESIGN.md, "Logo"): the favicon, app icon and docs. The mark in the app
+     bar is drawn from the theme tokens instead, so it stays mono with the signal colour as water. */
+  --brand-bg: #241f31;
+  --brand-sail-light: #e4e0ea;
+  --brand-sail-shade: #8d849e;
+  --brand-hull: #e4e0ea;
+  --brand-water: #c6738f;
+
+  --font-sans: "Geist Sans", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --size-2xs: 12px;   /* labels, tags, captions */
+  --size-xs: 12.5px;  /* values, keys, block text */
+  --size-sm: 13px;    /* body */
+  --size-md: 15px;
+  --size-xl: 30px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* ---- Semantic (light) ---------------------------------------------------------- */
+  color-scheme: light;
+  --surface-ground: var(--grey-200);
+  --surface-panel: var(--grey-100);
+  --surface-raised: var(--grey-50);        /* keys, blocks, fields on a panel */
+  --surface-screen: var(--black);          /* displays of output: instruments, Console */
+  --surface-well: #dcdcd7;                 /* fields you type in: a recessed grey */
+  --well-shadow: inset 0 1px 2px rgb(0 0 0 / 0.08);
+  --surface-sunken: #e1e1dd;               /* the rail's ground; the current page sits up on panel grey */
+  --surface-float: rgb(236 236 232 / 0.78); /* glass: only what floats over live content */
+  --float-blur: blur(14px) saturate(130%); /* set to none to retire glass */
+
+  --text: var(--grey-900);
+  --text-muted: var(--grey-600);
+  --text-on-screen: var(--screen-text);
+  --text-on-screen-muted: var(--screen-dim);
+  --line: var(--grey-300);        /* dividers, panel edges */
+  --line-strong: var(--grey-500); /* keys, blocks, fields */
+  --line-ink: var(--grey-900);    /* wires, switches, selection */
+  --dots: rgb(0 0 0 / 0.15);      /* canvas and station grids */
+
+  --signal: var(--orange);        /* live or look here: running, traces, warnings */
+  --danger: var(--red);           /* failed, missing, errors */
+  /* The same two roles as text, where they sit on a panel and must read at 4.5:1. Traces and
+     fills keep --signal and --danger. */
+  --signal-text: #b03d0a;
+  --danger-text: #b42318;
+  --focus: var(--grey-900);
+  --text-on-signal: var(--white); /* text on a --signal fill (an active key) */
+
+  /* Elevation: what floats gets a shadow (0 a switch knob, 1 popovers and menus, 2 dialogs,
+     up a sheet rising from the bottom edge). Stronger in dark, where a shadow barely shows. */
+  --shadow-0: 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-1: 0 8px 22px rgb(0 0 0 / 0.16);
+  --shadow-2: 0 16px 40px rgb(0 0 0 / 0.18);
+  --shadow-up: 0 -8px 24px rgb(0 0 0 / 0.2);
+
+  /* On the screen, which is black in both themes: plot grid, and hairlines and selections. */
+  --grid-line: rgb(255 255 255 / 0.18);
+  --screen-line: rgb(255 255 255 / 0.12);
+
+  --scene-bg: #e3e3df;            /* read by SceneView */
+  --scene-grid: #a9a9a3;
+
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 6px;
+  --radius-round: 999px;
+  /* One ease for every motion, so the app moves as one thing; only the time differs with the
+     distance. --motion: hovers and colour; --glide: a choice moving (brackets, a selection);
+     --slide: a surface moving (a page, the rail, a drawer). */
+  --ease: cubic-bezier(.65, 0, .25, 1);
+  --motion: 150ms var(--ease);
+  --glide: 300ms var(--ease);
+
+  /* ---- Component ----------------------------------------------------------------- */
+  --bar-height: 56px;
+  --rail-width: 84px;            /* fits the widest key name ("station") with room for the drop */
+  --slide-time: 560ms;            /* a page sliding into view, the rail stepping aside, the Board drawer */
+  --slide: var(--slide-time) var(--ease);
+  --panel-head-height: 36px;
+  --gutter: 14px;                 /* between sections, and around the app */
+  --panel-pad: 16px;              /* inside a section */
+
+  --select-outline: 2px solid var(--line-ink); /* a selected block or group */
+  --select-offset: 4px;
+}
+
+/* ---- Semantic (dark) ------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-ground: var(--night-300);
+  --surface-panel: var(--night-200);
+  --surface-raised: var(--night-100);
+  --surface-screen: #050505;
+  --surface-well: #111111;
+  --well-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5);
+  --surface-sunken: #151515;
+  --surface-float: rgb(34 34 34 / 0.8);
+  --text: var(--night-900);
+  --text-muted: var(--night-600);
+  --line: #2e2e2e;
+  --line-strong: #4a4a4a;
+  --line-ink: var(--night-900);
+  --dots: rgb(255 255 255 / 0.1);
+  --signal: var(--orange-dark);
+  --danger: var(--red-dark);
+  --signal-text: var(--orange-dark);
+  --danger-text: var(--red-dark);
+  --focus: var(--night-900);
+  --scene-bg: #1d1d1d;
+  --scene-grid: #3c3c3c;
+  --shadow-1: 0 8px 22px rgb(0 0 0 / 0.5);
+  --shadow-2: 0 16px 40px rgb(0 0 0 / 0.6);
+  --shadow-up: 0 -8px 24px rgb(0 0 0 / 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-ground: var(--night-300);
+    --surface-panel: var(--night-200);
+    --surface-raised: var(--night-100);
+    --surface-screen: #050505;
+    --surface-well: #111111;
+    --well-shadow: inset 0 1px 2px rgb(0 0 0 / 0.5);
+    --surface-sunken: #151515;
+    --surface-float: rgb(34 34 34 / 0.8);
+    --text: var(--night-900);
+    --text-muted: var(--night-600);
+    --line: #2e2e2e;
+    --line-strong: #4a4a4a;
+    --line-ink: var(--night-900);
+    --dots: rgb(255 255 255 / 0.1);
+    --signal: var(--orange-dark);
+    --danger: var(--red-dark);
+    --signal-text: var(--orange-dark);
+    --danger-text: var(--red-dark);
+    --focus: var(--night-900);
+    --scene-bg: #1d1d1d;
+    --scene-grid: #3c3c3c;
+    --shadow-1: 0 8px 22px rgb(0 0 0 / 0.5);
+    --shadow-2: 0 16px 40px rgb(0 0 0 / 0.6);
+    --shadow-up: 0 -8px 24px rgb(0 0 0 / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion: 0ms linear; --glide: 0ms linear; --slide-time: 0ms; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-idle .logo-water .w, .logo-live .logo-water .w, .logo-live.logo { animation: none !important; }
+}
+
+/* Scope channel colours (#37): made for the black screen, which is black in both themes, so
+   one list serves both. Fixed order, never cycled; slot 1 is the signal colour. No red (it
+   means failed). Channels 5–8 are also dashed and 9–16 dotted, so traces that cross never
+   rely on colour alone (DESIGN.md: the one exception to one colour, one meaning). */
+:root {
+  --trace-1: var(--signal);
+  --trace-2: #05a5b3;
+  --trace-3: #606cdd;
+  --trace-4: #b23e88;
+  --trace-5: #b08e05;
+  --trace-6: #a376e9;
+  --trace-7: #24ae56;
+  --trace-8: #d861aa;
+}
+
+/* ════ The rebrand (agent-docs/rebrand/tokens.css) ════ */
+/*
+ * Rebrand token overlay: what the rebrand adds to or changes in paperboat-shared/src/tokens.css.
+ * Load it after the shared tokens; every app sets data-app on <html> (simplicial | articula | julix
+ * | malachite | paperboat). Proposal: the mockup (out/brand.html, Tokens) reads this file, and the
+ * migration copies it into paperboat-shared. Layers as in the shared file: primitives, then roles.
+ *
+ * What changes:
+ *  - The one colour becomes the app's accent: --signal (live, look here) is the accent of the app
+ *    you are in, so Simplicial is vermilion, Articula blue, Julix purple, Malachite green. Simplicial's
+ *    accent leans terracotta to stay clear of the danger red. The accents are muted (about two
+ *    thirds of their full chroma in OKLCH), and the primary key is only a tint of them. The orange
+ *    placeholder (#48) is retired. Red still means failed, in every app.
+ *  - Modern flat: rounder corners (4 / 8 / 12 / 16), a tinted primary key (the accent at --tint over
+ *    raised grey, its label in --accent-text), a soft key shadow. Never an accent bar beside a
+ *    selected item: selection rises on raised grey, a tab is underlined.
+ *  - The logo/header typeface, the tile gradients and the spinner timing.
+ * Contrast (WCAG): --accent-text reads at ≥ 4.5:1 on ground, panel and raised grey and on the primary
+ * key's tint; each dark accent's label reaches APCA Lc 60 on its own tint over #222.
+ */
+
+:root {
+  /* ---- Primitives ---------------------------------------------------------------- */
+  --vermilion-600: #a85c3d; --vermilion-700: #8b4b31; --vermilion-300: #f3b78b;
+  --blue-600: #4767a2;   --blue-700: #436099;   --blue-300: #abc6ed;
+  --purple-600: #675492; --purple-300: #cdbbf6;
+  --green-600: #417565;  --green-700: #396759;  --green-300: #99d0ba;
+  --slate-700: #38383d;  --slate-300: #c9c9ce;
+  /* text greys tuned by APCA (polarity-aware contrast), see "Light and dark" below */
+  --grey-650: #4f4f4a;   /* light muted: Lc 68-81 on ground/panel/raised (was --grey-600, Lc 65) */
+  --night-850: #e3e3de;  /* dark text: Lc 87-89, under the ~90 halation ceiling (was --night-900, Lc 92) */
+  --night-650: #bdbdb8;  /* dark muted: Lc 64-66, over the 60 floor for content text (was --night-600, Lc 51) */
+
+  /* tile gradients (icons, launcher cards, docs hub): top-left light → bottom-right deep */
+  --tile-paperboat: linear-gradient(135deg, #6a6a70, #38383d);
+  --tile-simplicial: linear-gradient(135deg, #f6b08f, #dd6a52);
+  --tile-articula: linear-gradient(135deg, #9cc4f2, #4570c0);
+  --tile-julix: linear-gradient(135deg, #c2a8ea, #7a5db4);
+  --tile-malachite: linear-gradient(135deg, #8fdcbc, #2d8a6c);
+
+  --font-display: "Funnel Display", var(--font-sans);   /* wordmarks, titles, panel heads */
+
+  /* ---- Roles ------------------------------------------------------------------------ */
+  /* Light and dark, chosen from the research (out/brand.html, Tokens):
+     - Light is the default where the system has no preference: dark text on a light ground reads
+       better for fine detail (smaller pupils: Piepenbrock, Mayr & Buchner 2014; Dobres, Chahine &
+       Reimer 2017), and our UI is fine detail (12 px labels, mono values, diagrams).
+     - The light grounds stay mid-light greys (luminance .71-.89), never white: the polarity
+       advantage without the glare and light scatter of a full-white screen (Mathot & Ivanov 2019).
+     - Dark is for dim rooms (less fatigue at night on a dim screen: IEEE Access 2021); in an office
+       neither wins (Sengsoon & Intaruk 2025). Its grounds are dark grey, not black (Material), its
+       text a warm off-white (white and yellowish text tire least: Fan et al. 2024), contrast high
+       but under APCA's ~Lc 90 halation ceiling; labels at least Lc 60, body text at least Lc 75. */
+  --text-muted: var(--grey-650);
+  /* The accent is the one colour: live, look here, the primary action, what is selected. */
+  --accent: var(--slate-700);
+  --accent-text: var(--slate-700);
+  --text-on-accent: #ffffff;
+  --signal: var(--accent);
+  --signal-text: var(--accent-text);
+  --text-on-signal: var(--text-on-accent);
+  --trace-1: var(--accent);
+  --accent-select: color-mix(in srgb, var(--accent) 45%, transparent);  /* selection outline, running edge */
+
+  /* Modern flat: rounder, on the 4px grid */
+  --radius-sm: 4px;      /* tags, chips, the minimap view */
+  --radius-md: 8px;      /* keys, wells, pills' inner parts, menus */
+  --radius-lg: 12px;     /* panels, cards, the bar, instruments */
+  --radius-xl: 16px;     /* dialogs, the dock, floating windows */
+  --shadow-key: 0 1px 0 rgb(0 0 0 / 0.06);              /* keys sit on the panel */
+  --tint: 14%;                                          /* the primary key: accent share over raised grey */
+  --scrim: rgb(20 20 20 / 0.32);                        /* behind a dialog */
+
+  /* Spinner (blintz turn, out/spinner.html) and the live pill's border light */
+  --spin-time: 2.6s;
+  --live-time: 2s;
+}
+
+:root[data-app="simplicial"] { --accent: var(--vermilion-600); --accent-text: var(--vermilion-700); }
+:root[data-app="articula"]   { --accent: var(--blue-600);  --accent-text: var(--blue-700); }
+:root[data-app="julix"]      { --accent: var(--purple-600); --accent-text: var(--purple-600); }
+:root[data-app="malachite"]  { --accent: var(--green-600); --accent-text: var(--green-700); }
+
+/* Dark: the light tones, with near-black text on them */
+:root[data-theme="dark"] {
+  --text: var(--night-850); --text-muted: var(--night-650); --line-ink: var(--night-850); --focus: var(--night-850);
+  --accent: var(--slate-300); --accent-text: var(--slate-300); --text-on-accent: #1a1a1a;
+  --scrim: rgb(0 0 0 / 0.55);
+  --tint: 20%;
+  --shadow-key: 0 1px 0 rgb(0 0 0 / 0.4);
+}
+:root[data-theme="dark"][data-app="simplicial"] { --accent: var(--vermilion-300); --accent-text: var(--vermilion-300); }
+:root[data-theme="dark"][data-app="articula"]   { --accent: var(--blue-300);  --accent-text: var(--blue-300); }
+:root[data-theme="dark"][data-app="julix"]      { --accent: var(--purple-300); --accent-text: var(--purple-300); }
+:root[data-theme="dark"][data-app="malachite"]  { --accent: var(--green-300); --accent-text: var(--green-300); }

@@ -1,0 +1,92 @@
+import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
+import { dismissOnEscape, dismissOnPress, type DismissLayer, type DismissOptions } from "./dismiss.ts";
+
+const layers: DismissLayer[] = [];
+let listening = false;
+
+const onPointerDown = (event: PointerEvent) => {
+  if (event.button !== 0) return; // primary button, touch or pen; a right-click leaves it open
+  for (const i of dismissOnPress(layers, event.target)) layers[i].close("outside");
+};
+
+const onKeyDown = (event: KeyboardEvent) => {
+  if (event.key !== "Escape" || event.isComposing) return;
+  const i = dismissOnEscape(layers);
+  if (i === undefined) return;
+  event.preventDefault();
+  event.stopPropagation();
+  layers[i].close("escape");
+};
+
+function listen() {
+  if (listening) return;
+  listening = true;
+  document.addEventListener("pointerdown", onPointerDown, true);
+  document.addEventListener("keydown", onKeyDown, true);
+}
+
+function unlisten() {
+  if (!listening) return;
+  listening = false;
+  document.removeEventListener("pointerdown", onPointerDown, true);
+  document.removeEventListener("keydown", onKeyDown, true);
+}
+
+/**
+ * Dismiss a floating surface the same way everywhere: a primary press outside `ref`, or
+ * Escape when it is the topmost surface. `triggerRef` is the control that opened it; a press
+ * there is left alone, so its click still toggles instead of closing and reopening. Pass
+ * `outside: false` for a dialog that must wait for a choice; it then also shields what is
+ * under it from outside presses.
+ */
+export function useDismiss(
+  ref: RefObject<HTMLElement | null>,
+  onClose: (reason: "outside" | "escape") => void,
+  { enabled = true, outside = true, escape = true, triggerRef }: DismissOptions = {},
+) {
+  const close = useRef(onClose);
+  useLayoutEffect(() => {
+    close.current = onClose;
+  });
+
+  useEffect(() => {
+    if (!enabled || typeof document === "undefined") return;
+    const within = (element: { current: HTMLElement | null }) => (target: EventTarget | null) =>
+      !!target && target instanceof Node && !!element.current?.contains(target);
+    const layer: DismissLayer = {
+      contains: within(ref),
+      trigger: triggerRef ? within(triggerRef) : undefined,
+      outside,
+      escape,
+      close: (reason) => close.current(reason),
+    };
+    layers.push(layer);
+    listen();
+    return () => {
+      const i = layers.indexOf(layer);
+      if (i >= 0) layers.splice(i, 1);
+      if (!layers.length) unlisten();
+    };
+  }, [enabled, ref, triggerRef, outside, escape]);
+}
+
+/**
+ * Focus for a window floating over the page: on open, its first button (the primary
+ * `button.primary` before the rest) when `root` is given, unless the window already put focus inside
+ * itself (an input it selects); on close, back to what had focus when it opened. The opener is
+ * read while rendering, before the window's own effects move focus.
+ */
+export function useFocusReturn(root?: RefObject<HTMLElement | null>) {
+  const opener = useRef<{ root?: RefObject<HTMLElement | null>; el: HTMLElement | null } | null>(null);
+  if (!opener.current || opener.current.root !== root) {
+    opener.current = { root, el: typeof document === "undefined" ? null : (document.activeElement as HTMLElement | null) };
+  }
+  useEffect(() => {
+    const el = root?.current;
+    if (el && !el.contains(document.activeElement)) el.querySelector<HTMLElement>("button.primary, button")?.focus();
+    const before = opener.current?.el;
+    return () => {
+      if (before?.isConnected) before.focus?.();
+    };
+  }, [root]);
+}
