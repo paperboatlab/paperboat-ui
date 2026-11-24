@@ -3,7 +3,7 @@ import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
-import { Editor, DEFAULT_EDITOR_SETTINGS, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
+import { Editor, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
 import { AppMark, Dialog, Icon, Key, Menu, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const JL = `using DifferentialEquations
@@ -31,7 +31,7 @@ function Demo() {
   const [menu, setMenu] = useState(new URLSearchParams(location.search).has("menu"));
   const [search, setSearch] = useState(new URLSearchParams(location.search).has("search"));
   const { toasts, show, dismiss } = useToasts();
-  const [edTheme, setEdTheme] = useState(new URLSearchParams(location.search).get("ed") || "ink");
+  const [edTheme, setEdTheme] = useState(new URLSearchParams(location.search).get("ed") || DEFAULT_EDITOR_THEME);
   const shown = useTheme(theme);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gridTemplateRows: "48px 1fr", gap: 10, padding: 10, height: "100vh", boxSizing: "border-box", background: "var(--surface-ground)", color: "var(--text)", font: "13px var(--font-sans)" }}>

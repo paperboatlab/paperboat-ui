@@ -320,14 +320,12 @@
  * normal-vision ΔE ≥ 15): light on the paper, dark on the dark paper and on the black screen. On the
  * light paper four slots sit under 3:1, so a figure always carries its legend and direct labels.
  * A seventh series folds into "other" or a second figure.
- * Syntax: Ink (the default: weight and greys, like the rest of the UI) or Muted colour (opt in); every
- * colour reads at ≥ 4.5:1 on the panel. Red stays for errors only; the accent never colours code. */
+ * Syntax: the editor themes' colours for drawings of code (the editor itself takes them from
+ * editor/themes): Fleet by default, Paperboat under [data-syntax="paperboat"]; each on its own ground
+ * (--syn-bg), every colour ≥ 4.5:1 there. Red stays for errors only; the accent never colours code. */
 :root {
   --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a;
   --series-4: #eda100; --series-5: #e87ba4; --series-6: #6250d6;
-  --syn-keyword: var(--text);   --syn-keyword-weight: 600;
-  --syn-string: var(--text);    --syn-number: var(--text);   --syn-type: var(--text);
-  --syn-comment: var(--text-muted); --syn-punct: var(--text-muted);
   --code-line: color-mix(in srgb, var(--text) 5%, transparent);           /* the cursor's line: a soft band */
   --code-selection: color-mix(in srgb, var(--accent) 22%, transparent);   /* selection: the accent, soft */
   --code-match: color-mix(in srgb, var(--text) 14%, transparent);         /* find matches */
@@ -336,11 +334,23 @@
   --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70;
   --series-4: #c98500; --series-5: #d55181; --series-6: #9085e9;
 }
-[data-syntax="colour"] {
-  --syn-keyword: #3f5a8f; --syn-string: #4f6b2c; --syn-number: #8a4f23; --syn-type: #6e4a7d;
+/* Fleet (the default): Fleet Dark, and its light with the same hues deepened for white */
+:root {
+  --syn-bg: #ffffff; --syn-text: #262626; --syn-keyword: #1a7a75; --syn-string: #a8329f; --syn-number: #8a5f00;
+  --syn-function: #8a5f00; --syn-type: #1f62b0; --syn-comment: #6e6e6e; --syn-punct: #262626;
 }
-:root[data-theme="dark"] [data-syntax="colour"] {
-  --syn-keyword: #9fb6e6; --syn-string: #b2c98a; --syn-number: #e2ad7f; --syn-type: #cdb0d9;
+:root[data-theme="dark"] {
+  --syn-bg: #181818; --syn-text: #d1d1d1; --syn-keyword: #82d2ce; --syn-string: #e394dc; --syn-number: #ebc88d;
+  --syn-function: #ebc88d; --syn-type: #87c3ff; --syn-comment: #898989; --syn-punct: #d1d1d1;
+}
+/* Paperboat: strings blue, constants orange, the rest ink */
+[data-syntax="paperboat"] {
+  --syn-bg: #f2f2ef; --syn-text: #161616; --syn-keyword: #161616; --syn-string: #1f5596; --syn-number: #8a4a10;
+  --syn-function: #161616; --syn-type: #161616; --syn-comment: #4f4f4a; --syn-punct: #4f4f4a;
+}
+:root[data-theme="dark"] [data-syntax="paperboat"] {
+  --syn-bg: #222222; --syn-text: #e3e3de; --syn-keyword: #e3e3de; --syn-string: #a9cbf2; --syn-number: #f0bd8a;
+  --syn-function: #e3e3de; --syn-type: #e3e3de; --syn-comment: #c8c8c2; --syn-punct: #c8c8c2;
 }
 
 /* File types (ui-example.html §11): our formats and languages in their app's muted accent, the rest a muted
