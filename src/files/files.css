@@ -10,7 +10,8 @@
 .file-row:focus-visible { outline-offset: -2px; }
 .file-row.on { background: color-mix(in srgb, var(--accent) var(--tint), transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent); }  /* tinted, never a bar beside it */
 .file-row.on .nm { font-weight: 500; }
-.file-row.drop-target { background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--line-ink); }  /* dropping into a folder */
+.file-row.drop-target { background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--line-ink); }  /* the folder a drop lands in */
+.file-row.drop-inside { background: var(--surface-sunken); }  /* and what it already holds: dropping on any of these lands there too */
 .file-row .caret { width: 14px; flex: none; display: inline-flex; color: var(--text-muted); }
 .file-row .file-icon { width: 16px; height: 16px; flex: none; display: inline-grid; place-items: center; }
 .file-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
