@@ -208,7 +208,8 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .hide-key:hover { background: var(--surface-sunken); color: var(--text); }
 .hide-key:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
 .panel.side { flex: none; transition: width var(--slide); }
-.panel.side > .panel-inner { height: 100%; display: flex; flex-direction: column; transition: opacity var(--motion); }
+.panel.side > .panel-inner { height: 100%; display: flex; flex-direction: column; transition: opacity var(--motion), visibility 0s linear var(--motion); }  /* the body fades, then hides: what sets its own visibility (React Flow's nodes) fades with it */
+.panel.side:not(.hidden) > .panel-inner { transition: opacity var(--motion); }
 .panel.side.hidden { width: 38px !important; }
 .panel.side.hidden > .panel-inner { opacity: 0; visibility: hidden; }
 .panel-slim { all: unset; box-sizing: border-box; position: absolute; inset: 0; width: 36px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 5px 0 10px; color: var(--text-muted); cursor: pointer; opacity: 0; visibility: hidden; transition: opacity var(--motion), color var(--motion); }
