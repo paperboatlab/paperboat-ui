@@ -4,7 +4,7 @@
 // A fenced cell (```julia, ```python) carries a Run key on its opening line when the app runs cells, or
 // the app draws it whole (`cells`: its own cell, outputs and all) until the caret goes into its code. The
 // front matter can hide, for an app that shows the properties itself (`frontMatter: "hide"`).
-import { syntaxTree } from "@codemirror/language";
+import { ensureSyntaxTree, syntaxTree } from "@codemirror/language";
 import { RangeSetBuilder, StateField, type EditorState, type Extension, type Range } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, type ViewUpdate } from "@codemirror/view";
 import { INLINE_MATH, mathHtml } from "../math.ts";
@@ -80,8 +80,11 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
   const deco: { from: number; to: number; d: Decoration }[] = [];
   const add = (from: number, to: number, d: Decoration) => { if (to > from || (to === from && d !== hide)) deco.push({ from, to, d }); };
 
+  // the note's Markdown is parsed inside its front matter's document: make sure that parse reaches what
+  // is shown (a short budget; the next update catches up if it runs out)
+  const tree = ensureSyntaxTree(state, view.viewport.to, 50) ?? syntaxTree(state);
   for (const { from, to } of view.visibleRanges) {
-    syntaxTree(state).iterate({
+    tree.iterate({
       from, to,
       enter: (n) => {
         const name = n.name;
