@@ -9,7 +9,9 @@ const BY_EXT: Record<string, [IconName, FileTone]> = {
   mo: ["file-code", "articula"], fmu: ["file-zip", "articula"],
   jl: ["file-code", "julix"], py: ["file-code", "steel"],
   toml: ["settings-gear", "slate"], json: ["json", "amber"], csv: ["table", "green"],
-  md: ["markdown", "steel"], png: ["file-media", "rose"], jpg: ["file-media", "rose"], svg: ["file-media", "rose"],
+  md: ["markdown", "steel"],
+  ...Object.fromEntries(["png", "jpg", "jpeg", "gif", "svg", "webp", "avif", "bmp", "mp4", "m4v", "webm", "mov", "ogv", "mp3", "m4a", "wav", "ogg", "oga", "flac"]
+    .map((e): [string, [IconName, FileTone]] => [e, ["file-media", "rose"]])),   // pictures, videos, sounds
   zip: ["file-zip", "slate"],
 };
 

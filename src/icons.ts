@@ -38,14 +38,22 @@ export const ICONS = {
   "add": ["0 0 16 16", "<path d=\"M14 7v1H8v6H7V8H1V7h6V1h1v6h6z\"/>"],
   /** Fetch: pull an image, check for or install updates */
   "cloud-download": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M11.957 6h.05a2.99 2.99 0 0 1 2.116.879 3.003 3.003 0 0 1 0 4.242 2.99 2.99 0 0 1-2.117.879v-1a2.002 2.002 0 0 0 0-4h-.914l-.123-.857a2.49 2.49 0 0 0-2.126-2.122A2.478 2.478 0 0 0 6.231 5.5l-.333.762-.809-.189A2.49 2.49 0 0 0 4.523 6c-.662 0-1.297.263-1.764.732A2.503 2.503 0 0 0 4.523 11h.498v1h-.498a3.486 3.486 0 0 1-2.628-1.16 3.502 3.502 0 0 1 1.958-5.78 3.462 3.462 0 0 1 1.468.04 3.486 3.486 0 0 1 3.657-2.06A3.479 3.479 0 0 1 11.957 6zm-5.25 5.121l1.314 1.314V7h.994v5.4l1.278-1.279.707.707-2.146 2.147h-.708L6 11.829l.707-.708z\"/>"],
-  /** Run, start */
+  /** Run, start (a cell; a video or a sound: play) */
   "play": ["0 0 16 16", "<path d=\"M3.78 2L3 2.41v12l.78.42 9-6V8l-9-6zM4 13.48V3.35l7.6 5.07L4 13.48z\"/>"],
-  /** Interrupt (a kernel's running cell) */
+  /** Interrupt, pause (a kernel's running cell, a run being debugged; a video or a sound) */
   "debug-pause": ["0 0 16 16", "<path d=\"M4.5 3H6v10H4.5V3zm7 0v10H10V3h1.5z\"/>"],
   /** Restart (a session, a station) */
   "debug-restart": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M12.75 8a4.5 4.5 0 0 1-8.61 1.834l-1.391.565A6.001 6.001 0 0 0 14.25 8 6 6 0 0 0 3.5 4.334V2.5H2v4l.75.75h3.5v-1.5H4.352A4.5 4.5 0 0 1 12.75 8z\"/>"],
-  /** Stop (a session, a cell) */
+  /** Stop (a session, a cell, a run, debugging) */
   "debug-stop": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M13 1.99976L14 2.99976V12.9998L13 13.9998H3L2 12.9998L2 2.99976L3 1.99976H13ZM12.7461 3.25057L3.25469 3.25057L3.25469 12.7504H12.7461V3.25057Z\"/>"],
+  /** Continue (a paused run, to the next breakpoint) */
+  "debug-continue": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.5 2H4v12H2.5V2zm4.936.39L6.25 3v10l1.186.61 7-5V7.39l-7-5zM12.71 8l-4.96 3.543V4.457L12.71 8z\"/>"],
+  /** Step over (the next line, calls run through) */
+  "debug-step-over": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M14.25 5.75v-4h-1.5v2.542c-1.145-1.359-2.911-2.209-4.84-2.209-3.177 0-5.92 2.307-6.16 5.398l-.02.269h1.501l.022-.226c.212-2.195 2.202-3.94 4.656-3.94 1.736 0 3.244.875 4.05 2.166h-2.83v1.5h4.163l.962-.975V5.75h-.004zM8 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z\"/>"],
+  /** Step into (the call on this line) */
+  "debug-step-into": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8 9.532h.542l3.905-3.905-1.061-1.06-2.637 2.61V1H7.251v6.177l-2.637-2.61-1.061 1.06 3.905 3.905H8zm1.956 3.481a2 2 0 1 1-4 0 2 2 0 0 1 4 0z\"/>"],
+  /** Step out (to the caller) */
+  "debug-step-out": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8 1h-.542L3.553 4.905l1.061 1.06 2.637-2.61v6.177h1.498V3.355l2.637 2.61 1.061-1.06L8.542 1H8zm1.956 12.013a2 2 0 1 1-4 0 2 2 0 0 1 4 0z\"/>"],
   /** Copy to the clipboard */
   "copy": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M4 4l1-1h5.414L14 6.586V14l-1 1H5l-1-1V4zm9 3l-3-3H5v10h8V7z\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M3 1L2 2v10l1 1V2h6.414l-1-1H3z\"/>"],
   /** More actions */
@@ -86,7 +94,7 @@ export const ICONS = {
   "shield": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8.246 14.713a27.792 27.792 0 0 1-1.505-.953c-.501-.34-.983-.707-1.444-1.1-.458-.395-.888-.82-1.288-1.274-.4-.455-.753-.95-1.05-1.478a7.8 7.8 0 0 1-.7-1.69A7.041 7.041 0 0 1 2 6.3V3.1l.5-.5c.333 0 .656-.011.97-.036.296-.023.591-.066.882-.128.284-.062.562-.148.832-.256.284-.118.557-.261.816-.427a4.83 4.83 0 0 1 1.184-.565 4.8 4.8 0 0 1 2-.142 4.018 4.018 0 0 1 1.237.383c.199.097.392.204.58.322.26.167.535.31.821.428.27.109.547.194.831.256.291.062.587.106.884.129.311.024.634.035.967.035l.5.5v3.2a7.043 7.043 0 0 1-.256 1.919 7.804 7.804 0 0 1-.7 1.69 8.751 8.751 0 0 1-1.05 1.478c-.4.452-.829.877-1.286 1.27a15.94 15.94 0 0 1-1.448 1.1 28.71 28.71 0 0 1-1.51.956h-.508zM3 3.59V6.3c-.004.555.07 1.11.22 1.645a6.7 6.7 0 0 0 .61 1.473c.263.467.575.905.93 1.308.37.417.766.81 1.188 1.174.432.368.883.712 1.352 1.03.4.267.8.523 1.2.769.4-.242.8-.498 1.2-.768.47-.319.923-.663 1.355-1.031.421-.364.817-.756 1.186-1.172a7.8 7.8 0 0 0 .93-1.308c.261-.465.466-.96.61-1.473.15-.537.223-1.09.22-1.647V3.59c-.159 0-.313-.012-.465-.023l-.079-.006a7.95 7.95 0 0 1-1.018-.147 6.112 6.112 0 0 1-1.976-.814 5.166 5.166 0 0 0-.482-.27 3.123 3.123 0 0 0-.943-.29 3.686 3.686 0 0 0-1.558.106c-.332.108-.649.26-.94.452-.312.2-.64.372-.983.513a6.4 6.4 0 0 1-1 .307c-.335.07-.675.12-1.017.146-.174.01-.355.02-.54.026zm6.065 4.3a1.5 1.5 0 1 0-1.13 0L7.5 10.5h2l-.435-2.61z\"/>"],
   /** Sealed (frozen, with its hash recorded) */
   "lock": ["0 0 16 16", "<path d=\"M13 7h-1V5a4 4 0 1 0-8 0v2H3L2 8v6l1 1h10l1-1V8l-1-1zM5 5a3 3 0 1 1 6 0v2H5V5zm8 9H3V8h10v6z\"/>"],
-  /** Removed or cleaned up (in an event list); the remove key itself is the round × */
+  /** Removed or cleaned up (in an event list), and the trash it went to (Malachite's hub card: the Trash key); the remove key itself is the round × */
   "trash": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10 3h3v1h-1v9l-1 1H4l-1-1V4H2V3h3V2a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1zM9 2H6v1h3V2zM4 13h7V4H4v9zm2-8H5v7h1V5zm1 0h1v7H7V5zm2 0h1v7H9V5z\"/>"],
   /** A process's logs */
   "output": ["0 0 24 24", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M19.5 0v1.5L21 3v19.5L19.5 24h-15L3 22.5V3l1.5-1.5V0H6v1.5h3V0h1.5v1.5h3V0H15v1.5h3V0h1.5zm-15 22.5h15V3h-15v19.5zM7.5 6h9v1.5h-9V6zm9 6h-9v1.5h9V12zm-9 6h9v1.5h-9V18z\"/>"],
@@ -132,7 +140,7 @@ export const ICONS = {
   "file-code": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.57 1.14l3.28 3.3.15.36v9.7l-.5.5h-11l-.5-.5v-13l.5-.5h7.72l.35.14zM10 5h3l-3-3v3zM3 2v12h10V6H9.5L9 5.5V2H3zm2.062 7.533l1.817-1.828L6.17 7 4 9.179v.707l2.171 2.174.707-.707-1.816-1.82zM8.8 7.714l.7-.709 2.189 2.175v.709L9.5 12.062l-.705-.709 1.831-1.82L8.8 7.714z\"/>"],
   /** An archive (.fmu, .zip) */
   "file-zip": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.5 1h11l.5.5v5l-.15.35-.85.86v6.79l-.5.5h-10l-.5-.5v-13l.5-.5zM6 2H5v2h1V2zm0 12h4V7.68l-.85-.85L9 6.47V2H7v2.5l-.5.5H6v1H5V5h-.5L4 4.5V2H3v12h2v-1h1v1zm0-2v1h1v-1H6zm0-1v1H5v-1h1zm0-1h1v1H6v-1zm0-1v1H5V9h1zm0-1h1v1H6V8zm0-1v1H5V7h1zm0 0h1V6H6v1zm6.15.15l.85-.86V2h-3v4.27l.85.85.15.35V14h1V7.5l.15-.35z\"/>"],
-  /** An image or attachment */
+  /** A picture, a video or a sound; an attachment */
   "file-media": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2 2h6v3.5l.5.5H12v1h1V4.8l-.15-.36-3.28-3.3L9.22 1H1.5l-.5.5v13l.5.5H5v-1H2V2zm7 0l3 3H9V2zm5.5 6h-8l-.5.5v6l.5.5h8l.5-.5v-6l-.5-.5zM14 9v4l-1.63-1.6h-.71l-1.16 1.17-2.13-2.13h-.71L7 11.1V9h7zm-2.8 4.27l.81-.81L13.55 14h-1.62l-.73-.73zM7 14v-1.49l1-1L10.52 14H7zm5.5-3.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z\"/>"],
   /** A binary file */
   "file-binary": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M10.57 1.14l3.28 3.3.15.36v9.7l-.5.5h-11l-.5-.5v-13l.5-.5h7.72l.35.14zM3 2v12h10V5l-3-3H3zm1.46 4.052c0 1.287.458 1.93 1.374 1.93.457 0 .807-.173 1.05-.52.246-.348.368-.847.368-1.499C7.252 4.654 6.805 4 5.91 4c-.471 0-.831.175-1.08.526-.247.35-.37.858-.37 1.526zm.862-.022c0-.922.183-1.383.55-1.383.344 0 .516.448.516 1.343s-.176 1.343-.527 1.343c-.36 0-.54-.434-.54-1.303zm3.187 1.886h2.435v-.672h-.792V4l-1.665.336v.687l.82-.177v2.398h-.798v.672zm-1.337 5H4.736v-.672h.798V9.846l-.82.177v-.687L6.38 9v3.244h.792v.671zm1.035-1.931c0 1.287.458 1.93 1.375 1.93.457 0 .807-.173 1.05-.52.245-.348.368-.847.368-1.499 0-1.309-.448-1.963-1.343-1.963-.47 0-.83.175-1.08.526-.246.35-.37.858-.37 1.526zm.862-.022c0-.922.184-1.383.55-1.383.344 0 .516.448.516 1.343s-.175 1.343-.526 1.343c-.36 0-.54-.434-.54-1.303z\"/>"],
@@ -204,6 +212,22 @@ export const ICONS = {
   "warning": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M7.56 1h.88l6.54 12.26-.44.74H1.44L1 13.26 7.56 1zM8 2.28L2.28 13H13.7L8 2.28zM8.625 12v-1h-1.25v1h1.25zm-1.25-2V6h1.25v4h-1.25z\"/>"],
   /** Fold every folder (a tree) */
   "collapse-all": ["0 0 16 16", "<path d=\"M9 9H4v1h5V9z\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M5 3l1-1h7l1 1v7l-1 1h-2v2l-1 1H3l-1-1V6l1-1h2V3zm1 2h4l1 1v4h2V3H6v2zm4 1H3v7h7V6z\"/>"],
+  /** Full screen (a video, a picture); not Fit to view, which is screen-full */
+  "media-fullscreen": ["0 0 16 16", "<path d='M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10'/>", true],
+  /** Leave full screen */
+  "media-exit-fullscreen": ["0 0 16 16", "<path d='M2.5 6H6V2.5M13.5 6H10V2.5M10 13.5V10h3.5M6 13.5V10H2.5'/>", true],
+  /** Sound on (a video, a sound): the key mutes it */
+  "volume": ["0 0 16 16", "<path d='M2.5 6h2L8 3v10l-3.5-3h-2zM10.5 6a2.8 2.8 0 0 1 0 4M12 4.5a5.2 5.2 0 0 1 0 7'/>", true],
+  /** Sound off (muted): the key turns it on */
+  "volume-off": ["0 0 16 16", "<path d='M2.5 6h2L8 3v10l-3.5-3h-2zM10.5 6.5l3 3m0-3-3 3'/>", true],
+  /** Crop (the image editor) */
+  "crop": ["0 0 16 16", "<path d='M4.5 1.5v10h10M1.5 4.5h10v10'/>", true],
+  /** Rotate a quarter turn to the left (the image editor) */
+  "rotate-left": ["0 0 16 16", "<path d='M4.8 5.3a4.5 4.5 0 1 1-1.3 3.2M7.8 5.3h-3v-3'/>", true],
+  /** Rotate a quarter turn to the right (the image editor) */
+  "rotate-right": ["0 0 16 16", "<path d='M11.2 5.3a4.5 4.5 0 1 0 1.3 3.2M8.2 5.3h3v-3'/>", true],
+  /** Edit a picture (opens the image editor) */
+  "edit": ["0 0 16 16", "<path d='M10.5 2.5l3 3-8 8h-3v-3zM9 4l3 3'/>", true],
 } as const satisfies Record<string, readonly [string, string] | readonly [string, string, true]>;
 
 export type IconName = keyof typeof ICONS;
