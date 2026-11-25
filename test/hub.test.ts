@@ -35,6 +35,8 @@ test("the bar says nothing when a hub is fine, and words when it is not", () => 
   assert.deepEqual(hubStatus({ ...h, sync: { state: "error", text: "can't sync: sign in again" } }), { text: "can't sync", bad: true });
   assert.deepEqual(hubStatus({ ...h, missing: true }), { text: "can't find the folder", bad: true });
   assert.equal(hubWhere(h), "Google Drive · My Drive/Paperboat/pump-rig");
+  assert.deepEqual(hubStatus({ ...h, conflicts: 2 }), { text: "2 conflict copies", bad: true });
+  assert.equal(hubWhere({ ...h, place: "icloud", path: "Paperboat/pump-rig" }), "iCloud Drive · Paperboat/pump-rig");
 });
 
 test("Save as adds the app's type unless the name has one of its types", () => {

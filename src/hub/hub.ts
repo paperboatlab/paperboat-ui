@@ -3,10 +3,11 @@
 // and does what the user picks. Words, never Git: sync state is synced / syncing / offline / can't sync.
 import type { FileEntry } from "../files/FileTree.tsx";
 
-export type HubPlace = "local" | "google-drive" | "onedrive" | "dropbox";
+/** Where a hub's folder is: this computer, or a folder a sync client keeps (v1: their desktop clients sync it). */
+export type HubPlace = "local" | "google-drive" | "onedrive" | "dropbox" | "icloud";
 
 export const PLACE_NAMES: Record<HubPlace, string> = {
-  local: "Local", "google-drive": "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox",
+  local: "Local", "google-drive": "Google Drive", onedrive: "OneDrive", dropbox: "Dropbox", icloud: "iCloud Drive",
 };
 
 export type Hub = {
@@ -19,6 +20,8 @@ export type Hub = {
   sync?: { state: "synced" | "syncing" | "offline" | "error"; text: string };
   /** The folder is gone (moved or deleted outside Paperboat). */
   missing?: boolean;
+  /** Conflict copies a sync client left ("a (conflicted copy).md"): files to look at and merge. */
+  conflicts?: number;
   /** A short count of what it holds, for the app asking ("3 flows · 2 stations", "58 notes"). */
   holds?: string;
 };
@@ -29,6 +32,7 @@ export const hubWhere = (h: Hub) => `${PLACE_NAMES[h.place]} · ${h.path}`;
 /** What the bar says after the hub's name: nothing when all is well (synced is in the menu). */
 export function hubStatus(h: Hub): { text: string; bad?: boolean; busy?: boolean } | null {
   if (h.missing) return { text: "can't find the folder", bad: true };
+  if (h.conflicts) return { text: h.conflicts === 1 ? "1 conflict copy" : `${h.conflicts} conflict copies`, bad: true };
   switch (h.sync?.state) {
     case "syncing": return { text: h.sync.text, busy: true };
     case "error": return { text: "can't sync", bad: true };

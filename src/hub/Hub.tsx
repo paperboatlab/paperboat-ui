@@ -52,7 +52,7 @@ export function HubSelector({ hub, hubs, app, onSwitch, onNew, onOpenInMalachite
   useEffect(() => { if (open) box.current?.querySelector<HTMLElement>(".menu-item:not([aria-disabled])")?.focus(); }, [open]);
   const st = hubStatus(hub);
   const run = (f: () => void) => () => { setOpen(false); f(); };
-  const head = hub.place === "local" ? hub.path : `${PLACE_NAMES[hub.place]}${hub.sync ? ` · ${hub.sync.text}` : ""}`;
+  const head = hub.sync ? `${PLACE_NAMES[hub.place]} · ${hub.sync.text}` : hub.path;
   return (
     <span className="hub-sel-wrap">
       <button ref={trigger} type="button" className={`hub-sel${st?.bad ? " bad" : ""}`} aria-haspopup="menu" aria-expanded={open}
@@ -134,6 +134,7 @@ export function ConnectHub({ app, about, hubs, current, onConnect, onNew, onFold
   );
 }
 
+/** `sync`: only when Paperboat itself syncs the hub; a folder another app syncs has no switch. */
 export type HubSettingsValues = { author: string; keep: "90d" | "1y" | "always"; ignore: string; sync?: boolean };
 
 /**
@@ -174,10 +175,10 @@ export function HubSettings({ hub, values, account, commands, onSet, onRename, o
         {row("Author", "Written on every note, run and version made here", text(author, setAuthor, "author", "Author"), `hub config ${hub.name} author "${values.author}"`)}
       </section>
       <section><h3>Where it lives</h3>
-        {row("Folder", cloud ? `In ${PLACE_NAMES[hub.place]}${account ? `, as ${account}` : ""}` : "On this computer",
+        {row("Folder", cloud ? (values.sync === undefined ? `In ${PLACE_NAMES[hub.place]}: its app on this computer keeps it in sync` : `In ${PLACE_NAMES[hub.place]}${account ? `, as ${account}` : ""}`) : "On this computer",
           <><span className="well wide" title={hub.path}>{cloud ? <Icon name="cloud" size={14} /> : <Icon name="folder" size={14} />}<span>{`\u200e${hub.path}`}</span></span><Key size="sm" onClick={onMove}>Move…</Key></>,
           `hub move ${hub.name} <folder>`)}
-        {cloud && row("Sync", hub.sync ? `Now: ${hub.sync.text}` : "", <Switch label="Sync" checked={values.sync ?? true} onChange={(on) => onSet("sync", on)} />, `hub sync ${hub.name} ${values.sync === false ? "--resume" : "--pause"}`)}
+        {cloud && values.sync !== undefined && row("Sync", hub.sync ? `Now: ${hub.sync.text}` : "", <Switch label="Sync" checked={values.sync ?? true} onChange={(on) => onSet("sync", on)} />, `hub sync ${hub.name} ${values.sync === false ? "--resume" : "--pause"}`)}
       </section>
       <section><h3>History</h3>
         {row("Keep versions", "Every save is a version; restoring one keeps the current one too",
