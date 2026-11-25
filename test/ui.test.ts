@@ -82,6 +82,16 @@ test("the page rail, quick add and the run dock follow the rebrand", () => {
   assert.doesNotMatch(dock, /[▶■]/, "icons from the registry, not text glyphs");
 });
 
+test("the debug dock: Continue swaps with Pause, the steps grey out and say why, Stop isn't red", () => {
+  assert.match(read("index.ts"), /\bDebugDock\b/);
+  const d = read("Dock.tsx");
+  const fn = d.slice(d.indexOf("export function DebugDock"), d.indexOf("export type StationInfo"));
+  assert.match(fn, /paused\s*\? <Key kind="primary" icon="debug-continue"[^]*: <Key kind="primary" icon="debug-pause"/, "Continue, else Pause, in one place");
+  assert.match(fn, /disabled=\{!paused\} title={paused \? .*? : "Running: pause first"}/, "a step while running stays, greyed, and says why");
+  assert.doesNotMatch(fn, /kind="danger"/, "Stop is not red: red is only for errors");
+  for (const k of ["continue", "pause", "over", "into", "out", "stop"]) assert.match(fn, new RegExp(`DEBUG_KEYS\\.${k}`), `${k} shows its key`);
+});
+
 test("the splash: the parcel to the rest pose, shown late, failed in red with Retry", () => {
   for (const app of APPS) {
     assert.equal(splashFrame(app, 0), 1, `${app}: starts on the parcel`);

@@ -17,7 +17,7 @@ export { PanelsKey, type PaneRect, type PanelChoice } from "./PanelsKey.tsx";
 export { Pill, Tag, type PillState } from "./Pill.tsx";
 export { Rail, type RailItem } from "./Rail.tsx";
 export { PageRail, type PageRailItem } from "./PageRail.tsx";
-export { Dock, type DockProps } from "./Dock.tsx";
+export { Dock, DebugDock, DEBUG_KEYS, type DockProps, type DebugDockProps } from "./Dock.tsx";
 export { Search, type SearchItem } from "./Search.tsx";
 export { Spinner } from "./Spinner.tsx";
 export { Splash } from "./Splash.tsx";
