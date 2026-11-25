@@ -10,6 +10,7 @@
 @import "katex/dist/katex.min.css";
 @import "./canvas/canvas.css";
 @import "./files/files.css";
+@import "./graph/graph.css";
 @import "./plot/plot.css";
 @import "./scope/scope.css";
 @import "./packages/packages.css";
