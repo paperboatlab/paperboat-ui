@@ -39,3 +39,4 @@ export * from "./help.ts";
 export { VariableEditor } from "./ValueTable.tsx";
 export * from "./valueTable.ts";
 export { compareVersions, newerRelease } from "./versions.ts";
+export { mathHtml, INLINE_MATH } from "./math.ts";

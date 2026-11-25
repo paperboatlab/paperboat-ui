@@ -3,7 +3,7 @@
 The Paperboat look as React components (`@paperboatlab/ui`): the design tokens, keys, pills, the
 spinner, the rail and the page rail, panels, dialogs, menus and the menu bar, toasts, the theme picker, the floating
 search, the app marks with their idle fold, the file tree (`/files`), plots and the Scope (`/plot`,
-`/scope`), help, messages, the console, the run dock, the splash, the value table and the package panel (`/packages`), the note graph (`/graph`: Obsidian's graph on React Flow, a settling force layout), the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
+`/scope`), help, messages, the console, the run dock, the splash, the value table and the package panel (`/packages`), the note graph (`/graph`: Obsidian's graph on React Flow, a settling force layout), math (`mathHtml`, KaTeX), the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
 layout, ports, snapping, undo), and the code editor (`@paperboatlab/ui/editor`: languages in
 `src/editor/lang/` — Julia, Python, Modelica, JSON, TOML, Markdown, plain text — and its themes
 in `src/editor/themes/`: Fleet by default, and Paperboat). Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it
