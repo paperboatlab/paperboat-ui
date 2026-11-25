@@ -7,7 +7,7 @@ import { MenuBar } from "../src/Menus.tsx";
 import { MessageList } from "../src/Messages.tsx";
 import { DebugDock, Dock } from "../src/Dock.tsx";
 import { FileRail, FileTree, type FileEntry } from "../src/files/index.ts";
-import { Plot2D } from "../src/plot/index.ts";
+import { Instrument, Plot2D, Scope } from "../src/plot/index.ts";
 import { useTheme, type Theme } from "../src/theme.tsx";
 import type { Command } from "../src/commands.ts";
 
@@ -20,6 +20,12 @@ const FILES: FileEntry[] = [
   { path: "settings.json", name: "settings.json", depth: 0, kind: "file" }, { path: "README.md", name: "README.md", depth: 0, kind: "file" },
 ];
 const t = Array.from({ length: 401 }, (_, i) => i * 0.05);
+// The Scope in lanes, one per unit: a cart-pole's angle (rad) and force (N).
+const th = t.map((s) => 0.2 * Math.exp(-1.3 * s) * Math.cos(3.6 * s));
+const SCOPE = [
+  { id: "a", label: "cart.θ", unit: "rad", buf: { times: t, values: th } },
+  { id: "b", label: "sat.y", unit: "N", buf: { times: t, values: th.map((v) => Math.max(-20, Math.min(20, 90 * v))) } },
+];
 const COMMANDS: Command[] = [
   { id: "new", label: "New file", menu: "file", group: "a", shortcut: "Ctrl N", run: () => {} },
   { id: "open", label: "Open…", menu: "file", group: "a", shortcut: "Ctrl O", run: () => {} },
@@ -44,7 +50,7 @@ function Parts() {
         <FileRail label="Files" tabs={["files", "outline"]} tab="files" name="pendulum" foot={<span>10 files · 2 changed</span>}
           tree={<FileTree entries={FILES} active={active} actions={{ onOpen: (e) => setActive(e.path) }} ariaLabel="Files" />} />
       </div>
-      <div style={{ display: "grid", gridTemplateRows: "1fr 230px", gap: 10, minHeight: 0 }}>
+      <div style={{ display: "grid", gridTemplateRows: "1fr 230px 300px", gap: 10, minHeight: 0 }}>
         <div className="panel" style={{ padding: 12, position: "relative" }}>
           <Dock canRun running={running} status={running ? "running" : undefined} statusText="running 3.2 / 10 s" onRun={() => setRunning(true)} onCancel={() => setRunning(false)} />
           <Plot2D title="θ, simulated and measured" series={[
@@ -60,6 +66,11 @@ function Parts() {
             { level: "warning", text: "Parameter c has no value, and is fixed during initialization (fixed=true), using available start value (start=0.3).", file: "Tank.mo", line: 4 },
             { level: "info", text: "Check of Tank completed successfully." },
           ]} selected={null} />
+        </div>
+        <div className="panel" style={{ padding: 12, display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 12 }}>
+          <Scope name="scope" channels={SCOPE} version={0} live={false} settings={{}} />
+          <Instrument name="x" detail="cart position" value="0.470 m"><span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", font: "30px var(--font-mono)" }}>0.47</span></Instrument>
+          <Instrument name="θ" detail="pole" value="–" idle />
         </div>
       </div>
     </div>

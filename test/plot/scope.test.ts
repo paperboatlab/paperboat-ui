@@ -66,3 +66,20 @@ test("the scope imports only React, uPlot and the kit's token reader, so any app
     }
   }
 });
+
+test("lanes: each unit's data in its own band, top first, with round ticks", async () => {
+  const { laneRange, laneTicks } = await import("../../src/scope/interact.ts");
+  assert.deepEqual(laneRange(-1, 1, 0, 1), [-1, 1]); // one lane: the data's own range
+  // Two lanes of span 2, a fifth of a lane apart: the top lane's data sits above the bottom's.
+  assert.deepEqual(laneRange(-1, 1, 0, 2, 0.2), [-3.4, 1]);
+  assert.deepEqual(laneRange(-1, 1, 1, 2, 0.2), [-1, 3.4]);
+  assert.deepEqual(laneTicks(-0.27, 0.27), [-0.2, 0, 0.2]);
+  assert.deepEqual(laneTicks(-21.6, 21.6), [-20, 0, 20]);
+  assert.deepEqual(laneTicks(1, 1), []);
+});
+
+test("the scope's caption chooses by weight, never brackets", () => {
+  const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../src/scope");
+  const tsx = fs.readFileSync(path.join(dir, "Scope.tsx"), "utf8");
+  assert.doesNotMatch(tsx, /`\[ \$\{/, "a chosen word is in ink, not [ bracketed ]");
+});
