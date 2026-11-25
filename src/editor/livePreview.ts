@@ -7,6 +7,7 @@
 import { syntaxTree } from "@codemirror/language";
 import { RangeSetBuilder, StateField, type EditorState, type Extension, type Range } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, type ViewUpdate } from "@codemirror/view";
+import { INLINE_MATH, mathHtml } from "../math.ts";
 
 export type LivePreviewOptions = {
   /** A click on a link ([[note]] or [text](url)) with Ctrl/Cmd held, or on a link outside the caret's lines. */
@@ -18,6 +19,8 @@ export type LivePreviewOptions = {
   cells?: { langs: readonly string[]; mount: (el: HTMLElement, cell: { lang: string; code: string }) => void; unmount?: (el: HTMLElement) => void };
   /** "quiet" (the default): the front matter stays, small and muted; "hide": the app shows the properties. */
   frontMatter?: "quiet" | "hide";
+  /** TeX drawn with KaTeX: `$…$` in a line, `$$…$$` as a block (on by default). */
+  math?: boolean;
 };
 
 const hide = Decoration.replace({});
@@ -27,6 +30,22 @@ const QUOTE = Decoration.line({ class: "cm-lp-quote" });
 const FENCE = Decoration.line({ class: "cm-lp-fence" });
 const META = Decoration.line({ class: "cm-lp-meta" });
 const WIKI = /\[\[([^\]|#\n]+)(#[^\]|\n]*)?(?:\|([^\]\n]+))?\]\]/g;
+
+class MathWidget extends WidgetType {
+  readonly tex: string;
+  readonly display: boolean;
+  constructor(tex: string, display: boolean) { super(); this.tex = tex; this.display = display; }
+  eq(o: MathWidget) { return o.tex === this.tex && o.display === this.display; }
+  toDOM(view: EditorView) {
+    const el = document.createElement(this.display ? "div" : "span");
+    el.className = this.display ? "cm-lp-math-block" : "cm-lp-math";
+    el.innerHTML = mathHtml(this.tex, this.display);
+    // a click puts the caret into the TeX, which then shows as written
+    el.addEventListener("mousedown", (e) => { e.preventDefault(); const at = view.posAtDOM(el); view.dispatch({ selection: { anchor: this.display ? Math.min(view.state.doc.lineAt(at).to, view.state.doc.length) : at + 1 } }); view.focus(); });
+    return el;
+  }
+  ignoreEvent() { return true; }
+}
 
 class RunKey extends WidgetType {
   readonly line: number;
@@ -107,6 +126,13 @@ function build(view: EditorView, o: LivePreviewOptions): DecorationSet {
         add(textFrom, textTo, mark("cm-lp-link cm-lp-wiki", { "data-lp-wiki": target }));
         if (!shown(a)) { add(a, textFrom, hide); add(textTo, b, hide); }
       }
+      if (o.math !== false && line.text.includes("$") && !inMathBlock(state, line.from)) {
+        for (const m of line.text.matchAll(INLINE_MATH)) {
+          const a = line.from + m.index!, b = a + m[0].length;
+          if (inCode(state, a)) continue;
+          add(a, b, shown(a) ? mark("cm-lp-math-src") : Decoration.replace({ widget: new MathWidget(m[1], false) }));
+        }
+      }
       pos = line.to + 1;
     }
   }
@@ -152,6 +178,20 @@ function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
     while (end <= doc.lines && doc.line(end).text !== "---") end++;
     if (end <= doc.lines) { out.push(Decoration.replace({ block: true }).range(0, doc.line(end).to)); n = end + 1; }
   }
+  const start = n;
+  if (o.math !== false) {
+    for (let k = start; k <= doc.lines; k++) {
+      const first = doc.line(k), t = first.text.trim();
+      if (/^(`{3,}|~{3,})/.test(t)) { const f = t.slice(0, 3); k++; while (k <= doc.lines && !doc.line(k).text.trim().startsWith(f)) k++; continue; }   // not inside code
+      if (!t.startsWith("$$")) continue;
+      let m = k;
+      if (!(t.length > 4 && t.endsWith("$$"))) { m = k + 1; while (m <= doc.lines && !doc.line(m).text.trim().endsWith("$$")) m++; }
+      if (m > doc.lines) break;
+      const last = doc.line(m), tex = state.sliceDoc(first.from, last.to).trim().slice(2, -2).trim();
+      if (tex && !editing(state, first.from, last.to)) out.push(Decoration.replace({ block: true, widget: new MathWidget(tex, true) }).range(first.from, last.to));
+      k = m;
+    }
+  }
   if (o.cells) {
     for (; n <= doc.lines; n++) {
       const first = doc.line(n), open = /^(`{3,}|~{3,})\s*([\w+-]*)/.exec(first.text);
@@ -168,6 +208,17 @@ function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
   }
   return Decoration.set(out, true);
 }
+
+/** A line inside a $$ … $$ block: its $ signs are the block's, not inline math. */
+const inMathBlock = (state: EditorState, pos: number) => {
+  let open = false;
+  for (let l = 1; l < state.doc.lineAt(pos).number; l++) {
+    const t = state.doc.line(l).text.trim();
+    if (t.startsWith("$$") && !(t.length > 4 && t.endsWith("$$"))) open = !open;
+    else if (open && t.endsWith("$$")) open = false;
+  }
+  return open || state.doc.lineAt(pos).text.trim().startsWith("$$");
+};
 
 const inCode = (state: EditorState, pos: number) => {
   for (let n: ReturnType<ReturnType<typeof syntaxTree>["resolveInner"]> | null = syntaxTree(state).resolveInner(pos, 1); n; n = n.parent) {
@@ -203,5 +254,5 @@ export function livePreview(o: LivePreviewOptions = {}): Extension {
     update: (deco, tr) => (tr.docChanged || tr.selection ? blocks(tr.state, o) : deco),
     provide: (f) => EditorView.decorations.from(f),
   });
-  return [plugin, links, ...(o.cells || o.frontMatter === "hide" ? [field] : []), EditorView.contentAttributes.of({ class: "cm-live" })];
+  return [plugin, links, field, EditorView.contentAttributes.of({ class: "cm-live" })];
 }
