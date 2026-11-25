@@ -18,6 +18,7 @@ export function MediaPlayer({ src, kind = "video", title }: { src: string; kind?
   const [playing, setPlaying] = useState(false), [t, setT] = useState(0), [dur, setDur] = useState(NaN), [loaded, setLoaded] = useState(0);
   const [muted, setMuted] = useState(false), [vol, setVol] = useState(1), [speed, setSpeed] = useState(1), [full, setFull] = useState(false);
   const [idle, setIdle] = useState(false), [error, setError] = useState<string | null>(null), [started, setStarted] = useState(false);
+  const hunting = useRef(false);
 
   useEffect(() => {
     const on = () => setFull(document.fullscreenElement === box.current);
@@ -53,8 +54,14 @@ export function MediaPlayer({ src, kind = "video", title }: { src: string; kind?
       tabIndex={0} role="group" aria-label={title} onKeyDown={keys} onPointerMove={wake}>
       <Media ref={el} src={src} preload="metadata" playsInline
         onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
-        onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => { setDur(e.currentTarget.duration); setError(null); }}
-        onDurationChange={(e) => setDur(e.currentTarget.duration)}
+        onTimeUpdate={(e) => setT(e.currentTarget.currentTime)} onLoadedMetadata={(e) => {
+          const v = e.currentTarget;
+          setError(null);
+          // a recording made in a browser (MediaRecorder) says nothing of its length: a seek far ahead makes
+          // the browser find it, then it goes back to the start
+          if (v.duration === Infinity) { hunting.current = true; v.currentTime = 1e9; } else setDur(v.duration);
+        }}
+        onDurationChange={(e) => { const v = e.currentTarget; if (Number.isFinite(v.duration)) { setDur(v.duration); if (hunting.current) { hunting.current = false; v.currentTime = 0; } } }}
         onProgress={(e) => { const b = e.currentTarget.buffered, d = e.currentTarget.duration; if (b.length && d) setLoaded((b.end(b.length - 1) / d) * 100); }}
         onVolumeChange={(e) => { setMuted(e.currentTarget.muted); setVol(e.currentTarget.volume); }}
         onError={() => setError("This file can't be played here: its format may not be one the browser plays (MP4 with H.264, WebM, MP3, OGG, WAV are).")}
