@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useDismiss } from "./dismiss.tsx";
+import { Key } from "./Key.tsx";
 // RunOptions and VarControls are passed or slotted if needed
 export type DockProps = {
   canRun: boolean;
@@ -15,8 +16,8 @@ export type DockProps = {
 };
 
 /**
- * The run dock (#78): Run, Cancel, the next run's length and speed, and where the run is. It floats at
- * the bottom of the pages (glass: it sits over live content), so the top bar can be menus only.
+ * The run dock (#78): Run (the one tinted key), Cancel, the next run's length and speed, and where the run is.
+ * It floats at the bottom of the pages, raised over live content, so the top bar can be menus only.
  */
 export function Dock({
   canRun,
@@ -31,12 +32,8 @@ export function Dock({
 }: DockProps) {
   return (
     <div className="dock" role="group" aria-label="Run">
-      <button className="key run" disabled={!canRun} title={canRun ? "Run the flow" : whyNot} onClick={onRun}>
-        ▶ Run
-      </button>
-      <button className="key" disabled={!running} title={running ? "Stop the run" : "No run in progress"} onClick={onCancel}>
-        ■ Cancel
-      </button>
+      <Key kind="primary" icon="play" disabled={!canRun} title={canRun ? "Run (Ctrl R)" : whyNot} onClick={onRun}>Run</Key>
+      <Key icon="debug-stop" disabled={!running} title={running ? "Stop the run (Esc)" : "Nothing is running"} onClick={onCancel}>Cancel</Key>
       {optionsSlot}
       {controlsSlot}
       {/* Where the run is, when there is one. The slot stays mounted so its first word is announced,
