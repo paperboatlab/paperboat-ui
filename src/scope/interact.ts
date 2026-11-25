@@ -275,3 +275,24 @@ export function nearestSample(
   }
   return best;
 }
+
+/**
+ * A lane's y range (REBRAND: the Scope in lanes, one per unit): lane `i` of `n`, top first, shows
+ * its data `[lo, hi]` in its own band of the plot. The range is stretched so the bands stack, `gap`
+ * (a fraction of a lane) apart.
+ */
+export function laneRange(lo: number, hi: number, i: number, n: number, gap = 0.2): [number, number] {
+  if (n < 2) return [lo, hi];
+  const step = (hi - lo) * (1 + gap);
+  return [lo - (n - 1 - i) * step, hi + i * step];
+}
+
+/** A few round ticks across `[lo, hi]` (steps of 1, 2 or 5 × 10ⁿ): a lane's labels and grid. */
+export function laneTicks(lo: number, hi: number, count = 3): number[] {
+  if (!(hi > lo)) return [];
+  const raw = (hi - lo) / count, mag = 10 ** Math.floor(Math.log10(raw)), f = raw / mag;
+  const step = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
+  const out: number[] = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : +v.toPrecision(12));
+  return out;
+}
