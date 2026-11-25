@@ -5,7 +5,7 @@ import type { IconName } from "../icons.ts";
 export type FileTone = "simplicial" | "articula" | "julix" | "malachite" | "folder" | "amber" | "green" | "steel" | "rose" | "slate";
 
 const BY_EXT: Record<string, [IconName, FileTone]> = {
-  psf: ["file", "simplicial"], pst: ["file", "simplicial"], mnb: ["notebook", "malachite"],  // our formats: their mark once the marks join the kit
+  psf: ["mark-simplicial", "simplicial"], pst: ["mark-simplicial", "simplicial"], mnb: ["mark-malachite", "malachite"],  // our formats: their mark
   mo: ["file-code", "articula"], fmu: ["file-zip", "articula"],
   jl: ["file-code", "julix"], py: ["file-code", "steel"],
   toml: ["settings-gear", "slate"], json: ["json", "amber"], csv: ["table", "green"],

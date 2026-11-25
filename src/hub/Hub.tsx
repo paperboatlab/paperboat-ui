@@ -10,15 +10,11 @@ import { Key } from "../Key.tsx";
 import { Segmented, Switch } from "../controls.tsx";
 import { Spinner } from "../Spinner.tsx";
 import { FileTree, type FileEntry } from "../files/FileTree.tsx";
-import { hubStatus, hubWhere, opens, pickable, PLACE_NAMES, type Hub } from "./hub.ts";
+import { hubStatus, hubWhere, opens, pickable, PLACE_NAMES, saveName, type Hub } from "./hub.ts";
 
 /** Malachite's mark in line (the registry's mark-malachite: a hub), in its file colour. */
 export function HubMark({ size = 16 }: { size?: number }) {
-  return (
-    <svg className="hub-mark" width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="square" strokeLinejoin="miter" aria-hidden="true">
-      <rect x="2.5" y="2.5" width="11" height="11" rx="1" /><path d="M3.6 13.5L5.8 2.5M5.8 2.5L8 13.5M8 13.5L10.2 2.5M10.2 2.5L12.4 13.5" />
-    </svg>
-  );
+  return <Icon name="mark-malachite" size={size} className="hub-mark" />;
 }
 
 const glyph = (h: Hub, size = 16) => (h.place === "local" ? <HubMark size={size} /> : <Icon name="cloud" size={size} />);
@@ -195,53 +191,87 @@ export function HubSettings({ hub, values, account, commands, onSet, onRename, o
   );
 }
 
-/**
- * File › Open… for every app: first where from (this computer, or a hub), then the system's picker
- * (the app's) or our tree of the hub, filtered to what the app opens. The file decides the hub: the
- * app works in the hub it was opened from. Without hubs, the app calls its system picker directly.
- * ponytail: open only; Save as (a folder and a name) joins when an app saves into a hub.
- */
-export function OpenFile({ what, types, hubs, list, describe, onComputer, onOpen, onClose }: {
-  /** What it opens, in words: "a flow or a station". */
+type PickProps = {
+  /** What it opens or saves, in words: "a flow or a station", "the flow". */
   what: string;
-  /** The extensions it opens, without the dot: ["psf", "pst"]. */
+  /** The extensions it opens, without the dot: ["psf", "pst"]. Saving uses the first. */
   types: readonly string[];
   hubs: readonly Hub[];
   /** A hub's files in tree order (FileTree's entries); `.malachite/` is left out here. */
   list: (hub: Hub) => Promise<readonly FileEntry[]>;
   /** The preview of a picked file: what it holds, when it was saved. */
   describe?: (hub: Hub, entry: FileEntry) => ReactNode;
-  /** Hand over to the system's picker. */
+  /** Hand over to the system's picker (open or save). */
   onComputer: () => void;
-  onOpen: (hub: Hub, path: string) => void;
   onClose: () => void;
+};
+
+/**
+ * File › Open… for every app: first where from (this computer, or a hub), then the system's picker
+ * (the app's) or our tree of the hub, filtered to what the app opens. The file decides the hub: the
+ * app works in the hub it was opened from. Without hubs, the app calls its system picker directly.
+ */
+export function OpenFile(props: PickProps & { onOpen: (hub: Hub, path: string) => void }) {
+  return <Pick {...props} mode="open" />;
+}
+
+/**
+ * File › Save as… : the same picker choosing a folder and a name. A name that is taken asks to replace
+ * it; the old file stays in the hub's history.
+ * ponytail: no New folder here yet; the app's file tree makes folders.
+ */
+export function SaveFile(props: PickProps & { name: string; onSave: (hub: Hub, path: string) => void }) {
+  return <Pick {...props} mode="save" />;
+}
+
+function Pick({ mode, what, types, hubs, list, describe, onComputer, onClose, ...rest }: PickProps & {
+  mode: "open" | "save";
+  onOpen?: (hub: Hub, path: string) => void;
+  name?: string;
+  onSave?: (hub: Hub, path: string) => void;
 }) {
+  const save = mode === "save";
   const [hub, setHub] = useState<Hub | null>(null);
   const [entries, setEntries] = useState<readonly FileEntry[] | null>(null);
   const [failed, setFailed] = useState("");
   const [all, setAll] = useState<"opens" | "all">("opens");
   const [find, setFind] = useState("");
   const [sel, setSel] = useState<FileEntry | null>(null);
+  const [folder, setFolder] = useState("");
+  const [name, setName] = useState(rest.name ?? "");
 
   useEffect(() => {
     if (!hub) return;
     let live = true;
-    setEntries(null); setFailed(""); setSel(null);
+    setEntries(null); setFailed(""); setSel(null); setFolder("");
     list(hub).then((e) => live && setEntries(e), (err: unknown) => live && setFailed(String((err as Error)?.message ?? err)));
     return () => { live = false; };
   }, [hub, list]);
 
-  const rows = entries ? pickable(entries, types, all === "all", find) : [];
-  const ok = !!sel && sel.kind === "file" && opens(sel.name, types);
-  const open = () => { if (hub && sel && ok) onOpen(hub, sel.path); };
   const ext = types.map((t) => `.${t}`).join(" · ");
+  const rows = entries ? pickable(entries, types, all === "all", find) : [];
+  // saving: the folder of the picked row, and the file name with the app's first type
+  const fileName = saveName(name, types);
+  const target = fileName && (folder ? `${folder}/${fileName}` : fileName);
+  const taken = !!target && !!entries?.some((e) => e.path === target);
+  const ok = save ? !!hub && !!fileName && !/[\\/]/.test(name) : !!sel && sel.kind === "file" && opens(sel.name, types);
+  const done = () => {
+    if (!hub || !ok) return;
+    if (save) rest.onSave?.(hub, target);
+    else if (sel) rest.onOpen?.(hub, sel.path);
+  };
+  const pickRow = (e: FileEntry) => {
+    setSel(e);
+    if (save) { setFolder(e.path.includes("/") ? e.path.slice(0, e.path.lastIndexOf("/")) : ""); setName(e.name); }
+  };
+  const where = save ? folder : sel?.path.includes("/") ? sel.path.slice(0, sel.path.lastIndexOf("/")) : "";
 
   return (
-    <Dialog title={`Open ${what}`} tags={[ext]} className="tall open-file" onClose={onClose}
+    <Dialog title={save ? `Save ${what} as` : `Open ${what}`} tags={[ext]} className="tall open-file" onClose={onClose}
       actions={<>
-        <span className="open-file-hint">{hub ? "Enter opens · Backspace goes back · Esc closes" : "Pick where the file is"}</span>
+        <span className="open-file-hint">{!hub ? (save ? "Pick where the file goes" : "Pick where the file is") : save ? (taken ? `${fileName} is there: saving replaces it (the old one stays in the history)` : "Enter saves · Esc closes") : "Enter opens · Backspace goes back · Esc closes"}</span>
         <span className="grow" />
-        {hub && <Key kind="primary" disabled={!ok} onClick={open}>Open</Key>}
+        {hub && <Key kind={save && taken ? "danger" : "primary"} disabled={!ok} onClick={done}>{save ? (taken ? "Replace" : "Save") : "Open"}</Key>}
         <Key shortcut="Esc" onClick={onClose}>Cancel</Key>
       </>}>
       {!hub ? (
@@ -257,28 +287,35 @@ export function OpenFile({ what, types, hubs, list, describe, onComputer, onOpen
       ) : (
         <div className="open-hub" onKeyDown={(e) => {
           const typing = (e.target as HTMLElement).tagName === "INPUT";
-          if (e.key === "Enter" && ok) { e.preventDefault(); open(); }
+          if (e.key === "Enter" && ok && (!typing || save)) { e.preventDefault(); done(); }
           if (e.key === "Backspace" && !typing) { e.preventDefault(); setHub(null); }
         }}>
           <div className="open-bar">
             <Key size="sm" kind="quiet" onClick={() => setHub(null)} title="Back (Backspace)">‹ Where from</Key>
-            <span className="open-crumb"><HubMark size={14} /><b>{hub.name}</b>{sel && sel.path.includes("/") && ` › ${sel.path.split("/").slice(0, -1).join(" › ")}`}</span>
+            <span className="open-crumb"><HubMark size={14} /><b>{hub.name}</b>{where && ` › ${where.split("/").join(" › ")}`}</span>
             <label className="well find"><Icon name="search" size={14} /><input aria-label="Find a file" placeholder="Find a file…" value={find} onChange={(e) => setFind(e.target.value)} /></label>
-            <Segmented label="Which files" value={all} onChange={setAll} options={[{ value: "opens", label: types.map((t) => `.${t}`).join(" "), hint: `Only what this app opens` }, { value: "all", label: "All files" }]} />
+            <Segmented label="Which files" value={all} onChange={setAll} options={[{ value: "opens", label: types.map((t) => `.${t}`).join(" "), hint: "Only what this app opens" }, { value: "all", label: "All files" }]} />
           </div>
           <div className="open-body">
-            <div className="open-tree" onDoubleClick={open}>
+            <div className="open-tree" onDoubleClick={done}>
               {failed ? <p className="files-empty bad">Can't read {hub.name}: {failed}</p>
                 : !entries ? <p className="files-empty"><Spinner size={14} /> Reading {hub.name}</p>
-                : <FileTree entries={rows} active={sel?.path} ariaLabel={`Files in ${hub.name}`} menu={() => []}
-                    labels={{ empty: find ? "Nothing matches." : `No ${ext} files in ${hub.name}.` }}
-                    actions={{ onOpen: (e) => setSel(e) }} />}
+                : <FileTree entries={save && all === "opens" && !find ? pickable(entries, types, true).filter((e) => e.kind === "folder" || opens(e.name, types)) : rows}
+                    active={sel?.path} ariaLabel={`Files in ${hub.name}`} menu={() => []}
+                    labels={{ empty: find ? "Nothing matches." : save ? `${hub.name} is empty: it saves at the top.` : `No ${ext} files in ${hub.name}.` }}
+                    actions={{ onOpen: pickRow, onFolder: save ? (e) => { setFolder(e.path); setSel(null); } : undefined }} />}
             </div>
             <aside className="open-prev">
-              {sel ? <>
+              {save ? <>
+                <b>Save in</b>
+                <small>{hub.name}/{folder}</small>
+                <label className="well save-name"><input aria-label="File name" autoFocus value={name} onChange={(e) => setName(e.target.value)} /></label>
+                {fileName && fileName !== name.trim() && <small>saves as {fileName}</small>}
+                {/[\\/]/.test(name) && <small className="bad">A name can't hold / or \: pick the folder in the tree</small>}
+              </> : sel ? <>
                 <b>{sel.name}</b>
                 {ok && describe?.(hub, sel)}
-                <small>{ok ? `in ${hub.name}/${sel.path.split("/").slice(0, -1).join("/")}` : `Not ${what}: this opens ${ext} only`}</small>
+                <small>{ok ? `in ${hub.name}/${where}` : `Not ${what}: this opens ${ext} only`}</small>
               </> : <p className="muted">Pick {what}</p>}
             </aside>
           </div>

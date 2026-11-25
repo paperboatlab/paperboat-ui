@@ -34,6 +34,16 @@ export const ICONS = {
   "a-library": ["0 0 16 16", "<path class=\"ri-l\" d=\"M4.5 1.5h8l2 2v8h-10zM12.5 1.5v2h2M1.5 4.5v10h10M6.5 6h5M6.5 8.5h5\"/>"],
   /** Figures: a run's figures (Julix's figure pane, on its slim bar) */
   "a-figures": ["0 0 16 16", "<path class=\"ri-l\" d=\"M2.5 1.5h8l3 3v10h-11zM10.5 1.5v3h3M4.5 6.5v6h7M5.5 11l2-3 1.5 1.5 2.5-4\"/>"],
+  /** A Paperboat file */
+  "mark-paperboat": ["0 0 16 16", "<path d='M8 2.5 3.5 9.5H8z'/><path d='M9.5 5.5 12.5 9.5H9.5z'/><path d='M2 11h12l-1.5 2.5h-9z'/>", true],
+  /** A Simplicial flow or station (.psf: Paperboat Simplicial Flow, .pst: Paperboat Simplicial Station) */
+  "mark-simplicial": ["0 0 16 16", "<rect x='2.5' y='2.5' width='11' height='11' rx='1'/><path d='M2.5 6.85L11.3 2.5'/><path d='M2.5 6.85L13.5 8.28'/><path d='M13.5 8.53L4.15 13.5'/>", true],
+  /** An Articula file */
+  "mark-articula": ["0 0 16 16", "<rect x='2.5' y='2.5' width='11' height='11' rx='1'/><path d='M8.0 2.5L3.82 13.5'/><path d='M12.18 13.5L8.0 2.5'/><path d='M5.58 8.88L10.42 8.88'/>", true],
+  /** A Julix file */
+  "mark-julix": ["0 0 16 16", "<rect x='2.5' y='2.5' width='11' height='11' rx='1'/><path d='M9.32 13.5L9.32 2.5'/><path d='M9.32 13.5L2.5 8.0'/>", true],
+  /** Malachite: a hub, and a notebook in it (also the Launcher's Hubs page, in ink) */
+  "mark-malachite": ["0 0 16 16", "<rect x='2.5' y='2.5' width='11' height='11' rx='1'/><path d='M3.6 13.5L5.8 2.5'/><path d='M5.8 2.5L8.0 13.5'/><path d='M8.0 13.5L10.2 2.5'/><path d='M10.2 2.5L12.4 13.5'/>", true],
   /** Add or create (a runtime, an item, from Git) */
   "add": ["0 0 16 16", "<path d=\"M14 7v1H8v6H7V8H1V7h6V1h1v6h6z\"/>"],
   /** Fetch: pull an image, check for or install updates */

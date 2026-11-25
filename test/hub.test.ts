@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { FileEntry } from "../src/files/FileTree.tsx";
-import { hubStatus, hubWhere, pickable, type Hub } from "../src/hub/hub.ts";
+import { hubStatus, hubWhere, pickable, saveName, type Hub } from "../src/hub/hub.ts";
 
 const E = (path: string, kind: "file" | "folder" = "file"): FileEntry => ({ path, name: path.split("/").pop()!, depth: path.split("/").length - 1, kind });
 const tree = [
@@ -35,4 +35,11 @@ test("the bar says nothing when a hub is fine, and words when it is not", () => 
   assert.deepEqual(hubStatus({ ...h, sync: { state: "error", text: "can't sync: sign in again" } }), { text: "can't sync", bad: true });
   assert.deepEqual(hubStatus({ ...h, missing: true }), { text: "can't find the folder", bad: true });
   assert.equal(hubWhere(h), "Google Drive · My Drive/Paperboat/pump-rig");
+});
+
+test("Save as adds the app's type unless the name has one of its types", () => {
+  assert.equal(saveName(" pendulum ", ["psf", "pst"]), "pendulum.psf");
+  assert.equal(saveName("cart.pst", ["psf", "pst"]), "cart.pst");
+  assert.equal(saveName("v2.final", ["psf"]), "v2.final.psf");
+  assert.equal(saveName("  ", ["psf"]), "");
 });
