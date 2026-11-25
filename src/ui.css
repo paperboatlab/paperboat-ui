@@ -56,7 +56,10 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .key:hover { border-color: var(--line-ink); }
 .key:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .key:active { transform: translateY(1px); box-shadow: none; background: var(--surface-sunken); }
-.key:disabled, .key[aria-disabled="true"] { opacity: 0.45; cursor: default; pointer-events: none; }
+.key:disabled, .key[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+.key:disabled:hover { border-color: var(--line-strong); }  /* a key that can't run still says why on hover (its title) */
+.key.primary:disabled:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--surface-raised)); }
+.key[aria-disabled="true"] { pointer-events: none; }  /* not natively disabled, it would still act: no pointer */
 .key.primary { background: color-mix(in srgb, var(--accent) var(--tint), var(--surface-raised)); color: var(--accent-text); border-color: color-mix(in srgb, var(--accent) 40%, var(--surface-raised)); font-weight: 600; }
 .key.primary:hover { background: color-mix(in srgb, var(--accent) calc(var(--tint) + 6%), var(--surface-raised)); border-color: var(--accent); }
 .key.primary:active { background: color-mix(in srgb, var(--accent) calc(var(--tint) + 12%), var(--surface-raised)); }
