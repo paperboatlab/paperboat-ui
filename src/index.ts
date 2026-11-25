@@ -15,6 +15,8 @@ export { resolveSize, keySize, maxSize, SPLIT_SNAP, SPLIT_STEP, SPLIT_STEP_BIG, 
 export { PanelsKey, type PaneRect, type PanelChoice } from "./PanelsKey.tsx";
 export { Pill, Tag, type PillState } from "./Pill.tsx";
 export { Rail, type RailItem } from "./Rail.tsx";
+export { PageRail, type PageRailItem } from "./PageRail.tsx";
+export { Dock, type DockProps } from "./Dock.tsx";
 export { Search, type SearchItem } from "./Search.tsx";
 export { Spinner } from "./Spinner.tsx";
 export { GLYPH_FRAMES, GLYPH_FALLBACK, GLYPH_FRAME_MS } from "./glyphs.ts";

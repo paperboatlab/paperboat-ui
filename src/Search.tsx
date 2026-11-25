@@ -1,8 +1,9 @@
 // The floating search (REBRAND "Floating search"): one component for command search (Ctrl+K, top
 // centre, over everything) and its scopes. A field, scopes as a segmented choice (Tab steps), grouped
 // results with fuzzy matching (matched letters in the accent text), the selected row tinted, and a
-// fixed key footer. Unavailable commands stay, greyed, with why. Esc closes; focus returns.
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+// fixed key footer. Unavailable commands stay, greyed, with why. Esc closes; focus returns. Given `at`, it is
+// quick add: the same search floating at the cursor (no scrim), its Enter saying what it does (`action`).
+import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useDismiss, useFocusReturn } from "./dismiss.tsx";
 import { fuzzy } from "./fuzzy.ts";
 import { Icon } from "./Icon.tsx";
@@ -34,11 +35,15 @@ function Marked({ text, at }: { text: string; at: number[] }) {
   return <>{parts.map((p, i) => (p.m ? <mark key={i}>{p.s}</mark> : <span key={i}>{p.s}</span>))}</>;
 }
 
-export function Search({ items, scopes = [], placeholder = "Search commands", onClose }: {
+export function Search({ items, scopes = [], placeholder = "Search commands", at, action = "run", onClose }: {
   items: SearchItem[];
   /** e.g. ["All", "Commands", "Files"]: the first shows everything. */
   scopes?: string[];
   placeholder?: string;
+  /** Quick add: where it floats (the cursor, in the viewport); no scrim. */
+  at?: { x: number; y: number };
+  /** What Enter does, in the footer ("run", "add here"). */
+  action?: string;
   onClose: () => void;
 }) {
   const [query, setQuery] = useState("");
@@ -82,8 +87,8 @@ export function Search({ items, scopes = [], placeholder = "Search commands", on
 
   let lastGroup = "";
   return (
-    <div className="search" data-own-keys>
-      <div className="search-scrim" />
+    <div className={`search${at ? " at" : ""}`} data-own-keys style={at ? ({ "--search-x": `${at.x}px`, "--search-y": `${at.y}px` } as CSSProperties) : undefined}>
+      {!at && <div className="search-scrim" />}
       <div ref={box} className="search-box" role="dialog" aria-label="Search">
         <label className="search-field">
           <Icon name="search" />
@@ -135,7 +140,7 @@ export function Search({ items, scopes = [], placeholder = "Search commands", on
         </div>
         <div className="search-foot">
           <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
-          <span><kbd>Enter</kbd> run</span>
+          <span><kbd>Enter</kbd> {action}</span>
           {scopes.length > 1 && <span><kbd>Tab</kbd> scope</span>}
           <span><kbd>Esc</kbd> close</span>
         </div>
