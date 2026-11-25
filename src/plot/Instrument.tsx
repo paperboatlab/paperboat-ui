@@ -1,6 +1,6 @@
 // An instrument's frame (ui-example §14): the black screen, which shows, over the grey caption, which
 // names it, says what it reads and ends with its value. Simplicial's Board draws every instrument in
-// it (a toolkit's face goes in the screen); the Scope is one too. Styles: scope/scope.css. Idle, the dashed frame
+// it (its faces are instruments.tsx; a toolkit adapts its block to one); the Scope is one too. Styles: scope/scope.css. Idle, the dashed frame
 // says why in a muted line (`hint`, else the app's `InstrumentIdle`), so an empty Board still reads.
 import { createContext, useContext, type ReactNode } from "react";
 

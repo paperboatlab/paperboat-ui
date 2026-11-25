@@ -13,6 +13,7 @@
 @import "./graph/graph.css";
 @import "./media/media.css";
 @import "./plot/plot.css";
+@import "./plot/instruments.css";
 @import "./scope/scope.css";
 @import "./packages/packages.css";
 @import "./parts.css";
