@@ -1,4 +1,9 @@
-# Paperboat UI
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/banner-dark.webp">
+    <img src=".github/readme/banner-light.webp" width="288" alt="Paperboat UI">
+  </picture>
+</h1>
 
 The Paperboat look as React components (`@paperboatlab/ui`): the design tokens, keys, pills, the
 spinner, the rail and the page rail, panels, dialogs, menus and the menu bar, toasts, the theme picker, the floating
