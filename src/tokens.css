@@ -373,6 +373,15 @@
   --split-grip-active: var(--line-ink);/* while dragging */
 }
 
+/* Toasts (Toasts.tsx, ui-example.html §10 "Menus and toasts"): background work and its end */
+:root {
+  --toast-width: 320px;
+  --toast-gap: 10px;                   /* between stacked toasts */
+  --toast-rise: 8px;                   /* rises this far as it fades in on --glide */
+  --toast-stay: 5s;                    /* a done toast leaves after this; working and failed stay */
+  --z-toast: 150;                      /* above dialogs (100), below the floating search (200) */
+}
+
 /* Paper: a figure that names its own background (JulixPlot's white, a dark theme of its own) keeps its keys,
    readouts and help in that paper's colours, whatever the app's theme. The light and dark roles, set on the
    figure (Plot2D does it from its background; a host draws a whole figure in one with paperClass, @paperboatlab/ui/plot). */
