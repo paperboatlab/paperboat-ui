@@ -5,7 +5,7 @@ import "../src/tokens.css";
 import "../src/ui.css";
 import { useTheme, type Theme } from "../src/theme.tsx";
 import type { FileEntry } from "../src/files/index.ts";
-import { ConnectHub, HubSelector, HubSettings, OpenFile, type Hub, type HubSettingsValues } from "../src/hub/index.ts";
+import { ConnectHub, HubSelector, HubSettings, OpenFile, SaveFile, type Hub, type HubSettingsValues } from "../src/hub/index.ts";
 
 const q = new URLSearchParams(location.search);
 const HUBS: Hub[] = [
@@ -32,6 +32,7 @@ function Demo() {
         {hub ? <HubSelector hub={hub} hubs={HUBS} app="Simplicial" onSwitch={(id) => setHub(HUBS.find((h) => h.id === id)!)} onNew={() => say("new hub")}
           onOpenInMalachite={() => say("open in Malachite")} onDisconnect={() => setHub(null)} /> : <span style={{ font: "12px var(--font-mono)", color: "var(--text-muted)" }}>~/projects/pendulum.psf</span>}
         <button className="key sm" onClick={() => setShow("open")}>Open… (OpenFile)</button>
+        <button className="key sm" onClick={() => setShow("save")}>Save as… (SaveFile)</button>
         <button className="key sm" onClick={() => setShow("connect")}>Connect to a hub…</button>
         <span style={{ marginLeft: "auto", font: "12px var(--font-mono)", color: "var(--text-muted)" }}>{said}</span>
       </header>
@@ -44,6 +45,8 @@ function Demo() {
       {(show === "open" || show === "open-hub") && <OpenFile what="a flow or a station" types={["psf", "pst"]} hubs={HUBS} list={list}
         describe={(_, e) => <small>{e.name.endsWith(".psf") ? "Simplicial flow · 14 blocks" : "Simplicial station"}</small>}
         onComputer={() => say("the system's picker")} onOpen={(h, p) => { setHub(h); setShow(""); say(`opened ${h.name}/${p}`); }} onClose={() => setShow("")} />}
+      {show === "save" && <SaveFile what="the flow" types={["psf", "pst"]} name="pendulum-v2" hubs={HUBS} list={list}
+        onComputer={() => say("the system's save dialog")} onSave={(h, p) => { setShow(""); say(`saved ${h.name}/${p}`); }} onClose={() => setShow("")} />}
     </div>
   );
 }

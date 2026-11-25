@@ -18,12 +18,23 @@ system = (rebrand / "logogen" / "src" / "system.jl").read_text()
 brand_src = system[system.index("const BRAND_ICONS = Dict("):]
 brand_src = brand_src[:brand_src.index("\nconst ")]
 brand = dict(re.findall(r'"([\w-]+)" => "(<.*?)"(?=[,)])', brand_src))
+# our formats' marks (logogen/src/system.jl mark_body), as drawn in this repo's ui-example.html (built by brand.jl)
+example = (pathlib.Path(__file__).resolve().parent.parent / "ui-example.html").read_text()
+def mark(app):
+    if app == "paperboat":
+        return "<path d='M8 2.5 3.5 9.5H8z'/><path d='M9.5 5.5 12.5 9.5H9.5z'/><path d='M2 11h12l-1.5 2.5h-9z'/>"
+    m = re.search(rf"<svg class='fi fc-{app}'[^>]*viewBox='0 0 16 16' fill='none'[^>]*>(<rect x='2.5'.*?)</svg>", example)
+    if not m:
+        raise SystemExit(f"no mark for {app} in ui-example.html: rebuild it (julia logogen/src/brand.jl)")
+    return m.group(1)
 out, meaning = {}, {}
 for i in registry:
-    if i["status"] == "retired" or i["from"] == "mark":  # a conflict keeps its registered meaning; its note names the misuse
+    if i["status"] == "retired":  # a conflict keeps its registered meaning; its note names the misuse
         continue
-    line = i["from"] == "brand"  # our UI glyphs: drawn as 1 px lines (.pb-icon.line)
-    if line:
+    line = i["from"] in ("brand", "mark")  # our UI glyphs and marks: drawn as 1 px lines (.pb-icon.line)
+    if i["from"] == "mark":
+        box, body = "0 0 16 16", mark(i["id"].removeprefix("mark-"))
+    elif line:
         box, body = "0 0 16 16", brand[i["id"]]
     elif i["from"] == "rail":
         m = re.search(rf'<symbol id="{i["id"]}" viewBox="([^"]+)">(.*?)</symbol>', rail, re.S)

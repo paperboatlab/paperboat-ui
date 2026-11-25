@@ -70,3 +70,5 @@
 .open-prev small { font: 12px var(--font-mono); color: var(--text-muted); overflow-wrap: anywhere; }
 .open-prev .muted { color: var(--text-muted); font-size: 12px; margin: auto 0; text-align: center; }
 .files-empty.bad { color: var(--danger-text); }
+.open-prev .save-name { width: 100%; box-sizing: border-box; font-family: var(--font-mono); }
+.open-prev small.bad { color: var(--danger-text); }

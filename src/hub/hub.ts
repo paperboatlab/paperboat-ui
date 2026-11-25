@@ -45,6 +45,12 @@ const ext = (name: string) => (name.includes(".") ? name.slice(name.lastIndexOf(
 /** Whether an app opens this file (`types` are extensions without the dot). */
 export const opens = (name: string, types: readonly string[]) => types.includes(ext(name));
 
+/** The file name Save as writes: the name typed, with the app's first type unless it has one of its types. */
+export function saveName(name: string, types: readonly string[]) {
+  const n = name.trim();
+  return n === "" ? "" : opens(n, types) ? n : `${n}.${types[0]}`;
+}
+
 /**
  * The rows of a hub's tree for a picker (entries in tree order, as FileTree takes them):
  * `.malachite/` never; by default only the files the app opens and the folders that hold some;

@@ -33,6 +33,8 @@ export type FileLabels = {
 
 export type FileActions = {
   onOpen?: (entry: FileEntry) => void;
+  /** A folder's row was pressed (it also opens or closes): a picker choosing where to save. */
+  onFolder?: (entry: FileEntry) => void;
   onNewFile?: (parent?: FileEntry) => void;
   onNewFolder?: (parent?: FileEntry) => void;
   onRename?: (entry: FileEntry) => void;
@@ -174,7 +176,7 @@ export const FileTree = forwardRef<FileTreeHandle, {
             }}
             onDragOver={(e) => over(e, entry)}
             onDrop={(e) => land(e, entry)}
-            onClick={() => (entry.kind === "folder" ? toggle(entry.path) : actions.onOpen?.(entry))}
+            onClick={() => { if (entry.kind === "folder") { toggle(entry.path); actions.onFolder?.(entry); } else actions.onOpen?.(entry); }}
             onKeyDown={(e) => {
               if ((e.key === "Delete" || e.key === "Backspace") && actions.onDelete) {
                 e.preventDefault();
