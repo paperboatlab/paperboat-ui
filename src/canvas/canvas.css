@@ -32,7 +32,7 @@
 .compact-block { position: relative; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; color: var(--text); font-size: var(--size-xs); }
 .plate { position: relative; display: flex; align-items: center; justify-content: center; width: 64px; height: 56px; background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-md); cursor: pointer; }
 .compact-block.selected .plate { outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 3px; }  /* selection: a soft outline */
-.compact-block.active .plate { border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong)); }  /* running: its outline (and the spinner) */
+.compact-block.running .plate { border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong)); }  /* running: its outline (and the spinner) */
 .compact-block.failed .plate { border-color: var(--danger); }
 .plate:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .glyph { width: 30px; height: 30px; fill: none; stroke: var(--text); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
@@ -126,6 +126,9 @@
 .block-note.has-note { color: var(--text); }
 .block-note:focus-visible { outline: 2px solid var(--focus); }
 .block-fold { height: 20px; padding: 0 6px; font-size: var(--size-2xs); }
+.block-under { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.block-under textarea { display: block; width: 100%; min-height: 48px; box-sizing: border-box; resize: vertical; padding: 4px 6px; border: 0; background: var(--surface-well); box-shadow: var(--well-shadow); border-radius: var(--radius-sm); font: var(--size-2xs) / 1.45 var(--font-sans); color: var(--text); }
+.block-under textarea:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
 .port-rows { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 54px; padding: 4px 0; }
 .port-rows > .glyph { position: absolute; inset: 0; margin: auto; opacity: 0.3; pointer-events: none; }
 .port { position: relative; padding: 0 10px; font: 400 var(--size-2xs) / 16px var(--font-mono); color: var(--text); }
@@ -185,3 +188,12 @@
 .block.object { border-radius: 0; border-top: 3px solid var(--line-ink); }
 .block.object.joint { border-top: 5px double var(--line-ink); }
 .plate-cap .spinner { margin-right: 4px; vertical-align: -1px; }
+
+/* ---- The canvas tools (CanvasTools): round keys bottom-left; the gestures above them, raised like a menu ---- */
+.react-flow__panel.canvas-tools { display: flex; gap: 4px; margin: 12px; }
+.canvas-tools > div { position: relative; }
+.canvas-help { position: absolute; left: 0; bottom: 32px; width: max-content; max-width: 460px; padding: 10px 14px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-1); font-size: var(--size-2xs); color: var(--text); z-index: 10; animation: float-in var(--glide); }
+.canvas-help h3 { margin: 0 0 8px; font: 600 var(--size-sm) var(--font-sans); }
+.canvas-help dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 16px; }
+.canvas-help dt { color: var(--text-muted); white-space: nowrap; }
+.canvas-help dd { margin: 0; }
