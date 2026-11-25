@@ -25,7 +25,8 @@ test("the card's look follows its state", () => {
 
 test("the faces follow the rebrand", () => {
   const css = read("canvas.css").replace(/\/\*[\s\S]*?\*\//g, "");
-  assert.match(css, /\.block\.selected \{ outline: 2px solid var\(--accent-select\)/, "selection is a soft outline");
+  assert.match(css, /\.block\.selected \{ outline: var\(--select-outline\); outline-offset: var\(--select-offset\)/, "selection is the selection token");
+  assert.match(fs.readFileSync(new URL("../../src/tokens.css", import.meta.url), "utf8"), /--select-outline: 2px solid var\(--accent-select\)/, "selection is a soft outline");
   assert.doesNotMatch(css, /\.block-progress/, "a running block has no progress bar");
   assert.match(css, /\.block\.linked \{ border-top: 3px solid var\(--line-ink\)/, "a linked block carries the ink bar");
   assert.match(css, /\.block\.missing \{ border: 1\.5px dashed var\(--danger\)/, "missing is dashed red");

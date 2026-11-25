@@ -24,3 +24,4 @@ export { CanvasTools, CANVAS_GESTURES, Keys } from "./CanvasTools.tsx";
 export { iconValid, isOn, plateSize, iconNodes, CELL, CORNER, DASH, FILL, FONT, SIZE, STROKE, WEIGHT, type SvgNode } from "./icon.ts";
 export * from "./bindings.ts";
 export { useWireBends } from "./wireBends.tsx";
+export { ConnectionLine } from "./ConnectionLine.tsx";
