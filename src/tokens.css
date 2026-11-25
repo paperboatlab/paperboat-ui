@@ -111,6 +111,10 @@
 
   --scene-bg: #e3e3df;            /* read by SceneView */
   --scene-grid: #a9a9a3;
+  /* The x, y and z of the scene's triad: engineering colours, the same in both themes. */
+  --axis-x: #e5484d;
+  --axis-y: #30a46c;
+  --axis-z: #3e63dd;
 
   --radius-sm: 3px;
   --radius-md: 5px;

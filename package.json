@@ -1,7 +1,7 @@
 {
   "name": "@paperboatlab/ui",
   "version": "0.1.0",
-  "description": "The Paperboat look as React components: tokens, keys, pills, the spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search, app marks, and the node canvas (React Flow): wire routing, layout, ports, snapping, undo. No app logic.",
+  "description": "The Paperboat look as React components: tokens, keys, pills, the spinner, the rail, panels, dialogs, menus, toasts, the theme picker, the floating search, app marks, and the node canvas (React Flow): wire routing, layout, ports, snapping, undo; the 3D scene (three.js). No app logic.",
   "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
@@ -50,6 +50,10 @@
       "types": "./src/scope/index.ts",
       "default": "./src/scope/index.ts"
     },
+    "./scene": {
+      "types": "./src/scene/index.ts",
+      "default": "./src/scene/index.ts"
+    },
     "./packages": {
       "types": "./src/packages/index.ts",
       "default": "./src/packages/index.ts"
@@ -60,7 +64,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts test/canvas/*.test.ts test/editor/*.test.ts test/plot/*.test.ts",
+    "test": "node --test test/*.test.ts test/canvas/*.test.ts test/editor/*.test.ts test/plot/*.test.ts test/scene/*.test.ts",
     "icons": "python3 scripts/icons.py ${REBRAND:-../../../Cloud/gdrive/Projects/paperboatlab/agent-docs/rebrand}",
     "demo": "esbuild demo/demo.tsx demo/parts.tsx --bundle --format=esm --outdir=demo/out --loader:.woff2=file --loader:.woff=file --loader:.ttf=file --jsx=automatic --log-level=warning && cp -r src/marks demo/out/"
   },
@@ -87,8 +91,10 @@
     "@fontsource/geist-mono": "^5.3.0",
     "@fontsource/geist-sans": "^5.3.0",
     "@lezer/highlight": "^1.2.5",
+    "@types/three": "^0.187.0",
     "katex": "^0.19.1",
     "smol-toml": "^1.9.1",
+    "three": "^0.187.0",
     "uplot": "^1.6.32"
   },
   "devDependencies": {
