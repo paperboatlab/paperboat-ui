@@ -40,8 +40,10 @@ export function HubSelector({ hub, hubs, app, onSwitch, onNew, onOpenInMalachite
   app: string;
   onSwitch: (id: string) => void;
   onNew: () => void;
-  onOpenInMalachite: () => void;
-  onDisconnect: () => void;
+  /** Leave out in Malachite itself, which is the hub's app. */
+  onOpenInMalachite?: () => void;
+  /** Leave out in Malachite itself, which always works in a hub. */
+  onDisconnect?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -76,10 +78,9 @@ export function HubSelector({ hub, hubs, app, onSwitch, onNew, onOpenInMalachite
           })}
           <hr />
           <button type="button" className="menu-item" role="menuitem" onClick={run(onNew)}><span><span className="check" /><Icon name="add" size={14} />New hub…</span></button>
-          <button type="button" className="menu-item" role="menuitem" onClick={run(onOpenInMalachite)}><span><span className="check" /><Icon name="link-external" size={14} />Open {hub.name} in Malachite</span></button>
-          <hr />
-          <button type="button" className="menu-item" role="menuitem" onClick={run(onDisconnect)}><span><span className="check" /><span className="hub-gap" />Disconnect {app}</span></button>
-          <div className="menu-note">Only {app} switches; other apps keep their hub</div>
+          {onOpenInMalachite && <button type="button" className="menu-item" role="menuitem" onClick={run(onOpenInMalachite)}><span><span className="check" /><Icon name="link-external" size={14} />Open {hub.name} in Malachite</span></button>}
+          {onDisconnect && <><hr /><button type="button" className="menu-item" role="menuitem" onClick={run(onDisconnect)}><span><span className="check" /><span className="hub-gap" />Disconnect {app}</span></button></>}
+          <div className="menu-note">{onDisconnect ? `Only ${app} switches; other apps keep their hub` : `Opens in a new ${app} window`}</div>
         </div>
       )}
     </span>
