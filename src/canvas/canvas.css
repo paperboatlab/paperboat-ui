@@ -107,3 +107,81 @@
 .wire-bend.ns { cursor: ns-resize; }
 .wire-bend.ew { cursor: ew-resize; }
 .wire-bend:hover { border-color: var(--text); }
+
+/* ---- The card: a block's full face (BlockCard). Head 28 px, ports 16 px apart (the plate's pitch), params in
+   wells. A linked block has the 3 px ink bar on top; a step block is outlined in ink; running is its outline and
+   the spinner in the head; failed red; missing dashed red (dashed red means missing, nothing else). ---- */
+.block { position: relative; min-width: 176px; box-sizing: border-box; background: var(--surface-raised); border: 1px solid var(--line-strong); border-radius: var(--radius-md); color: var(--text); font-size: var(--size-2xs); }
+.block-title { height: 28px; box-sizing: border-box; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 10px; border-bottom: 1px solid var(--line); }
+.block-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 var(--size-sm) var(--font-sans); }
+.block-link { display: inline-flex; align-items: center; gap: 3px; font: 400 var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; }
+.block-link .pb-icon { width: 13px; height: 13px; }
+.block-tag { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; font: 400 var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; }
+.block-tag.running { color: var(--accent-text); font-weight: 500; }
+.block-tag.failed, .block-tag.missing { color: var(--danger-text); font-weight: 500; }
+.block-note { all: unset; box-sizing: border-box; width: 18px; height: 18px; display: grid; place-items: center; border-radius: var(--radius-sm); color: var(--text-muted); cursor: pointer; visibility: hidden; }
+.block-note .pb-icon { width: 13px; height: 13px; }
+.block:hover .block-note, .block.selected .block-note, .block-note.has-note, .block-note:focus-visible { visibility: visible; }
+.block-note:hover { color: var(--text); background: var(--surface-sunken); }
+.block-note.has-note { color: var(--text); }
+.block-note:focus-visible { outline: 2px solid var(--focus); }
+.block-fold { height: 20px; padding: 0 6px; font-size: var(--size-2xs); }
+.port-rows { position: relative; display: flex; flex-direction: column; justify-content: center; min-height: 54px; padding: 4px 0; }
+.port-rows > .glyph { position: absolute; inset: 0; margin: auto; opacity: 0.3; pointer-events: none; }
+.port { position: relative; padding: 0 10px; font: 400 var(--size-2xs) / 16px var(--font-mono); color: var(--text); }
+.port .unit { color: var(--text-muted); }
+.port.side-right { text-align: right; }
+.port[data-side] { cursor: grab; user-select: none; }
+.port[data-side].moving { font-weight: 600; cursor: grabbing; }
+.port:has(.wire-target) { font-weight: 600; }
+.port-row { display: flex; justify-content: space-between; gap: var(--space-3); height: 16px; white-space: nowrap; }
+.port-strip { display: flex; justify-content: center; gap: var(--space-2); padding: 0 6px; }
+.port-strip.top { border-bottom: 1px solid var(--line); }
+.port-strip.bottom { border-top: 1px solid var(--line); }
+.port.side-top, .port.side-bottom { padding: 5px 4px; text-align: center; }
+.port .react-flow__handle-left { left: -4.5px; }
+.port .react-flow__handle-right { right: -4.5px; }
+/* direction (#204): a 4×6 ink chevron just outside each dot, into the block at an input, out of it at an output */
+.port .react-flow__handle::before { content: ""; position: absolute; width: 4px; height: 6px; background: var(--line-ink); pointer-events: none; }
+.port.in .react-flow__handle-left::before, .port.out .react-flow__handle-right::before { top: 50%; margin-top: -3px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.port.in .react-flow__handle-left::before { left: -7px; }
+.port.out .react-flow__handle-right::before { right: -7px; }
+.port.out .react-flow__handle-left::before, .port.in .react-flow__handle-right::before { top: 50%; margin-top: -3px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+.port.out .react-flow__handle-left::before { left: -7px; }
+.port.in .react-flow__handle-right::before { right: -7px; }
+.port.in .react-flow__handle-top::before, .port.out .react-flow__handle-bottom::before { left: 50%; margin-left: -3px; width: 6px; height: 4px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.port.in .react-flow__handle-top::before { top: -7px; }
+.port.out .react-flow__handle-bottom::before { bottom: -7px; }
+.port.out .react-flow__handle-top::before, .port.in .react-flow__handle-bottom::before { left: 50%; margin-left: -3px; width: 6px; height: 4px; clip-path: polygon(0 100%, 100% 100%, 50% 0); }
+.port.out .react-flow__handle-top::before { top: -7px; }
+.port.in .react-flow__handle-bottom::before { bottom: -7px; }
+.block.kind-probe .port .react-flow__handle::before, .port .react-flow__handle.ip::before { content: none; }  /* acausal connectors have no direction */
+/* params: label left, value right in a 72×20 well; a bound one is its variable's chip */
+.block-params { border-top: 1px solid var(--line); padding: 6px 8px 8px 10px; display: grid; grid-template-columns: auto 1fr; gap: 4px 8px; align-items: center; }
+.param-label { color: var(--text-muted); font: var(--size-2xs) var(--font-sans); white-space: nowrap; }
+.param-field { justify-self: end; display: inline-flex; align-items: center; gap: 6px; font: var(--size-2xs) var(--font-mono); }
+.param-field > .unit { color: var(--text-muted); }
+.param-field > em { font-style: normal; color: var(--text-muted); }
+.param-well { width: 72px; height: 20px; box-sizing: border-box; padding: 0 6px; border: 0; background: var(--surface-well); box-shadow: var(--well-shadow); border-radius: var(--radius-sm); font: var(--size-2xs) var(--font-mono); color: var(--text); text-align: right; }
+.param-well.text { text-align: left; }
+.param-well:focus-visible, .param-well:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+.param-well:disabled { opacity: 0.45; }
+.param-bound { all: unset; box-sizing: border-box; cursor: pointer; display: inline-flex; align-items: center; height: 18px; padding: 0 5px; border: 1px solid var(--line-ink); border-radius: var(--radius-sm); font: 500 var(--size-2xs) var(--font-mono); color: var(--text); white-space: nowrap; }
+.param-bound:hover { background: var(--surface-sunken); }
+.param-bound:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+/* looks */
+.block.linked { border-top: 3px solid var(--line-ink); }
+.block.step { border-color: var(--line-ink); }
+.block.step .block-title { border-bottom-color: var(--line-ink); }
+.block.running { border-color: color-mix(in srgb, var(--accent) 55%, var(--line-strong)); }
+.block.failed { border-color: var(--danger); }
+.block.missing { border: 1.5px dashed var(--danger); }
+.block.missing .block-name { color: var(--danger-text); }
+.block.commented { opacity: 0.45; border-style: dashed; }
+.block.selected { outline: 2px solid var(--accent-select); outline-offset: 3px; }
+.block.subsystem { box-shadow: 4px 4px 0 -1px var(--surface-raised), 4px 4px 0 0 var(--line-strong); }
+.block.subsystem.step { box-shadow: 4px 4px 0 -1px var(--surface-raised), 4px 4px 0 0 var(--line-ink); }
+/* a station object on the Station's Graph view: a square plate, the 3 px ink bar on top; a joint's doubled */
+.block.object { border-radius: 0; border-top: 3px solid var(--line-ink); }
+.block.object.joint { border-top: 5px double var(--line-ink); }
+.plate-cap .spinner { margin-right: 4px; vertical-align: -1px; }
