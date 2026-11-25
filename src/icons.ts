@@ -4,8 +4,10 @@
 export const ICONS = {
   /** Apps (the page) */
   "a-apps": ["0 0 16 16", "<path class=\"ri-l\" d=\"M1.5 1.5h13v13h-13zM8 1.5L14.5 8 8 14.5 1.5 8z\"/>"],
-  /** Stations (the Launcher's page; Simplicial's Station page) */
+  /** Stations: the station projects you can run (the Launcher's page) */
   "a-stations": ["0 0 16 16", "<path class=\"ri-l\" d=\"M1.5 7L8 1.5 14.5 7v7.5h-13zM1.5 7h13M6.5 14.5v-4h3v4\"/>"],
+  /** The station: one rig's objects and joints (Simplicial's Station page; the glyph on a block linked to a station object) */
+  "a-station": ["0 0 16 16", "<path class=\"ri-l\" d=\"M1.5 14.5h13M3.5 14.5v-4h7v4M7 10.5l2.5-6M9.5 1.5h3v3h-3z\"/>"],
   /** Toolkits (the page) */
   "a-toolkits": ["0 0 16 16", "<path class=\"ri-l\" d=\"M1.5 6.5h9v8h-9zM10.5 6.5l4-4v8l-4 4M1.5 6.5l4-4h9\"/>"],
   /** Runtimes and their sessions */

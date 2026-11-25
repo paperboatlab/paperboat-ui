@@ -26,3 +26,9 @@ export function frameAt(app: App, t: number): number {
   const p = t < one ? 1 - ease(t / one) : ease((t - one) / one);  // 1 = rest, 0 = parcel
   return Math.min(n + 1, 1 + Math.round(p * n));
 }
+
+/** The splash's frame at `p` along the unfold (0 the parcel, 1 the rest pose), eased (smoothstep). */
+export function splashFrame(app: App, p: number): number {
+  const x = Math.min(1, Math.max(0, p));
+  return 1 + Math.round(x * x * (3 - 2 * x) * FRAMES[app]);
+}

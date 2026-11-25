@@ -8,6 +8,7 @@ import { iconValid, isOn, plateSize } from "./icon.ts";
 import { connectorHint, hasIconPorts, placeIconPorts, placePorts, portHint, portLabel, portOffset, sideLength, SIDES, signOf, type PortSides, type Side } from "./ports.ts";
 import type { BlockDef, Connectors, IconDef, ParamValue } from "./types.ts";
 import { PortHandle } from "./wireSnap.tsx";
+import { Spinner } from "../Spinner.tsx";
 
 export function Glyph({ name }: { name: string }) {
   return (
@@ -185,7 +186,7 @@ export function CompactBlock({
         {word === "running" && progress !== undefined && progress < 1 && <i className="plate-prog" style={{ width: `${progress * 100}%` }} />}
       </div>
       <div className="plate-cap">
-        <span className={word ? `cap-${word}` : undefined}>{word ?? def.label}</span>
+        <span className={word ? `cap-${word}` : undefined}>{word === "running" && <Spinner size={10} />}{word ?? def.label}</span>
         {value && <span className="plate-val">{value}</span>}
       </div>
       {open && card && (

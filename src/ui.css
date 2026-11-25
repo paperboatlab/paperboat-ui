@@ -58,7 +58,10 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .key:hover { border-color: var(--line-ink); }
 .key:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .key:active { transform: translateY(1px); box-shadow: none; background: var(--surface-sunken); }
-.key:disabled, .key[aria-disabled="true"] { opacity: 0.45; cursor: default; pointer-events: none; }
+.key:disabled, .key[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+.key:disabled:hover { border-color: var(--line-strong); }  /* a key that can't run still says why on hover (its title) */
+.key.primary:disabled:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--surface-raised)); }
+.key[aria-disabled="true"] { pointer-events: none; }  /* not natively disabled, it would still act: no pointer */
 .key.primary { background: color-mix(in srgb, var(--accent) var(--tint), var(--surface-raised)); color: var(--accent-text); border-color: color-mix(in srgb, var(--accent) 40%, var(--surface-raised)); font-weight: 600; }
 .key.primary:hover { background: color-mix(in srgb, var(--accent) calc(var(--tint) + 6%), var(--surface-raised)); border-color: var(--accent); }
 .key.primary:active { background: color-mix(in srgb, var(--accent) calc(var(--tint) + 12%), var(--surface-raised)); }
@@ -227,6 +230,24 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .panel.bottom.hidden .hide-key svg { transform: scaleY(-1); }
 .panel-slim .count { margin-top: auto; font: 11px var(--font-mono); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 
+/* ── the page rail (Simplicial's frame): pages only, icons alone sharing its height; a page's chip grows
+   on hover or focus to say what it is; it steps aside (aside) where every page is in view ── */
+.page-rail { box-sizing: border-box; flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 6px; display: flex; flex-direction: column; transition: width var(--slide), padding var(--slide), margin var(--slide), border-width var(--slide), opacity var(--motion); }
+.page-rail.aside { width: 0; padding-left: 0; padding-right: 0; border-width: 0; opacity: 0; overflow: hidden; }
+.page-rail-item { all: unset; position: relative; z-index: 5; flex: 1; display: flex; align-items: center; color: var(--text-muted); cursor: pointer; }
+.page-rail-chip { position: absolute; left: 0; top: 50%; transform: translateY(-50%); box-sizing: border-box; height: 40px; max-width: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: var(--radius-md); white-space: nowrap; overflow: hidden; transition: max-width var(--glide), background var(--motion), box-shadow var(--motion), color var(--motion); }
+.page-rail-chip .pb-icon { width: 20px; height: 20px; flex: none; }
+.page-rail-chip > span, .page-rail-chip > kbd { opacity: 0; transition: opacity var(--motion); }
+.page-rail-chip > span { font: 500 13px var(--font-sans); }
+.page-rail-chip > kbd { font: 11px var(--font-mono); color: var(--text-muted); }
+.page-rail-item[aria-current="page"] .page-rail-chip { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); color: var(--text); }
+.page-rail-item:hover .page-rail-chip, .page-rail-item:focus-visible .page-rail-chip { max-width: 380px; background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-1); color: var(--text); }
+.page-rail-item:hover .page-rail-chip > *, .page-rail-item:focus-visible .page-rail-chip > * { opacity: 1; transition: opacity var(--glide) 0.08s; }
+.page-rail-item:focus-visible .page-rail-chip { outline: 2px solid var(--focus); outline-offset: 2px; }
+.page-rail-item[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.page-rail-item[aria-disabled="true"]:hover .page-rail-chip { color: var(--text-muted); }
+.page-rail-item .rail-count { position: absolute; top: calc(50% - 22px); right: -2px; opacity: 1; }
+
 /* ── the rail: 52 px (icons, tooltips) or 208 px (icon and label), switched only by its foot key ── */
 .rail { box-sizing: border-box; flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 8px 5px; display: flex; flex-direction: column; gap: 2px; transition: width var(--slide); position: relative; }
 .rail.wide { width: 208px; }
@@ -266,6 +287,8 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 /* ── floating search: Ctrl K, top centre, over everything ── */
 .search { position: fixed; inset: 0; z-index: 200; }
 .search-scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0.55; }
+.search.at { pointer-events: none; }  /* quick add: at the cursor, no scrim */
+.search.at .search-box { pointer-events: auto; left: min(var(--search-x), calc(100vw - 416px)); top: min(var(--search-y), calc(100vh - 460px)); transform: none; width: 400px; }
 .search-box { position: absolute; left: 50%; top: 13vh; transform: translateX(-50%); width: min(620px, 92vw); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-2); overflow: hidden; display: flex; flex-direction: column; animation: pb-rise var(--glide); }
 @keyframes pb-rise { from { opacity: 0; transform: translate(-50%, -6px) scale(0.98); } }
 .search-field { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--text-muted); }
@@ -284,11 +307,22 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .search-foot { display: flex; gap: 16px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 11.5px; color: var(--text-muted); background: var(--surface-panel); }
 .search-foot kbd { font: 11px var(--font-mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; margin-right: 3px; }
 
+/* ── the splash: the space below the bar while the app can't draw yet; it shows after 350 ms ── */
+.splash-stage { flex: 1; height: 100%; min-height: 0; display: grid; place-items: center; }
+.splash { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); margin-top: -6vh; animation: pb-splash-in 300ms var(--ease) 350ms both; }
+@keyframes pb-splash-in { from { opacity: 0; transform: translateY(4px); } }
+.splash-mark { width: 120px; height: 120px; display: block; user-select: none; }
+.splash-msg { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 420px; max-width: 90vw; text-align: center; }
+.splash-say { margin: 0; font: 500 15px/1.35 var(--font-sans); color: var(--text); }
+.splash-detail { margin: 0; font: 12px/1.45 var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.splash-stage.failed .splash-say { color: var(--danger-text); }
+.splash-keys { display: flex; gap: var(--space-2); align-items: center; min-height: 30px; font-size: 12px; color: var(--text-muted); }
+
 /* ── the app's mark: a tile; folds now and then at rest (AppMark) ── */
 .app-mark { display: inline-block; flex: none; border-radius: 22%; object-fit: contain; }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner i, .spinner em, .pill.live, .search-box { animation: none; }
+  .spinner i, .spinner em, .pill.live, .search-box, .splash { animation: none; }
 }
 
 /* ── the code editor (brand.html §14): Editor in editor/ ── */
