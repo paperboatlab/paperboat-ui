@@ -29,7 +29,7 @@ export function About({ app, role, version, paperboat, info, repo, credits = [],
   /** One line: what the app is. */
   role: string;
   version: string;
-  /** The Paperboat it belongs to; undefined while asking, null when it isn't installed. */
+  /** The Paperboat it belongs to; null when it isn't installed; left out (or while asking) the line isn't shown. */
   paperboat?: string | null;
   /** In mono: what it talks to (engine and protocol, omc, Julia) and the commit. */
   info?: string;
@@ -45,7 +45,6 @@ export function About({ app, role, version, paperboat, info, repo, credits = [],
   useEffect(() => { if (!copied) return; const t = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(t); }, [copied]);
   const url = `https://github.com/${repo}`;
   const open = (u: string) => window.open(u, "_blank", "noreferrer");
-  const pb = paperboat === undefined ? "Paperboat …" : paperboat ? `Paperboat ${paperboat}` : "Paperboat not installed";
   const copy = () => void navigator.clipboard?.writeText(versionInfo(app, version, paperboat, info)).then(() => setCopied(true));
   return (
     <Dialog title="About" wide className="about" onClose={onClose}>
@@ -54,7 +53,7 @@ export function About({ app, role, version, paperboat, info, repo, credits = [],
         <div className="about-name">
           <span className="about-lockup">{app === "paperboat" ? <b>Paperboat</b> : <><span>Paperboat</span> <b>{appName(app)}</b></>}</span>
           <small>{role}</small>
-          <div className="about-version"><b>Version {version}</b>{app !== "paperboat" && <span>{pb}</span>}{info && <code>{info}</code>}</div>
+          <div className="about-version"><b>Version {version}</b>{app !== "paperboat" && paperboat !== undefined && <span>{paperboat ? `Paperboat ${paperboat}` : "Paperboat not installed"}</span>}{info && <code>{info}</code>}</div>
           <div className="about-keys">
             <Key size="sm" icon={copied ? "check" : "copy"} onClick={copy}>{copied ? "Copied" : "Copy version info"}</Key>
             <Key size="sm" icon="cloud-download" onClick={onCheckUpdates ?? (() => open(`${url}/releases`))}>Check for updates</Key>
