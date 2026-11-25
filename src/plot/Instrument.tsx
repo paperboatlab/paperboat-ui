@@ -1,7 +1,11 @@
 // An instrument's frame (ui-example §14): the black screen, which shows, over the grey caption, which
 // names it, says what it reads and ends with its value. Simplicial's Board draws every instrument in
-// it (a toolkit's face goes in the screen); the Scope is one too. Styles: scope/scope.css.
-import type { ReactNode } from "react";
+// it (a toolkit's face goes in the screen); the Scope is one too. Styles: scope/scope.css. Idle, the dashed frame
+// says why in a muted line (`hint`, else the app's `InstrumentIdle`), so an empty Board still reads.
+import { createContext, useContext, type ReactNode } from "react";
+
+/** What an idle instrument says when it has no `hint` of its own: the app's words ("No run yet · Run (Ctrl R)"). */
+export const InstrumentIdle = createContext<ReactNode>(undefined);
 
 export type InstrumentProps = {
   /** Its name, in ink at the caption's start. */
@@ -12,6 +16,8 @@ export type InstrumentProps = {
   value?: ReactNode;
   /** Nothing received yet: the same frame, dashed. */
   idle?: boolean;
+  /** Idle, the muted line inside the frame; default the app's `InstrumentIdle`. */
+  hint?: ReactNode;
   /** The face's own class (`display`, `lamp`), beside `instrument`. */
   className?: string;
   label?: string;
@@ -19,10 +25,12 @@ export type InstrumentProps = {
   children?: ReactNode;
 };
 
-export function Instrument({ name, detail, value, idle, className, label, children }: InstrumentProps) {
+export function Instrument({ name, detail, value, idle, hint, className, label, children }: InstrumentProps) {
+  const fallback = useContext(InstrumentIdle);
+  const say = idle ? (hint ?? fallback) : undefined;
   return (
     <figure className={`instrument${className ? ` ${className}` : ""}${idle ? " idle" : ""}`} aria-label={label}>
-      <div className="screen">{children}</div>
+      <div className="screen">{children}{say != null && say !== "" && <p className="instrument-hint">{say}</p>}</div>
       <figcaption>
         <b>{name}</b>
         {detail !== undefined && <span className="detail">{detail}</span>}

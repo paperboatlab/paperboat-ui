@@ -40,6 +40,8 @@ export * from "./docs.ts";
 export { MessageCard, MessageList } from "./Messages.tsx";
 export * from "./messages.ts";
 export { VariableEditor } from "./ValueTable.tsx";
+export { VariableList, VariableGroup, VariableRow } from "./VariableList.tsx";
+export { typeLine, valueText } from "./variables.ts";
 export * from "./valueTable.ts";
 export { compareVersions, newerRelease } from "./versions.ts";
 export { mathHtml, INLINE_MATH } from "./math.ts";

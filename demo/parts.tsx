@@ -9,6 +9,9 @@ import { DebugDock, Dock } from "../src/Dock.tsx";
 import { FileRail, FileTree, type FileEntry } from "../src/files/index.ts";
 import { Instrument, Plot2D, Scope } from "../src/plot/index.ts";
 import { useTheme, type Theme } from "../src/theme.tsx";
+import { VariableGroup, VariableList, VariableRow } from "../src/VariableList.tsx";
+import { typeLine, valueText } from "../src/variables.ts";
+import type { Variable } from "../src/canvas/types.ts";
 import type { Command } from "../src/commands.ts";
 
 const q = new URLSearchParams(location.search);
@@ -26,6 +29,11 @@ const SCOPE = [
   { id: "a", label: "cart.θ", unit: "rad", buf: { times: t, values: th } },
   { id: "b", label: "sat.y", unit: "N", buf: { times: t, values: th.map((v) => Math.max(-20, Math.min(20, 90 * v))) } },
 ];
+const VARS: Variable[] = [
+  { name: "kp_theta", type: "number", value: 40, group: "pid", tunable: true }, { name: "kd_theta", type: "number", expr: "kp_theta / 5", group: "pid" },
+  { name: "damping", type: "number", value: 0.4, unit: "N·s/rad", group: "plant" }, { name: "mode", type: "enum", value: "swing", options: ["swing", "hold"], group: "plant" },
+  { name: "K", type: "matrix", value: "1 0; 0 1", source: "mx", group: "Julix" },
+];
 const COMMANDS: Command[] = [
   { id: "new", label: "New file", menu: "file", group: "a", shortcut: "Ctrl N", run: () => {} },
   { id: "open", label: "Open…", menu: "file", group: "a", shortcut: "Ctrl O", run: () => {} },
@@ -41,6 +49,7 @@ function Parts() {
   const [active, setActive] = useState("src/pendulum.jl");
   const [running, setRunning] = useState(false);
   const [paused, setPaused] = useState(true);
+  const [openVar, setOpenVar] = useState<string | null>("kd_theta");
   return (
     <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gridTemplateRows: "44px 1fr", gap: 10, padding: 10, height: "100vh", boxSizing: "border-box", background: "var(--surface-ground)", color: "var(--text)", font: "13px var(--font-sans)" }}>
       <header className="panel" style={{ gridColumn: "1 / -1", flexDirection: "row", alignItems: "center", padding: "0 6px", overflow: "visible", zIndex: 5 }}>
@@ -67,10 +76,22 @@ function Parts() {
             { level: "info", text: "Check of Tank completed successfully." },
           ]} selected={null} />
         </div>
-        <div className="panel" style={{ padding: 12, display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 12 }}>
+        <div className="panel" style={{ padding: 12, display: "grid", gridTemplateColumns: "2fr 1fr 1fr 260px", gap: 12 }}>
           <Scope name="scope" channels={SCOPE} version={0} live={false} settings={{}} />
           <Instrument name="x" detail="cart position" value="0.470 m"><span style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", font: "30px var(--font-mono)" }}>0.47</span></Instrument>
-          <Instrument name="θ" detail="pole" value="–" idle />
+          <Instrument name="θ" detail="pole" value="–" idle hint="No run yet · Run (Ctrl R)" />
+          <VariableList>
+            {["pid", "plant", "Julix"].map((g) => (
+              <VariableGroup key={g} title={g}>
+                {VARS.filter((v) => v.group === g).map((v) => (
+                  <VariableRow key={v.name} name={v.name} type={typeLine(v)} value={valueText(v.expr ? 8 : v.value, v.type)} live={v.source === "mx"}
+                    open={openVar === v.name} onOpen={() => setOpenVar(openVar === v.name ? null : v.name)} error={v.name === "mode" ? "unknown option" : undefined}>
+                    <small style={{ color: "var(--text-muted)" }}>1 use: pid.kd</small>
+                  </VariableRow>
+                ))}
+              </VariableGroup>
+            ))}
+          </VariableList>
         </div>
       </div>
     </div>
