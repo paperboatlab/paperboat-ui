@@ -3,14 +3,14 @@
 // joint on the Station's Graph view. Presentational: the app gives its ports (`usePortLayout`), its params
 // (`ParamRow`s) and what is happening to it; the head says it in words (`blockTag`). A head of 28 px: the name,
 // a linked block's station mark and object id, the note key (on hover or selection; ink with a note), the tag,
-// and for a block with a plate its fold key. A running block shows its outline and the spinner, never a
-// progress bar; selection is a soft outline.
+// for a block with a plate its fold key, and any `keys` the app adds; `under` it, the note's well while edited.
+// A running block shows its outline and the spinner, never a progress bar; selection is a soft outline.
 import type { ReactNode } from "react";
 import { Icon } from "../Icon.tsx";
 import { Spinner } from "../Spinner.tsx";
 import { blockClasses, blockTag, type TagInput } from "./faces.ts";
 
-export function BlockCard({ name, linkedId, note, onNote, fold, onFold, glyph, ports, params, title, selected, ...tag }: TagInput & {
+export function BlockCard({ name, linkedId, note, onNote, fold, onFold, keys, under, glyph, ports, params, title, selected, ...tag }: TagInput & {
   name: string;
   /** A linked block's station object id (its head shows the station mark and the id). */
   linkedId?: string;
@@ -21,6 +21,10 @@ export function BlockCard({ name, linkedId, note, onNote, fold, onFold, glyph, p
   /** A block with a plate: "unfold" puts the card on the canvas, "fold" brings the plate back. */
   fold?: "fold" | "unfold";
   onFold?: () => void;
+  /** More keys at the head's end (a subsystem's open and ungroup). */
+  keys?: ReactNode;
+  /** What opens under the head: the note's well while it is edited. */
+  under?: ReactNode;
   /** A glyph block's glyph, faint in the middle of the port body. */
   glyph?: ReactNode;
   /** From `usePortLayout`: the strips above and below, and the rows between. */
@@ -45,7 +49,9 @@ export function BlockCard({ name, linkedId, note, onNote, fold, onFold, glyph, p
         {fold && onFold && (
           <button type="button" className="key quiet sm block-fold nodrag" title={fold === "unfold" ? "Unfold on the canvas; what it covers moves aside" : "Fold back to a plate"} onClick={onFold}>{fold}</button>
         )}
+        {keys}
       </div>
+      {under && <div className="block-under nodrag nowheel nopan">{under}</div>}
       <div className="port-rows">
         {glyph}
         {ports.rows}
