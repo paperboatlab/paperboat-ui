@@ -46,6 +46,46 @@ export function Dock({
   );
 }
 
+/** The debugger's keys, the same in every app, its menu and command search. */
+export const DEBUG_KEYS = { start: "Ctrl F5", continue: "F5", pause: "F6", over: "F10", into: "F11", out: "Shift F11", stop: "Shift F5" } as const;
+
+export type DebugDockProps = {
+  /** Stopped at a line (a breakpoint, a step, Pause); false while the code runs on. */
+  paused: boolean;
+  /** Where it stopped: "fit.jl:12 · in solve". */
+  where?: ReactNode;
+  onContinue: () => void;
+  onPause: () => void;
+  onStepOver: () => void;
+  onStepInto: () => void;
+  onStepOut: () => void;
+  onStop: () => void;
+};
+
+/**
+ * The debug dock (REBRAND "Floating control"), the run dock's twin for a run being debugged: it floats at the
+ * bottom of the editor (its parent is positioned) only while debugging. Continue is the one tinted key and
+ * becomes Pause in the same place while the code runs; the steps stay, greyed, and say why; Stop is not red.
+ * Where it stopped is in mono at the end.
+ */
+export function DebugDock({ paused, where, onContinue, onPause, onStepOver, onStepInto, onStepOut, onStop }: DebugDockProps) {
+  const step = (label: string, icon: "debug-step-over" | "debug-step-into" | "debug-step-out", keys: string, run: () => void) => (
+    <Key icon={icon} disabled={!paused} title={paused ? `${label} (${keys})` : "Running: pause first"} onClick={run}>{label.slice(5)}</Key>
+  );
+  return (
+    <div className="dock debug-dock" role="toolbar" aria-label="Debugger">
+      {paused
+        ? <Key kind="primary" icon="debug-continue" title={`Continue (${DEBUG_KEYS.continue})`} onClick={onContinue}>Continue</Key>
+        : <Key kind="primary" icon="debug-pause" title={`Pause (${DEBUG_KEYS.pause})`} onClick={onPause}>Pause</Key>}
+      {step("Step over", "debug-step-over", DEBUG_KEYS.over, onStepOver)}
+      {step("Step into", "debug-step-into", DEBUG_KEYS.into, onStepInto)}
+      {step("Step out", "debug-step-out", DEBUG_KEYS.out, onStepOut)}
+      <Key icon="debug-stop" title={`Stop debugging (${DEBUG_KEYS.stop})`} onClick={onStop}>Stop</Key>
+      <span className="run-status" aria-live="polite" aria-atomic="true">{paused ? <>paused{where ? <> · {where}</> : null}</> : "running"}</span>
+    </div>
+  );
+}
+
 export type StationInfo = {
   protocol?: string;
   blocksCount?: number;

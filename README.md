@@ -6,7 +6,7 @@ search, the app marks with their idle fold, the file tree (`/files`), plots, the
 `/scope`), help, messages, the console, the run dock, the splash, the value table and the package panel (`/packages`), the note graph (`/graph`: Obsidian's graph on React Flow, a settling force layout), math (`mathHtml`, KaTeX), media (`/media`: a video and sound player, an image editor that crops and rotates), the node canvas on React Flow (`@paperboatlab/ui/canvas`: wire routing,
 layout, ports, snapping, undo), and the code editor (`@paperboatlab/ui/editor`: languages in
 `src/editor/lang/` — Julia, Python, Modelica, JSON, TOML, Markdown, plain text — and its themes
-in `src/editor/themes/`: Fleet by default, and Paperboat). Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it
+in `src/editor/themes/`: Fleet by default, and Paperboat; the tab menu's rules in `src/editor/tabs.ts`). Every [Paperboat](https://github.com/paperboatlab/paperboat) app uses it
 (the Launcher, Malachite, Simplicial, Articula, Julix). It holds no app logic. It replaces
 [paperboat-shared-legacy](https://github.com/paperboatlab/paperboat-shared-legacy).
 
