@@ -28,6 +28,9 @@ export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";
 export { useDismiss, useFocusReturn } from "./dismiss.tsx";
 export * from "./commands.ts";
+// commands.ts's `Menu` (a menu of the bar) is shadowed by the Menu component above: export it by another name.
+export type { Menu as CommandMenu } from "./commands.ts";
+export { NumberField, parseNumber } from "./NumberField.tsx";
 export { fuzzy } from "./fuzzy.ts";
 export { parseToml, patchToml, formatToml, type TomlTable, type TomlValue } from "./toml.ts";
 export { readStored, writeStored } from "./storage.ts";

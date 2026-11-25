@@ -95,3 +95,10 @@ test("the splash: the parcel to the rest pose, shown late, failed in red with Re
   assert.match(s, /<Key kind="primary" onClick=\{onRetry\}>Retry/, "Retry is the one tinted key");
   assert.match(css("ui.css"), /\.splash-stage\.failed \.splash-say \{ color: var\(--danger-text\)/);
 });
+
+test("a disabled key says why; the kit exports what apps need", () => {
+  assert.doesNotMatch(css("ui.css"), /\.key:disabled[^{]*\{[^}]*pointer-events: none/, "a natively disabled key keeps its tooltip");
+  const index = read("index.ts");
+  assert.match(index, /Menu as CommandMenu/);
+  assert.match(index, /NumberField/);
+});
