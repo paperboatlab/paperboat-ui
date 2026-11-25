@@ -121,3 +121,14 @@ test("toasts: done leaves after --toast-stay, working and failed stay", async ()
   assert.deepEqual([leaves("done"), leaves(undefined), leaves("working"), leaves("failed")], [true, true, false, false]);
   assert.match(read("tokens.css"), /--toast-stay:\s*\d/);
 });
+
+test("notifications: newest first, an update moves its entry up, at most LOG_MAX", async () => {
+  const { record, ago, LOG_MAX } = await import("../src/toast.ts");
+  let log = record([], { id: 1, title: "Pulling", state: "working", at: 1 });
+  log = record(log, { id: 2, title: "Saved", state: "done", at: 2 });
+  log = record(log, { id: 1, title: "Pulled", state: "done", at: 3 });
+  assert.deepEqual(log.map((n) => [n.id, n.title]), [[1, "Pulled"], [2, "Saved"]]);
+  for (let i = 10; i < 100; i++) log = record(log, { id: i, title: "x", at: i });
+  assert.equal(log.length, LOG_MAX);
+  assert.deepEqual([ago(0, 10_000), ago(0, 180_000), ago(0, 7_200_000)], ["now", "3 min ago", "2 h ago"]);
+});
