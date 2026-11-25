@@ -31,7 +31,13 @@ export function MediaPlayer({ src, kind = "video", title }: { src: string; kind?
   useEffect(() => () => clearTimeout(rest.current), []);
 
   const m = () => el.current!;
-  const toggle = () => { const v = m(); if (v.paused || v.ended) { setStarted(true); v.play().catch((e) => setError(String(e?.message ?? e))); } else v.pause(); };
+  const toggle = () => {
+    const v = m();
+    if (!(v.paused || v.ended)) return v.pause();
+    setStarted(true);
+    // the browser may want a click first (autoplay rules): then it simply stays paused, ready
+    v.play().catch((e) => { if (e?.name === "NotAllowedError" || e?.name === "AbortError") setStarted(false); else setError(String(e?.message ?? e)); });
+  };
   const seek = (s: number) => { const v = m(); v.currentTime = Math.min(Math.max(0, s), Number.isFinite(v.duration) ? v.duration : s); setT(v.currentTime); };
   const fullscreen = () => (document.fullscreenElement ? document.exitFullscreen() : box.current?.requestFullscreen())?.catch(() => {});
   const scrubAt = (x: number) => { const r = line.current!.getBoundingClientRect(); seek(((x - r.left) / r.width) * (m().duration || 0)); };
