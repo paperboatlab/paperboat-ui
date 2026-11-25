@@ -4,7 +4,7 @@
   display: flex; align-items: center; gap: 6px;
   width: 100%; height: 26px; padding: 0 8px; margin: 1px 0;
   border: 0; border-radius: 6px; background: none; color: var(--text); text-align: left;
-  font: 12.5px var(--font-mono); cursor: pointer;
+  font: var(--size-xs) var(--font-mono); cursor: pointer;
 }
 .file-row:hover { background: var(--surface-sunken); color: var(--text); }
 .file-row:focus-visible { outline-offset: -2px; }
@@ -15,7 +15,7 @@
 .file-row .caret { width: 14px; flex: none; display: inline-flex; color: var(--text-muted); }
 .file-row .file-icon { width: 16px; height: 16px; flex: none; display: inline-grid; place-items: center; }
 .file-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-row .k { margin-left: auto; font-size: 11px; color: var(--text-muted); }
+.file-row .k { margin-left: auto; font-size: var(--size-3xs); color: var(--text-muted); }
 .files-empty { margin: 0; padding: var(--space-3); font: 400 var(--size-2xs) var(--font-sans); color: var(--text-muted); }
 .file-menu-scrim { position: fixed; inset: 0; z-index: 119; }
 .file-menu {
@@ -24,7 +24,7 @@
   background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-md);
   box-shadow: var(--shadow-1);
 }
-.file-menu button { border: 0; background: none; padding: 6px 10px; border-radius: 5px; text-align: left; font: 13px var(--font-sans); color: var(--text); cursor: pointer; }
+.file-menu button { border: 0; background: none; padding: 6px 10px; border-radius: 5px; text-align: left; font: var(--size-sm) var(--font-sans); color: var(--text); cursor: pointer; }
 .file-menu button:hover { background: var(--surface-sunken); }
 .file-menu button.danger { color: var(--danger-text); }
 .file-menu hr { border: 0; border-top: 1px solid var(--line); margin: 5px 4px; }
@@ -37,7 +37,7 @@
    The app places the rail and sizes it; folded, it should give the rail ~30px. */
 .file-rail { position: relative; display: flex; flex-direction: column; min-height: 0; }
 .file-rail-tabs { display: flex; align-items: center; gap: var(--space-3); min-height: var(--panel-head-height); padding: 0 var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface-raised); }
-.file-rail-tab { border: 0; background: none; padding: 0; font: 13px var(--font-sans); color: var(--text-muted); cursor: pointer; }
+.file-rail-tab { border: 0; background: none; padding: 0; font: var(--size-sm) var(--font-sans); color: var(--text-muted); cursor: pointer; }
 .file-rail-tab:hover { color: var(--text); }
 .file-rail-tab { position: relative; height: 100%; display: inline-flex; align-items: center; }
 .file-rail-tab.on { color: var(--text); }
@@ -50,9 +50,9 @@
 .file-rail-body > [hidden] { display: none; }
 .files-panel { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .files-head { display: flex; align-items: center; gap: var(--space-2); box-sizing: border-box; height: var(--panel-head-height); padding: 0 6px 0 12px; border-bottom: 1px solid var(--line); }
-.files-head .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 13px var(--font-display); }
+.files-head .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 var(--size-sm) var(--font-display); }
 .files-head .lbl { margin-left: auto; white-space: nowrap; }
-.files-foot { margin: 0; padding: 6px var(--space-3); border-top: 1px solid var(--line); font: 400 11px var(--font-mono); color: var(--text-muted); }
+.files-foot { margin: 0; padding: 6px var(--space-3); border-top: 1px solid var(--line); font: 400 var(--size-3xs) var(--font-mono); color: var(--text-muted); }
 
 /* Fold: the chevron in the strip, and the standing tab that brings the rail back. */
 .panel-toggle { flex: none; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--text-muted); display: inline-grid; place-items: center; cursor: pointer; transition: background var(--motion), color var(--motion); }
@@ -67,7 +67,7 @@
   transition: opacity var(--motion), visibility 0s linear 150ms;
 }
 .panel-stand:hover { color: var(--text); }
-.panel-stand span { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 12.5px var(--font-sans); }  /* the slim bar of §10: the name up the edge */
+.panel-stand span { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 var(--size-xs) var(--font-sans); }  /* the slim bar of §10: the name up the edge */
 .rail > .rail-tabs, .rail > .file-rail-body { transition: opacity var(--motion); }
 .rail.collapsed > .rail-tabs, .rail.collapsed > .file-rail-body { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--motion), visibility 0s linear 150ms; }
 .file-rail.collapsed > .panel-stand { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity var(--motion), visibility 0s; }

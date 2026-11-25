@@ -3,7 +3,7 @@
    received yet): the same frame, dashed, so it can be placed before the first run. */
 .instrument { margin: 0; min-width: 0; min-height: 0; height: 100%; display: flex; flex-direction: column; gap: 6px; container-type: inline-size; }
 .instrument > .screen { flex: 1; min-height: 0; position: relative; overflow: hidden; border-radius: var(--radius-md); background: var(--surface-screen); color: var(--text-on-screen); }
-.instrument > figcaption { flex: none; position: relative; display: flex; align-items: center; gap: 8px; height: 18px; font: 12px var(--font-sans); color: var(--text-muted); white-space: nowrap; }
+.instrument > figcaption { flex: none; position: relative; display: flex; align-items: center; gap: 8px; height: 18px; font: var(--size-2xs) var(--font-sans); color: var(--text-muted); white-space: nowrap; }
 .instrument > figcaption > b { font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; flex: none; max-width: 60%; }
 .instrument > figcaption > .detail { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .instrument > figcaption > output { margin-left: auto; font-family: var(--font-mono); color: var(--text); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
@@ -38,7 +38,7 @@
 /* The caption's keys: words in mono, the chosen one in ink (never bracketed), a hairline between groups. */
 .scope-keys { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; min-width: 0; }
 .scope-modes { display: inline-flex; gap: 2px; }
-.scope-keys button { all: unset; cursor: pointer; padding: 0 4px; font: 12px var(--font-mono); color: var(--text-muted); white-space: pre; border-radius: var(--radius-sm); }
+.scope-keys button { all: unset; cursor: pointer; padding: 0 4px; font: var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: pre; border-radius: var(--radius-sm); }
 .scope-keys button:hover:not(:disabled) { color: var(--text); }
 .scope-keys button.on { color: var(--text); font-weight: 600; }
 .scope-keys button:disabled { opacity: 0.45; cursor: default; }
@@ -47,7 +47,7 @@
 /* The plot's tools (pan, zoom, A/B, grid, fit): Plot2D's keys at the caption's height, always in view; a tile too
    narrow for them keeps them in ⋯. Chosen: raised, never a fill. */
 .scope-tools { display: inline-flex; align-items: center; gap: 2px; flex: none; }
-.scope-keys .scope-tools button { height: 18px; min-width: 18px; padding: 0 4px; display: inline-grid; place-items: center; box-sizing: border-box; border-radius: 5px; font-size: 11px; }
+.scope-keys .scope-tools button { height: 18px; min-width: 18px; padding: 0 4px; display: inline-grid; place-items: center; box-sizing: border-box; border-radius: 5px; font-size: var(--size-3xs); }
 .scope-keys .scope-tools button.on { color: var(--text); font-weight: normal; background: var(--surface-sunken); box-shadow: 0 0 0 1px var(--line); }
 @container (max-width: 240px) { .scope-tools { display: none; } }
 .scope-pop { position: absolute; right: 4px; bottom: calc(100% + 8px); z-index: 20; min-width: 220px; max-width: 320px; max-height: calc(100vh - 80px); overflow: auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px; padding: 10px; background: var(--surface-float); backdrop-filter: blur(12px); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-1); color: var(--text); font: var(--size-2xs) var(--font-sans); }

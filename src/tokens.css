@@ -55,10 +55,12 @@
   --font-sans: "Geist Sans", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
+  --size-3xs: 11px;   /* shortcuts, ids, small print */
   --size-2xs: 12px;   /* labels, tags, captions */
   --size-xs: 12.5px;  /* values, keys, block text */
   --size-sm: 13px;    /* body */
   --size-md: 15px;
+  --size-lg: 17px;    /* the app's name in its bar */
   --size-xl: 30px;
 
   --space-1: 4px;
@@ -132,8 +134,8 @@
   --gutter: 14px;                 /* between sections, and around the app */
   --panel-pad: 16px;              /* inside a section */
 
-  --select-outline: 2px solid var(--line-ink); /* a selected block or group */
-  --select-offset: 4px;
+  --select-outline: 2px solid var(--accent-select); /* a selected block, group, frame or pill (ui-example §05) */
+  --select-offset: 3px;
 }
 
 /* ---- Semantic (dark) ------------------------------------------------------------- */

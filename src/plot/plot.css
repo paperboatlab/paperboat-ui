@@ -14,14 +14,14 @@
   flex-direction: column;
   background: var(--surface-raised);
   color: var(--text);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   overflow: hidden;
 }
 .pb-plot2d-title {
   flex: none;
   padding: 5px 4px 1px;
   text-align: center;
-  font: 600 13px var(--font-display);
+  font: 600 var(--size-sm) var(--font-display);
   color: var(--text);
 }
 .pb-plot2d-main { flex: 1; min-height: 0; display: flex; min-width: 0; position: relative; }
@@ -33,14 +33,14 @@
   justify-content: center;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   color: var(--text);
 }
 .pb-plot2d-xlabel {
   flex: none;
   padding: 1px 0 5px 16px;
   text-align: center;
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   color: var(--text);
 }
 .pb-plot2d-plot { flex: 1; min-width: 0; min-height: 0; position: relative; cursor: grab; outline: none; }
@@ -113,7 +113,7 @@
   border: 0;
   background: transparent;
   color: var(--text-muted);
-  font: 500 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 500 var(--size-2xs)/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   padding: 0 3px;
   cursor: pointer;
   border-radius: 2px;
@@ -169,7 +169,7 @@
   align-items: center;
   justify-content: center;
   writing-mode: vertical-rl;
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   color: var(--text);
 }
 
@@ -183,7 +183,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--surface-raised) 94%, transparent);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   color: var(--text);
   pointer-events: none;
 }
@@ -213,7 +213,7 @@
 .pb-plot2d-legend-row { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
 .pb-plot2d-legend-row svg { flex: none; }
 
-.pb-surfacefigure { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--surface-raised); color: var(--text); font: 11px var(--font-mono); }
+.pb-surfacefigure { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--surface-raised); color: var(--text); font: var(--size-3xs) var(--font-mono); }
 .pb-surfacefigure-main { flex: 1; min-width: 0; min-height: 0; display: flex; position: relative; }
 .pb-surfacefigure-scene { flex: 1; min-width: 0; min-height: 0; position: relative; }
 .pb-surfacefigure-labels {
@@ -222,7 +222,7 @@
   justify-content: center;
   gap: 28px;
   padding: 3px 0 9px;
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   line-height: 1.5;
   color: var(--text);
 }
@@ -233,11 +233,11 @@
   position: absolute;
   left: 14px;
   transform: translateY(-50%);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   color: var(--text);
   white-space: nowrap;
 }
-.pb-colorbar-label { position: absolute; top: -14px; left: 0; font: 11px var(--font-mono); white-space: nowrap; }
+.pb-colorbar-label { position: absolute; top: -14px; left: 0; font: var(--size-3xs) var(--font-mono); white-space: nowrap; }
 .pb-colorbar.horiz { width: 100%; height: 42px; margin: 4px 0; }
 .pb-colorbar.horiz .pb-colorbar-gradient { top: 0; left: 0; right: 0; bottom: auto; width: auto; height: 12px; }
 .pb-colorbar.horiz .pb-colorbar-tick { top: 15px; left: auto; transform: translateX(-50%); }
@@ -245,7 +245,7 @@
 
 .pb-tex { display: inline; }
 .pb-tex .katex { font-size: 1em; }
-.pb-heatfigure { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--surface-raised); color: var(--text); font: 11px var(--font-mono); }
+.pb-heatfigure { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--surface-raised); color: var(--text); font: var(--size-3xs) var(--font-mono); }
 .pb-heatfigure-plot { flex: 1; min-width: 0; min-height: 0; position: relative; margin: 2px 10px 16px 38px; }
 .pb-heatfigure-plot.with-colorbar { margin-right: 68px; }
 .pb-heatfigure-canvas { position: absolute; inset: 0; }
@@ -258,14 +258,14 @@
   position: absolute;
   bottom: -15px;
   transform: translateX(-50%);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   white-space: nowrap;
 }
 .pb-heatfigure-ytick {
   position: absolute;
   left: -7px;
   transform: translate(-100%, -50%);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   white-space: nowrap;
 }
 .pb-heatfigure-colorbar { position: absolute; top: 0; bottom: 0; right: -56px; width: 12px; }
@@ -274,6 +274,6 @@
   position: absolute;
   left: 18px;
   transform: translateY(-50%);
-  font: 11px var(--font-mono);
+  font: var(--size-3xs) var(--font-mono);
   white-space: nowrap;
 }

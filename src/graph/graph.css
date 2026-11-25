@@ -10,7 +10,7 @@
 .graph-dot.missing { background: var(--surface-sunken); border: 1.5px dashed var(--line-strong); color: var(--text-muted); }
 .graph-dot.focus { box-shadow: 0 0 0 3px var(--surface-sunken), 0 0 0 5px var(--accent-select); }
 .graph-dot.far { opacity: 0.2; }
-.graph-label { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; font: 11px var(--font-sans); color: var(--text-muted); }
+.graph-label { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; font: var(--size-3xs) var(--font-sans); color: var(--text-muted); }
 .graph-dot.focus .graph-label, .graph-dot.near .graph-label { color: var(--text); }
 .note-graph.compact .graph-label { font-size: 10px; }
 .note-graph .react-flow__edge-path { stroke: var(--line-strong); stroke-width: 1; transition: opacity var(--motion), stroke var(--motion); }
