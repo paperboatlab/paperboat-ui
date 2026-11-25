@@ -175,8 +175,8 @@ export function HubSettings({ hub, values, account, commands, onSet, onRename, o
       </section>
       <section><h3>Where it lives</h3>
         {row("Folder", cloud ? `In ${PLACE_NAMES[hub.place]}${account ? `, as ${account}` : ""}` : "On this computer",
-          <><span className="well wide">{cloud ? <Icon name="cloud" size={14} /> : <Icon name="folder" size={14} />}{hub.path}</span><Key size="sm" onClick={onMove}>Move…</Key></>,
-          cloud ? `hub move ${hub.name} <folder>` : `hub move ${hub.name} --cloud google-drive`)}
+          <><span className="well wide" title={hub.path}>{cloud ? <Icon name="cloud" size={14} /> : <Icon name="folder" size={14} />}<span>{hub.path}</span></span><Key size="sm" onClick={onMove}>Move…</Key></>,
+          `hub move ${hub.name} <folder>`)}
         {cloud && row("Sync", hub.sync ? `Now: ${hub.sync.text}` : "", <Switch label="Sync" checked={values.sync ?? true} onChange={(on) => onSet("sync", on)} />, `hub sync ${hub.name} ${values.sync === false ? "--resume" : "--pause"}`)}
       </section>
       <section><h3>History</h3>
