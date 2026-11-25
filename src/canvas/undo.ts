@@ -17,7 +17,8 @@ function strip<N extends Node, E extends Edge>(nodes: N[], edges: E[]): Snapshot
  * Undo and redo for a canvas: Ctrl+Z, Ctrl+Shift+Z or Ctrl+Y (⌘ on a Mac), except while
  * typing in a field, which keeps its own. A step is the canvas once it settles: adding or
  * removing blocks and wires, moving, editing params, grouping. Selecting is not a step.
- * `reset` changing (the station loaded another graph) clears the history.
+ * `reset` changing (the station loaded another graph) clears the history. While not `enabled`
+ * (a run is in progress) the keys and the two steps do nothing.
  * Returns the same two steps for the Edit menu, and whether each has anything to do.
  */
 export function useUndo<N extends Node, E extends Edge>(
@@ -26,11 +27,14 @@ export function useUndo<N extends Node, E extends Edge>(
   setNodes: Dispatch<SetStateAction<N[]>>,
   setEdges: Dispatch<SetStateAction<E[]>>,
   reset: unknown,
+  enabled = true,
 ): { undo: () => void; redo: () => void; canUndo: boolean; canRedo: boolean } {
   const past = useRef<Snapshot<N, E>[]>([]);
   const future = useRef<Snapshot<N, E>[]>([]);
   const settled = useRef<Snapshot<N, E> | null>(null);
   const restoring = useRef(false);
+  const on = useRef(enabled);
+  on.current = enabled;
   const now = strip(nodes, edges);
   const current = useRef(now);
   current.current = now;
@@ -67,6 +71,7 @@ export function useUndo<N extends Node, E extends Edge>(
 
   const step = useCallback(
     (redo: boolean) => {
+      if (!on.current) return;
       const restore = (to: Snapshot<N, E>) => {
         restoring.current = true;
         setNodes(to.nodes);
