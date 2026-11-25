@@ -40,12 +40,20 @@ export const ICONS = {
   "cloud-download": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M11.957 6h.05a2.99 2.99 0 0 1 2.116.879 3.003 3.003 0 0 1 0 4.242 2.99 2.99 0 0 1-2.117.879v-1a2.002 2.002 0 0 0 0-4h-.914l-.123-.857a2.49 2.49 0 0 0-2.126-2.122A2.478 2.478 0 0 0 6.231 5.5l-.333.762-.809-.189A2.49 2.49 0 0 0 4.523 6c-.662 0-1.297.263-1.764.732A2.503 2.503 0 0 0 4.523 11h.498v1h-.498a3.486 3.486 0 0 1-2.628-1.16 3.502 3.502 0 0 1 1.958-5.78 3.462 3.462 0 0 1 1.468.04 3.486 3.486 0 0 1 3.657-2.06A3.479 3.479 0 0 1 11.957 6zm-5.25 5.121l1.314 1.314V7h.994v5.4l1.278-1.279.707.707-2.146 2.147h-.708L6 11.829l.707-.708z\"/>"],
   /** Run, start */
   "play": ["0 0 16 16", "<path d=\"M3.78 2L3 2.41v12l.78.42 9-6V8l-9-6zM4 13.48V3.35l7.6 5.07L4 13.48z\"/>"],
-  /** Interrupt (a kernel's running cell) */
+  /** Interrupt, pause (a kernel's running cell, a run being debugged) */
   "debug-pause": ["0 0 16 16", "<path d=\"M4.5 3H6v10H4.5V3zm7 0v10H10V3h1.5z\"/>"],
   /** Restart (a session, a station) */
   "debug-restart": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M12.75 8a4.5 4.5 0 0 1-8.61 1.834l-1.391.565A6.001 6.001 0 0 0 14.25 8 6 6 0 0 0 3.5 4.334V2.5H2v4l.75.75h3.5v-1.5H4.352A4.5 4.5 0 0 1 12.75 8z\"/>"],
-  /** Stop (a session, a cell) */
+  /** Stop (a session, a cell, a run, debugging) */
   "debug-stop": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M13 1.99976L14 2.99976V12.9998L13 13.9998H3L2 12.9998L2 2.99976L3 1.99976H13ZM12.7461 3.25057L3.25469 3.25057L3.25469 12.7504H12.7461V3.25057Z\"/>"],
+  /** Continue (a paused run, to the next breakpoint) */
+  "debug-continue": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M2.5 2H4v12H2.5V2zm4.936.39L6.25 3v10l1.186.61 7-5V7.39l-7-5zM12.71 8l-4.96 3.543V4.457L12.71 8z\"/>"],
+  /** Step over (the next line, calls run through) */
+  "debug-step-over": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M14.25 5.75v-4h-1.5v2.542c-1.145-1.359-2.911-2.209-4.84-2.209-3.177 0-5.92 2.307-6.16 5.398l-.02.269h1.501l.022-.226c.212-2.195 2.202-3.94 4.656-3.94 1.736 0 3.244.875 4.05 2.166h-2.83v1.5h4.163l.962-.975V5.75h-.004zM8 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z\"/>"],
+  /** Step into (the call on this line) */
+  "debug-step-into": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8 9.532h.542l3.905-3.905-1.061-1.06-2.637 2.61V1H7.251v6.177l-2.637-2.61-1.061 1.06 3.905 3.905H8zm1.956 3.481a2 2 0 1 1-4 0 2 2 0 0 1 4 0z\"/>"],
+  /** Step out (to the caller) */
+  "debug-step-out": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M8 1h-.542L3.553 4.905l1.061 1.06 2.637-2.61v6.177h1.498V3.355l2.637 2.61 1.061-1.06L8.542 1H8zm1.956 12.013a2 2 0 1 1-4 0 2 2 0 0 1 4 0z\"/>"],
   /** Copy to the clipboard */
   "copy": ["0 0 16 16", "<path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M4 4l1-1h5.414L14 6.586V14l-1 1H5l-1-1V4zm9 3l-3-3H5v10h8V7z\"/><path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M3 1L2 2v10l1 1V2h6.414l-1-1H3z\"/>"],
   /** More actions */
