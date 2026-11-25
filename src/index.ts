@@ -5,6 +5,8 @@ export { AppMark } from "./AppMark.tsx";
 export { APPS, FRAMES, FOLD_MS, frameAt, restMs, splashFrame, type App } from "./fold.ts";
 export { Console, ConsoleWindow, logText, type Log } from "./Console.tsx";
 export { Dialog } from "./Dialog.tsx";
+export { About } from "./About.tsx";
+export { appName, builtOn, versionInfo, KIT_CREDITS, FONT_CREDITS, type Credit } from "./about.ts";
 export { Icon } from "./Icon.tsx";
 export { ICONS, type IconName } from "./icons.ts";
 export { Key, RemoveKey, type KeyProps } from "./Key.tsx";
