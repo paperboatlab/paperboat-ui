@@ -54,14 +54,14 @@ test("yScaleRange keeps log-y bounds strictly positive", () => {
   assert.deepEqual(yScaleRange(0, 10), [-0.8, 10.8]);
 });
 
-test("the scope imports only React, uPlot and the kit's token reader, so any app can mount it", () => {
+test("the scope imports only React, uPlot and the kit's own token reader, dismiss and icons, so any app can mount it", () => {
   const dir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../src/scope");
   const files = fs.readdirSync(dir, { recursive: true, encoding: "utf8" }).filter((f) => /\.(tsx?|css)$/.test(f) && !f.endsWith(".test.ts"));
   for (const file of files) {
     const src = fs.readFileSync(path.join(dir, file), "utf8");
     for (const m of src.matchAll(/^(import|export)\s+(type\s+)?[^;]*?from\s+"([^"]+)"/gms)) {
       const [, , type, from] = m;
-      const ok = from.startsWith("./") || ["react", "react/jsx-runtime", "uplot"].includes(from) || from.startsWith("uplot/") || (from === "../widget.ts" && type) || (from === "@paperboat/host" && type) || from === "../plot/tokens.ts";
+      const ok = from.startsWith("./") || ["react", "react/jsx-runtime", "uplot"].includes(from) || from.startsWith("uplot/") || (from === "../widget.ts" && type) || (from === "@paperboat/host" && type) || ["../plot/tokens.ts", "../dismiss.tsx", "../Icon.tsx"].includes(from);
       assert.ok(ok, `${file} imports ${from}`);
     }
   }
