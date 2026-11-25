@@ -136,3 +136,15 @@ test("notifications: newest first, an update moves its entry up, at most LOG_MAX
 test("the history's styles are scoped to its own popover, never a bare class an app may use", () => {
   assert.doesNotMatch(css("ui.css"), /(^|[\s,}])\.notes?(?![\w-])/m);
 });
+
+test("about: the app's credits first, the kit's after without repeats; one line of version info", async () => {
+  const { builtOn, versionInfo, KIT_CREDITS } = await import("../src/about.ts");
+  const own: [string, string, string, string][] = [["three.js", "3D", "MIT", "https://threejs.org"], ["React", "the interface", "MIT", "https://react.dev"]];
+  const all = builtOn(own);
+  assert.deepEqual(all.slice(0, 2).map(([n]) => n), ["three.js", "React"]);
+  assert.equal(all.filter(([n]) => n === "React").length, 1);
+  assert.equal(all.length, 2 + KIT_CREDITS.length - 1);
+  assert.equal(versionInfo("articula", "0.1.0", "0.1.0-alpha.3", "omc 1.24.0"), "Articula 0.1.0 · Paperboat 0.1.0-alpha.3 · omc 1.24.0");
+  assert.equal(versionInfo("julix", "0.2.0", null), "Julix 0.2.0 · Paperboat not installed");
+  assert.equal(versionInfo("paperboat", "0.1.0-alpha.3", "x", "commit abc"), "Paperboat 0.1.0-alpha.3 · commit abc");
+});

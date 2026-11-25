@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
 import { Editor, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
-import { AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+import { About, AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const JL = `using DifferentialEquations
 using JulixPlot
@@ -28,6 +28,7 @@ function Demo() {
   const [on, setOn] = useState(true);
   const [left, setLeft] = useState(new URLSearchParams(location.search).has("hide"));
   const [dialog, setDialog] = useState(new URLSearchParams(location.search).has("dialog"));
+  const [about, setAbout] = useState(new URLSearchParams(location.search).get("about"));
   const [menu, setMenu] = useState(new URLSearchParams(location.search).has("menu"));
   const [search, setSearch] = useState(new URLSearchParams(location.search).has("search"));
   const notes = useToasts();
@@ -94,6 +95,7 @@ function Demo() {
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <Key onClick={() => setDialog(true)}>Open dialog</Key>
+              <Key onClick={() => setAbout("articula")}>About</Key>
               <Key onClick={() => show({ title: "Pulled julia", detail: "ghcr.io/paperboatlab/julia · 412 MB", state: "done" })}>Toast</Key>
               <Key onClick={() => show({ title: "Pull failed", detail: "no network", state: "failed" })}>Failed toast</Key>
               <Key onClick={() => { const id = show({ title: "Pulling python", detail: "ghcr.io/paperboatlab/python", state: "working" }); setTimeout(() => show({ id, title: "Pulled python", detail: "ghcr.io/paperboatlab/python · 288 MB", state: "done" }), 2500); }}>Working → done</Key>
@@ -118,6 +120,8 @@ function Demo() {
         { id: "run", label: "run", group: "Stations", icon: "play", detail: "<station>", scope: "Commands", disabled: true, why: "Needs Simplicial, which isn't installed yet", run: () => {} },
       ]} />}
       <Toasts toasts={toasts} onDismiss={dismiss} />
+      {about && <About app={about as "articula"} role="Acausal physical modelling on OpenModelica" version="0.1.0" paperboat="0.1.0-alpha.3" info="omc 1.24.0 · protocol articula/0 · commit 9938032" repo={`paperboatlab/${about}`}
+        credits={[["OpenModelica (omc)", "compiles and simulates models", "OSMC-PL / GPL-3.0", "https://openmodelica.org"], ["three.js", "the 3D view", "MIT", "https://threejs.org"]]} onClose={() => setAbout(null)} />}
     </div>
   );
 }
