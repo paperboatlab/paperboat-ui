@@ -8,11 +8,9 @@ export type EditorPalette = {
   comment: string; keyword: string; string: string; builtin: string; escape: string; number: string;
   operator: string; punctuation: string; property: string; function: string; type: string;
   definition: string; error: string;
-  /** Ink shows keywords by weight. */
-  keywordWeight?: number;
 };
 
-/** A theme of the collection: a palette for each app theme it follows, or one it always shows. */
+/** A theme of the collection: a palette for each app theme it follows (one only: it always shows that one). */
 export type EditorTheme = { id: string; label: string; light?: EditorPalette; dark?: EditorPalette };
 
 /** A user's theme ([themes.<name>] in their settings): a theme to start from and the colours it changes. */
