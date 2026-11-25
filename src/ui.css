@@ -225,6 +225,24 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .panel.bottom.hidden .hide-key svg { transform: scaleY(-1); }
 .panel-slim .count { margin-top: auto; font: 11px var(--font-mono); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
 
+/* ── the page rail (Simplicial's frame): pages only, icons alone sharing its height; a page's chip grows
+   on hover or focus to say what it is; it steps aside (aside) where every page is in view ── */
+.page-rail { box-sizing: border-box; flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 6px; display: flex; flex-direction: column; transition: width var(--slide), padding var(--slide), margin var(--slide), border-width var(--slide), opacity var(--motion); }
+.page-rail.aside { width: 0; padding-left: 0; padding-right: 0; border-width: 0; opacity: 0; overflow: hidden; }
+.page-rail-item { all: unset; position: relative; z-index: 5; flex: 1; display: flex; align-items: center; color: var(--text-muted); cursor: pointer; }
+.page-rail-chip { position: absolute; left: 0; top: 50%; transform: translateY(-50%); box-sizing: border-box; height: 40px; max-width: 40px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-radius: var(--radius-md); white-space: nowrap; overflow: hidden; transition: max-width var(--glide), background var(--motion), box-shadow var(--motion), color var(--motion); }
+.page-rail-chip .pb-icon { width: 20px; height: 20px; flex: none; }
+.page-rail-chip > span, .page-rail-chip > kbd { opacity: 0; transition: opacity var(--motion); }
+.page-rail-chip > span { font: 500 13px var(--font-sans); }
+.page-rail-chip > kbd { font: 11px var(--font-mono); color: var(--text-muted); }
+.page-rail-item[aria-current="page"] .page-rail-chip { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); color: var(--text); }
+.page-rail-item:hover .page-rail-chip, .page-rail-item:focus-visible .page-rail-chip { max-width: 380px; background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-1); color: var(--text); }
+.page-rail-item:hover .page-rail-chip > *, .page-rail-item:focus-visible .page-rail-chip > * { opacity: 1; transition: opacity var(--glide) 0.08s; }
+.page-rail-item:focus-visible .page-rail-chip { outline: 2px solid var(--focus); outline-offset: 2px; }
+.page-rail-item[aria-disabled="true"] { opacity: 0.4; cursor: default; }
+.page-rail-item[aria-disabled="true"]:hover .page-rail-chip { color: var(--text-muted); }
+.page-rail-item .rail-count { position: absolute; top: calc(50% - 22px); right: -2px; opacity: 1; }
+
 /* ── the rail: 52 px (icons, tooltips) or 208 px (icon and label), switched only by its foot key ── */
 .rail { box-sizing: border-box; flex: none; width: 52px; background: var(--surface-panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 8px 5px; display: flex; flex-direction: column; gap: 2px; transition: width var(--slide); position: relative; }
 .rail.wide { width: 208px; }
@@ -264,6 +282,8 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 /* ── floating search: Ctrl K, top centre, over everything ── */
 .search { position: fixed; inset: 0; z-index: 200; }
 .search-scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0.55; }
+.search.at { pointer-events: none; }  /* quick add: at the cursor, no scrim */
+.search.at .search-box { pointer-events: auto; left: min(var(--search-x), calc(100vw - 416px)); top: min(var(--search-y), calc(100vh - 460px)); transform: none; width: 400px; }
 .search-box { position: absolute; left: 50%; top: 13vh; transform: translateX(-50%); width: min(620px, 92vw); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-2); overflow: hidden; display: flex; flex-direction: column; animation: pb-rise var(--glide); }
 @keyframes pb-rise { from { opacity: 0; transform: translate(-50%, -6px) scale(0.98); } }
 .search-field { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); color: var(--text-muted); }

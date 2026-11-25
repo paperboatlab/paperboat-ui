@@ -15,7 +15,7 @@ test("every token the components use is defined", () => {
   const defined = new Set([...(read("tokens.css") + all).matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
   const used = new Set([...(all + read("theme.tsx")).matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
   // set by the component that uses them (inline style), each with its fallback
-  const own = new Set(["--s", "--ip-color", "--lr"]);
+  const own = new Set(["--s", "--ip-color", "--lr", "--search-x", "--search-y"]);
   assert.deepEqual([...used].filter((v) => !defined.has(v) && !own.has(v)), []);
 });
 
@@ -67,4 +67,17 @@ test("the Console is a floating window, exported from the kit", () => {
   const c = read("Console.tsx");
   assert.match(c, /<RemoveKey label="Close the Console/, "closed by the round ×, not a text key");
   assert.doesNotMatch(c, /key small/, "the rebrand's key sizes (sm), not the legacy kit's");
+});
+
+test("the page rail, quick add and the run dock follow the rebrand", () => {
+  const index = read("index.ts");
+  assert.match(index, /PageRail/); assert.match(index, /\bDock\b/);
+  const rail = read("PageRail.tsx");
+  assert.match(rail, /aria-current=\{p\.id === page/, "the current page is raised, said by aria-current");
+  assert.match(rail, /p\.why/, "a page that can't open says why");
+  assert.match(css("ui.css"), /\.page-rail-item:hover \.page-rail-chip/, "hovering a page, its chip grows to say what it is");
+  assert.match(read("Search.tsx"), /\{!at && <div className="search-scrim"/, "quick add has no scrim");
+  const dock = read("Dock.tsx");
+  assert.match(dock, /<Key kind="primary" icon="play"/, "Run is the one tinted key");
+  assert.doesNotMatch(dock, /[▶■]/, "icons from the registry, not text glyphs");
 });
