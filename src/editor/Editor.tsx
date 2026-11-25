@@ -18,7 +18,7 @@ import type { Language, Session } from "./language.ts";
 import { paletteOf, themeExtension, type ThemeSpec } from "./themes/index.ts";
 
 export type EditorSettings = {
-  /** A theme of the collection (ink, colour, paper, sepia, harbor, contrast) or one of the user's `themes`. */
+  /** A theme of the collection (fleet, paperboat) or one of the user's `themes`. */
   theme: string;
   fontSize: number;
   font: "geist" | "system" | "serif";
@@ -33,7 +33,7 @@ export type EditorSettings = {
 };
 
 export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
-  theme: "ink", fontSize: 12.5, font: "geist", lineHeight: 20,
+  theme: "fleet", fontSize: 12.5, font: "geist", lineHeight: 20,
   tabSize: 4, wrap: false, autocomplete: true, brackets: true, lint: true,
 };
 

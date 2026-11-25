@@ -28,7 +28,7 @@ const PALETTE_KEYS = Object.keys(EDITOR_THEMES[0].light!) as (keyof EditorPalett
 const snake = (k: string) => k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 
 /** Settings as stored before the file, or by a file: unknown keys dropped, the old light/dark names mapped. */
-function clean(raw: Record<string, unknown>): EditorSettings {
+function clean(raw: Record<string, unknown>, themes: unknown = raw.themes): EditorSettings {
   const out: EditorSettings = { ...DEFAULT_EDITOR_SETTINGS };
   for (const key of Object.values(KEYS)) {
     const v = raw[key];
@@ -36,7 +36,8 @@ function clean(raw: Record<string, unknown>): EditorSettings {
     if (key === "font" && !FONTS.includes(v as string)) continue;
     (out as Record<string, unknown>)[key] = v;
   }
-  out.theme = ({ ui: "ink", light: "ink", dark: "ink" } as Record<string, string>)[out.theme] ?? out.theme;  // the old names: Ink now follows the app
+  // a retired built-in (ink, colour, paper, …) falls back to the default; a user theme of that name is kept
+  if (!EDITOR_THEMES.some((t) => t.id === out.theme) && !(isObject(themes) && out.theme in themes)) out.theme = DEFAULT_EDITOR_SETTINGS.theme;
   return out;
 }
 
@@ -48,7 +49,6 @@ export function readConfig(text: string): AppConfig {
   const editor = (typeof doc.editor === "object" ? doc.editor : {}) as TomlTable;
   const raw: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(editor)) if (KEYS[k]) raw[KEYS[k]] = v;
-  const settings = clean(raw);
   const themes: Record<string, ThemeSpec> = {};
   for (const [name, t] of Object.entries(typeof doc.themes === "object" ? doc.themes : {})) {
     if (typeof t !== "object") continue;
@@ -58,6 +58,7 @@ export function readConfig(text: string): AppConfig {
     for (const k of PALETTE_KEYS) if (k !== "dark" && typeof t[snake(k)] === "string") (spec as Record<string, unknown>)[k] = t[snake(k)];
     themes[name] = spec;
   }
+  const settings = clean(raw, themes);
   if (Object.keys(themes).length) settings.themes = themes;
   const ui = (typeof doc.ui === "object" ? doc.ui : {}) as TomlTable;
   const theme = THEMES.find((t) => t === ui.theme);
@@ -78,7 +79,7 @@ export function configTemplate(s: EditorSettings, theme: Theme = "system"): stri
 theme = ${JSON.stringify(theme)}  # auto (follows the system), light or dark
 
 [editor]
-theme = ${JSON.stringify(t.theme)}  # "ink" (the default) and "colour" follow the app. Built in: ${EDITOR_THEMES.map((t) => t.id).join(", ")}; or one of [themes] below
+theme = ${JSON.stringify(t.theme)}  # "fleet" (the default) and "paperboat" follow the app. Built in: ${EDITOR_THEMES.map((t) => t.id).join(", ")}; or one of [themes] below
 font = ${JSON.stringify(t.font)}  # geist, system or serif
 font_size = ${t.font_size}
 line_height = ${t.line_height}
@@ -91,7 +92,7 @@ lint = ${t.lint}
 # Your own theme: start from a built-in (base) and change any colour; then set theme = "mine".
 # Colours: ${PALETTE_KEYS.filter((k) => k !== "dark").map(snake).join(", ")}.
 # [themes.mine]
-# base = "ink"
+# base = "fleet"
 # keyword = "#ff9e64"
 # string = "#b5e08c"
 `;

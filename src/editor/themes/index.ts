@@ -1,22 +1,20 @@
-// The editor theme collection (brand.html §14): Ink (the default) and Muted colour follow the app's light
-// and dark; Paper, Sepia, Harbor and Contrast are fixed. A user adds their own as a base plus the colours it
-// changes. themeExtension turns a palette into CodeMirror's chrome (drawn to the rebrand: the completion's
+// The editor theme collection (ui-example.html "Editor colours"): Fleet (the default) and Paperboat, each
+// following the app's light and dark. A user adds their own as a base plus the colours it changes. themeExtension turns a palette into CodeMirror's chrome (drawn to the rebrand: the completion's
 // chosen row is tinted, never a bar beside it; an error is a red wavy line, a warning a dotted ink one) and
 // its syntax highlighting.
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import type { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
-import { colour } from "./colour.ts";
-import { ink } from "./ink.ts";
-import { contrast, harbor, paper, sepia } from "./legacy.ts";
+import { fleet } from "./fleet.ts";
+import { paperboat } from "./paperboat.ts";
 import type { EditorPalette, EditorTheme, ThemeSpec } from "./palette.ts";
 
 export type { EditorPalette, EditorTheme, ThemeSpec } from "./palette.ts";
 
 /** The collection, in the order a picker lists it. */
-export const EDITOR_THEMES: readonly EditorTheme[] = [ink, colour, paper, sepia, harbor, contrast];
-export const DEFAULT_EDITOR_THEME = "ink";
+export const EDITOR_THEMES: readonly EditorTheme[] = [fleet, paperboat];
+export const DEFAULT_EDITOR_THEME = "fleet";
 
 const byId = (id: string) => EDITOR_THEMES.find((t) => t.id === id);
 const pick = (t: EditorTheme, app: "light" | "dark") => (app === "dark" ? t.dark ?? t.light : t.light ?? t.dark)!;
@@ -26,9 +24,9 @@ export function paletteOf(id: string, app: "light" | "dark", custom: Record<stri
   const own = custom[id];
   if (own) {
     const { base, label: _label, ...colours } = own;
-    return { ...pick(byId(base ?? "") ?? ink, app), ...colours };
+    return { ...pick(byId(base ?? "") ?? fleet, app), ...colours };
   }
-  return pick(byId(id) ?? ink, app);
+  return pick(byId(id) ?? fleet, app);
 }
 
 // Built once per palette: HighlightStyle.define mints new CSS classes every call.
@@ -75,7 +73,7 @@ function buildTheme(p: EditorPalette): Extension {
   }, { dark: p.dark });
   const highlight = HighlightStyle.define([
     { tag: [tags.comment, tags.lineComment, tags.blockComment, tags.docComment], color: p.comment, fontStyle: "italic" },
-    { tag: [tags.keyword, tags.operatorKeyword, tags.typeOperator, tags.macroName, tags.controlKeyword, tags.definitionKeyword, tags.moduleKeyword], color: p.keyword, fontWeight: String(p.keywordWeight ?? 400) },
+    { tag: [tags.keyword, tags.operatorKeyword, tags.typeOperator, tags.macroName, tags.controlKeyword, tags.definitionKeyword, tags.moduleKeyword], color: p.keyword },
     { tag: [tags.string, tags.character], color: p.string },
     { tag: [tags.special(tags.string), tags.atom, tags.standard(tags.variableName)], color: p.builtin },
     { tag: tags.escape, color: p.escape },
