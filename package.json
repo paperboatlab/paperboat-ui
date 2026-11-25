@@ -38,6 +38,10 @@
       "types": "./src/graph/index.ts",
       "default": "./src/graph/index.ts"
     },
+    "./media": {
+      "types": "./src/media/index.ts",
+      "default": "./src/media/index.ts"
+    },
     "./plot": {
       "types": "./src/plot/index.ts",
       "default": "./src/plot/index.ts"

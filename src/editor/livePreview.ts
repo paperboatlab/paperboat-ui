@@ -21,6 +21,9 @@ export type LivePreviewOptions = {
   frontMatter?: "quiet" | "hide";
   /** TeX drawn with KaTeX: `$…$` in a line, `$$…$$` as a block (on by default). */
   math?: boolean;
+  /** A line that is only an embed (`![[photo.png]]`, `![alt](clip.mp4)`) drawn by the app (a picture, a
+   *  player) while the caret is off it; `wiki` says which form, `target` is as written. */
+  embeds?: { mount: (el: HTMLElement, e: { target: string; alt: string; wiki: boolean }) => void; unmount?: (el: HTMLElement) => void };
 };
 
 const hide = Decoration.replace({});
@@ -46,6 +49,30 @@ class MathWidget extends WidgetType {
   }
   ignoreEvent() { return true; }
 }
+
+class EmbedBlock extends WidgetType {
+  readonly e: { target: string; alt: string; wiki: boolean };
+  readonly o: NonNullable<LivePreviewOptions["embeds"]>;
+  constructor(e: { target: string; alt: string; wiki: boolean }, o: NonNullable<LivePreviewOptions["embeds"]>) { super(); this.e = e; this.o = o; }
+  eq(w: EmbedBlock) { return w.e.target === this.e.target && w.e.alt === this.e.alt && w.e.wiki === this.e.wiki; }
+  toDOM(view: EditorView) {
+    const el = document.createElement("div");
+    el.className = "cm-lp-embed";
+    // a click beside the picture (not on its keys or the player) puts the caret on the line, which shows it as written
+    el.addEventListener("mousedown", (ev) => {
+      if ((ev.target as HTMLElement).closest("button, a, input, video, audio, [data-keep], .pb-player")) return;
+      ev.preventDefault();
+      view.dispatch({ selection: { anchor: view.state.doc.lineAt(view.posAtDOM(el)).to } });
+      view.focus();
+    });
+    this.o.mount(el, this.e);
+    return el;
+  }
+  destroy(el: HTMLElement) { this.o.unmount?.(el); }
+  ignoreEvent() { return true; }
+}
+
+const EMBED_WIKI = /^\s*!\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]\s*$/, EMBED_MD = /^\s*!\[([^\]]*)\]\(<?([^)\s>]+)>?(?:\s+"[^"]*")?\)\s*$/;
 
 class RunKey extends WidgetType {
   readonly line: number;
@@ -182,6 +209,16 @@ function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
     if (end <= doc.lines) { out.push(Decoration.replace({ block: true }).range(0, doc.line(end).to)); n = end + 1; }
   }
   const start = n;
+  if (o.embeds) {
+    for (let k = start; k <= doc.lines; k++) {
+      const line = doc.line(k), t = line.text.trim();
+      if (/^(`{3,}|~{3,})/.test(t)) { const f = t.slice(0, 3); k++; while (k <= doc.lines && !doc.line(k).text.trim().startsWith(f)) k++; continue; }   // not inside code
+      const w = EMBED_WIKI.exec(line.text), m = w ? null : EMBED_MD.exec(line.text);
+      if (!(w || m) || editing(state, line.from, line.to)) continue;
+      const e = w ? { target: w[1].trim(), alt: (w[2] ?? "").trim(), wiki: true } : { target: m![2], alt: m![1], wiki: false };
+      out.push(Decoration.replace({ block: true, widget: new EmbedBlock(e, o.embeds) }).range(line.from, line.to));
+    }
+  }
   if (o.math !== false) {
     for (let k = start; k <= doc.lines; k++) {
       const first = doc.line(k), t = first.text.trim();

@@ -11,6 +11,7 @@
 @import "./canvas/canvas.css";
 @import "./files/files.css";
 @import "./graph/graph.css";
+@import "./media/media.css";
 @import "./plot/plot.css";
 @import "./scope/scope.css";
 @import "./packages/packages.css";
@@ -311,6 +312,7 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .cm-live .cm-lp-fence { font-family: var(--font-mono); background: var(--surface-sunken); }
 .cm-live .cm-lp-run { all: unset; margin-left: 10px; font: 500 11px var(--font-sans); color: var(--text); padding: 1px 8px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--surface-raised); cursor: pointer; }
 .cm-live .cm-lp-run:hover { border-color: var(--line-ink); }
+.cm-live .cm-lp-embed { padding: 6px 0; font-family: var(--font-sans); white-space: normal; cursor: text; }
 .cm-live .cm-lp-math { cursor: text; }
 .cm-live .cm-lp-math-src, .cm-live .cm-lp-math-src * { font-family: var(--font-mono); color: var(--text-muted) !important; }
 .cm-live .cm-lp-math-block { padding: 6px 0; text-align: center; cursor: text; overflow-x: auto; }
