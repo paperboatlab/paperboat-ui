@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
 import { Editor, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
-import { AppMark, Dialog, Icon, Key, Menu, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+import { AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const JL = `using DifferentialEquations
 using JulixPlot
@@ -30,17 +30,19 @@ function Demo() {
   const [dialog, setDialog] = useState(new URLSearchParams(location.search).has("dialog"));
   const [menu, setMenu] = useState(new URLSearchParams(location.search).has("menu"));
   const [search, setSearch] = useState(new URLSearchParams(location.search).has("search"));
-  const { toasts, show, dismiss } = useToasts();
+  const notes = useToasts();
+  const { toasts, show, dismiss } = notes;
   const [edTheme, setEdTheme] = useState(new URLSearchParams(location.search).get("ed") || DEFAULT_EDITOR_THEME);
   const shown = useTheme(theme);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gridTemplateRows: "48px 1fr", gap: 10, padding: 10, height: "100vh", boxSizing: "border-box", background: "var(--surface-ground)", color: "var(--text)", font: "13px var(--font-sans)" }}>
-      <header className="panel" style={{ gridColumn: "1 / -1", flexDirection: "row", alignItems: "center", gap: 10, padding: "0 10px" }}>
+      <header className="panel" style={{ gridColumn: "1 / -1", overflow: "visible", flexDirection: "row", alignItems: "center", gap: 10, padding: "0 10px" }}>
         <AppMark app="paperboat" size={26} idle label="Paperboat" />
         <b style={{ font: "600 17px var(--font-display)" }}>Paperboat</b>
         <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
           <Key icon="search" size="sm" shortcut="Ctrl K" onClick={() => setSearch(true)}>Search</Key>
           <PanelsKey panels={[{ id: "l", label: "Runtimes", keys: "Ctrl B", shown: !left }]} layout={{ l: [4, 4, 16, 36], m: [22, 4, 38, 36] }} onToggle={() => setLeft((h) => !h)} />
+          <Notifications {...notes} />
           <ThemePicker theme={theme} onChange={setTheme} />
         </span>
       </header>
@@ -94,6 +96,7 @@ function Demo() {
               <Key onClick={() => setDialog(true)}>Open dialog</Key>
               <Key onClick={() => show({ title: "Pulled julia", detail: "ghcr.io/paperboatlab/julia · 412 MB", state: "done" })}>Toast</Key>
               <Key onClick={() => show({ title: "Pull failed", detail: "no network", state: "failed" })}>Failed toast</Key>
+              <Key onClick={() => { const id = show({ title: "Pulling python", detail: "ghcr.io/paperboatlab/python", state: "working" }); setTimeout(() => show({ id, title: "Pulled python", detail: "ghcr.io/paperboatlab/python · 288 MB", state: "done" }), 2500); }}>Working → done</Key>
             </div>
             {menu && (
               <div style={{ position: "relative" }}>
