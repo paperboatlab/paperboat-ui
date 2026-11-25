@@ -371,6 +371,8 @@ export function SceneView({
   pickedPoint,
   onCameraChange,
   onPlotPick,
+  onPick,
+  selected,
 }: {
   entities: Record<string, Entity>;
   view: View;
@@ -391,6 +393,10 @@ export function SceneView({
   pickedPoint?: readonly [number, number, number] | null;
   onCameraChange?: (cam: SceneCameraState) => void;
   onPlotPick?: (pick: ScenePlotPick | null) => void;
+  /** A click (not a drag) on an entity: its id; on nothing, null. */
+  onPick?: (id: string | null) => void;
+  /** Entities drawn with the selection's outline (a box round each, in the accent), following them as they move. */
+  selected?: readonly string[];
 }) {
   const host = useRef<HTMLDivElement>(null);
   const themeVersion = useThemeVersion();
@@ -403,6 +409,9 @@ export function SceneView({
   onCameraChangeRef.current = onCameraChange;
   const onPlotPickRef = useRef(onPlotPick);
   onPlotPickRef.current = onPlotPick;
+  const onPickRef = useRef(onPick);
+  onPickRef.current = onPick;
+  const outlines = useRef(new Map<string, THREE.BoxHelper>());
   // The floor grid (3D only) shows or hides without rebuilding the view.
   const floorGrid = useRef<THREE.GridHelper | null>(null);
   const showGrid = useRef(grid);
@@ -575,14 +584,22 @@ export function SceneView({
     const onCanvasPointerUp = (e: PointerEvent) => {
       const start = clickDown;
       clickDown = null;
-      if (e.button !== 0 || !start || !plotGroup.current) return;
+      if (e.button !== 0 || !start) return;
       if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 4) return;
-      if (!onPlotPickRef.current && pickedPoint === undefined) return;
       const rect = renderer.domElement.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
       ndc.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       ndc.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(ndc, camera);
+      if (onPickRef.current && world.current) {
+        // The nearest entity under the click (an overlay or a mesh's wire edges count as their entity).
+        const roots = [...world.current.objects.values()].map((o) => o.obj);
+        const hit = raycaster.intersectObjects(roots, true)[0];
+        let root: THREE.Object3D | null = hit?.object ?? null;
+        while (root && root.userData.entityId === undefined) root = root.parent;
+        onPickRef.current(root ? String(root.userData.entityId) : null);
+      }
+      if (!plotGroup.current || (!onPlotPickRef.current && pickedPoint === undefined)) return;
       const targets = plotGroup.current.children.filter((c) => c.userData.pickable !== false);
       const hits = raycaster.intersectObjects(targets, true).filter(
         (h) => !(h.object instanceof THREE.LineSegments && h.object.parent instanceof THREE.Mesh),
@@ -612,6 +629,7 @@ export function SceneView({
     resize.observe(el);
     renderer.setAnimationLoop(() => {
       controls.update();
+      for (const box of outlines.current.values()) box.update();
       if (pickDot.visible) {
         const s = camera instanceof THREE.OrthographicCamera
           ? Math.max(0.35, Math.min(2.5, 1 / Math.max(camera.zoom, 0.2)))
@@ -667,12 +685,33 @@ export function SceneView({
       let entry = w.objects.get(e.id);
       if (!entry) {
         entry = { obj: createObject(e, view.mode === "2d"), look: lookOf(e) };
+        entry.obj.userData.entityId = e.id;
         w.objects.set(e.id, entry);
         w.scene.add(entry.obj);
       }
       applyEntity(entry.obj, e);
     }
   }, [entities, themeVersion]);
+
+  // The selection's outlines: a box round each selected entity, in the accent; the frame loop keeps them on it.
+  useEffect(() => {
+    const w = world.current;
+    if (!w) return;
+    const ink = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#c2410c");
+    const want = new Set((selected ?? []).filter((id) => w.objects.has(id)));
+    for (const [id, box] of outlines.current) {
+      if (want.has(id) && box.object === w.objects.get(id)?.obj) continue;
+      w.scene.remove(box);
+      box.dispose();
+      outlines.current.delete(id);
+    }
+    for (const id of want) {
+      if (outlines.current.has(id)) continue;
+      const box = new THREE.BoxHelper(w.objects.get(id)!.obj, ink);
+      w.scene.add(box);
+      outlines.current.set(id, box);
+    }
+  }, [selected, entities, themeVersion]);
 
   useEffect(() => {
     const scene = world.current?.scene;
