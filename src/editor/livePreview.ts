@@ -142,25 +142,30 @@ class CellBlock extends WidgetType {
   ignoreEvent() { return true; }
 }
 
-/** The blocks: the front matter hidden, cells drawn by the app. Block decorations must come from a field. */
+/** The blocks: the front matter hidden, cells drawn by the app. Block decorations must come from a field,
+ *  and they are found in the text (as the app's server reads cells), not in a parse that may not be done. */
 function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
-  const out: Range<Decoration>[] = [];
-  syntaxTree(state).iterate({
-    enter: (n) => {
-      if ((n.name === "Frontmatter" || n.name === "FrontMatter") && o.frontMatter === "hide") {
-        out.push(Decoration.replace({ block: true }).range(n.from, state.doc.lineAt(n.to).to));   // its lines, not the next one's start
-        return false;
+  const out: Range<Decoration>[] = [], doc = state.doc;
+  let n = 1;
+  if (o.frontMatter === "hide" && doc.lines > 1 && doc.line(1).text === "---") {
+    let end = 2;
+    while (end <= doc.lines && doc.line(end).text !== "---") end++;
+    if (end <= doc.lines) { out.push(Decoration.replace({ block: true }).range(0, doc.line(end).to)); n = end + 1; }
+  }
+  if (o.cells) {
+    for (; n <= doc.lines; n++) {
+      const first = doc.line(n), open = /^(`{3,}|~{3,})\s*([\w+-]*)/.exec(first.text);
+      if (!open) continue;
+      let m = n + 1;
+      while (m <= doc.lines && !(/^(`{3,}|~{3,})\s*$/.test(doc.line(m).text) && doc.line(m).text[0] === open[1][0])) m++;
+      const last = doc.line(Math.min(m, doc.lines)), lang = open[2].toLowerCase();
+      if (o.cells.langs.includes(lang) && !editing(state, first.from, last.to)) {
+        const code = m > n + 1 ? state.sliceDoc(doc.line(n + 1).from, doc.line(Math.min(m - 1, doc.lines)).to) : "";
+        out.push(Decoration.replace({ block: true, widget: new CellBlock(lang, code, o.cells) }).range(first.from, last.to));
       }
-      if (n.name !== "FencedCode" || !o.cells) return;
-      const first = state.doc.lineAt(n.from), last = state.doc.lineAt(n.to);
-      const open = /^\s*(`{3,}|~{3,})\s*([\w+-]*)/.exec(first.text), lang = open?.[2]?.toLowerCase() ?? "";
-      if (!o.cells.langs.includes(lang) || editing(state, first.from, last.to)) return false;
-      const closed = last.number > first.number && /^\s*(`{3,}|~{3,})\s*$/.test(last.text);
-      const code = state.sliceDoc(Math.min(first.to + 1, last.from), closed ? Math.max(first.to + 1, last.from - 1) : last.to);
-      out.push(Decoration.replace({ block: true, widget: new CellBlock(lang, code, o.cells) }).range(first.from, last.to));
-      return false;
-    },
-  });
+      n = m;
+    }
+  }
   return Decoration.set(out, true);
 }
 
@@ -195,7 +200,7 @@ export function livePreview(o: LivePreviewOptions = {}): Extension {
   });
   const field = StateField.define<DecorationSet>({
     create: (state) => blocks(state, o),
-    update: (deco, tr) => (tr.docChanged || tr.selection || syntaxTree(tr.startState) !== syntaxTree(tr.state) ? blocks(tr.state, o) : deco),
+    update: (deco, tr) => (tr.docChanged || tr.selection ? blocks(tr.state, o) : deco),
     provide: (f) => EditorView.decorations.from(f),
   });
   return [plugin, links, ...(o.cells || o.frontMatter === "hide" ? [field] : []), EditorView.contentAttributes.of({ class: "cm-live" })];
