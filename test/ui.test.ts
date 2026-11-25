@@ -112,3 +112,12 @@ test("a disabled key says why; the kit exports what apps need", () => {
   assert.match(index, /Menu as CommandMenu/);
   assert.match(index, /NumberField/);
 });
+
+test("toasts: done leaves after --toast-stay, working and failed stay", async () => {
+  const { ms, leaves } = await import("../src/toast.ts");
+  assert.equal(ms("5s", 1), 5000);
+  assert.equal(ms(" 1200ms", 1), 1200);
+  assert.equal(ms("", 4000), 4000);
+  assert.deepEqual([leaves("done"), leaves(undefined), leaves("working"), leaves("failed")], [true, true, false, false]);
+  assert.match(read("tokens.css"), /--toast-stay:\s*\d/);
+});
