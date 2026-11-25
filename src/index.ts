@@ -36,6 +36,9 @@ export { parseToml, patchToml, formatToml, type TomlTable, type TomlValue } from
 export { readStored, writeStored } from "./storage.ts";
 export { HelpWindow, sanitizeHtml } from "./Help.tsx";
 export * from "./help.ts";
+export * from "./docs.ts";
+export { MessageCard, MessageList } from "./Messages.tsx";
+export * from "./messages.ts";
 export { VariableEditor } from "./ValueTable.tsx";
 export * from "./valueTable.ts";
 export { compareVersions, newerRelease } from "./versions.ts";
