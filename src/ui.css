@@ -15,6 +15,7 @@
 @import "./plot/plot.css";
 @import "./plot/instruments.css";
 @import "./scope/scope.css";
+@import "./stage/stage.css";
 @import "./packages/packages.css";
 @import "./hub/hub.css";
 @import "./parts.css";
