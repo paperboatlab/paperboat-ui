@@ -25,3 +25,7 @@ export type { Interpreter, TexTextProps } from "./TexText.tsx";
 export { MATLAB_COLORS, colormapCss, colormapStops, rgbHex, sampleColormap } from "./colormaps.ts";
 export { formatTick, niceTicks } from "./ticks.ts";
 export { formatCoord } from "../scope/interact.ts";
+export { GraphInstrument, DisplayInstrument, LampInstrument, SwitchInstrument, ChoiceInstrument, SpeakerInstrument } from "./instruments.tsx";
+export type { GraphInstrumentProps, DisplayInstrumentProps, LampInstrumentProps, SwitchInstrumentProps, ChoiceInstrumentProps, SpeakerInstrumentProps } from "./instruments.tsx";
+export { readout, graphValue, SHOWN, GRID_BY_SIZE } from "./readout.ts";
+export type { Readout, Grid } from "./readout.ts";
