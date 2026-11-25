@@ -10,11 +10,11 @@
  * Imports only React, uPlot and its siblings, and types from the host (tested), so it can move
  * into a shared kit for a studio app (#160) and render a finished result with live={false}.
  */
-import { seriesColor } from "../plot/tokens.ts";
+import { seriesColor, token } from "../plot/tokens.ts";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import uPlot from "uplot";
-import { applyBoxZoom, cursorBind, drawXCursors, formatCoord, nearXCursor, panXRange, panYRange, yScaleRange, zoomRangeAround } from "./interact.ts";
+import { applyBoxZoom, cursorBind, drawXCursors, formatCoord, laneRange, laneTicks, nearXCursor, panXRange, panYRange, yScaleRange, zoomRangeAround } from "./interact.ts";
 import { findTrigger, spectrum, toCsv, valueAt } from "./math.ts";
 import type { ScopeChannel as Channel, TapPort } from "./types.ts";
 import { scopeWidget } from "./widget.ts";
@@ -56,9 +56,12 @@ type Props = {
 
 const MODES: ScopeMode[] = ["time", "xy", "fft"];
 const DRAWS: DrawStyle[] = ["line", "line+points", "points", "smooth"];
-/** Channel k: series colour k mod 6 (brand.html §14); solid for 1–6, dashed 7–12, dotted from 13. */
+/** Channel k: trace colour k mod 8 (the screen's own: trace 1 is the accent, live data), the same as its
+    legend line; solid for 1–6, dashed 7–12, dotted from 13. */
 const dashOf = (k: number) => (k < 6 ? [] : k < 12 ? [6, 4] : [1.5, 3]);
-const colourOf = (k: number, _css: CSSStyleDeclaration, from?: Element | null) => seriesColor(k, from);
+const colourOf = (k: number, _css: CSSStyleDeclaration, from?: Element | null) => token(`--trace-${(k % 8) + 1}`, seriesColor(k, from), from);
+/** A lane's tick label: short, with a true minus. */
+const tick = (v: number) => String(+v.toPrecision(4)).replace("-", "−");
 const fmt = formatCoord;
 const download = (name: string, href: string) => {
   const a = document.createElement("a");
@@ -80,7 +83,14 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
   // Every channel keeps its slot (colour, line) when others hide: k is its place in `channels`.
   const shown = channels.map((c, k) => ({ c, k })).filter(({ c }) => !hidden.has(c.id));
   const units = [...new Set(shown.map(({ c }) => c.unit ?? ""))];
-  const scaleOf = (unit: string | undefined) => (units.indexOf(unit ?? "") === 1 ? "y2" : "y");
+  /** In time, one lane per unit, top first (REBRAND: the Scope in lanes); lane k > 0 plots on scale y{k+1}. */
+  const lanes = mode === "time" ? Math.max(1, units.length) : 1;
+  const scaleOf = (unit: string | undefined) => {
+    const k = units.indexOf(unit ?? "");
+    return k > 0 && mode === "time" ? `y${k + 1}` : "y";
+  };
+  /** Each lane's data range, as its scale last had it: the lane's ticks are drawn from it. */
+  const bands = useRef<[number, number][]>([]);
 
   const [frozen, setFrozen] = useState(false);
   const [cursors, setCursors] = useState<[number, number] | null>(null);
@@ -229,6 +239,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
   const showGrid = settings.grid !== false;
   const useLogY = mode === "time" && !!settings.ylog;
   const shape = JSON.stringify([mode, draw, useLogY, showGrid, tool, units, shown.map(({ c, k }) => [c.id, k, c.label]), theme, small]);
+  const laned = lanes > 1;
   useLayoutEffect(() => {
     const el = host.current;
     if (!el || !shown.length) return;
@@ -274,13 +285,19 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
       });
     }
     if (useLogY && view.current.y && view.current.y[0] <= 0) view.current.y = null;
-    const yRange: uPlot.Scale.Range = (_u, min, max) => yScaleRange(min, max, { log: useLogY, view: view.current.y });
-    const y2Range: uPlot.Scale.Range = (_u, min, max) => yScaleRange(min, max, { view: view.current.y });
+    // Lanes: each unit's scale keeps its data in its own band; the lanes' ticks are drawn by hand (drawAxes).
+    if (laned) view.current.y = null;
+    const laneScale = (k: number): uPlot.Scale.Range => (_u, min, max) => {
+      const [lo, hi] = yScaleRange(min, max, { log: useLogY && !laned, view: laned ? null : view.current.y });
+      bands.current[k] = [lo, hi];
+      return laneRange(lo, hi, k, lanes);
+    };
+    const yScales: Record<string, uPlot.Scale> = {};
+    for (let k = 1; k < lanes; k++) yScales[`y${k + 1}`] = { range: laneScale(k) };
     const axes: uPlot.Axis[] = [
       { ...axis("x", 2), grid },
-      axis("y", 3),
+      laned ? { ...axis("y", 3), splits: () => [] } : axis("y", 3),
     ];
-    if (mode === "time" && units.length > 1) axes.push(axis("y2", 1));
     const opts: uPlot.Options = {
       width: el.clientWidth || 300,
       height: el.clientHeight || 120,
@@ -290,8 +307,8 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
       padding: [small ? 6 : 14, 18, 0, 0],
       scales: {
         x: mode === "fft" ? { time: false, distr: 3 } : { time: false, ...(mode === "time" ? { range: (_u: uPlot, min: number, max: number) => view.current.x ?? [min, max] } : {}) },
-        y: useLogY ? { range: yRange, distr: 3 } : { range: yRange },
-        y2: { range: y2Range },
+        y: useLogY && !laned ? { range: laneScale(0), distr: 3 } : { range: laneScale(0) },
+        ...yScales,
       },
       axes,
       series,
@@ -300,15 +317,16 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
       hooks: {
         setSelect: [
           (u) => {
-            const box = applyBoxZoom(u, ["y"]);
-            if (box?.y.y) {
+            const box = applyBoxZoom(u, laned ? [] : ["y"]);
+            if (box && (laned || box.y.y)) {
               view.current.x = box.x;
-              view.current.y = box.y.y;
+              view.current.y = laned ? null : box.y.y;
               setFrozen(true);
               u.redraw(true);
             }
           },
         ],
+        drawAxes: [(u) => laned && drawLanes(u, dim, showGrid ? grid as { stroke: string } : null, font)],
         draw: [(u) => decorateNow.current(u, ink)],
       },
     };
@@ -330,6 +348,44 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
     if (!isFrozen) view.current.x = mode === "time" ? xRange() : null;
     u.setData(data(), true);
   }); // every render: version, settings, freeze and cursors all re-render
+
+  /** Each lane's grid lines and tick labels, and its unit at its top left (lanes have no axis of their own). */
+  const drawLanes = (u: uPlot, dim: string, grid: { stroke: string } | null, font: string) => {
+    const { ctx } = u;
+    const { left, width } = u.bbox;
+    const r = devicePixelRatio || 1;
+    ctx.save();
+    ctx.font = font.replace(/^(\d+)px/, (_, n) => `${Number(n) * r}px`);
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    units.forEach((unit, k) => {
+      const band = bands.current[k];
+      if (!band) return;
+      const scale = k ? `y${k + 1}` : "y";
+      for (const v of laneTicks(band[0], band[1])) {
+        const y = Math.round(u.valToPos(v, scale, true)) + 0.5;
+        if (grid) {
+          ctx.strokeStyle = grid.stroke;
+          ctx.lineWidth = r;
+          ctx.setLineDash([2 * r, 4 * r]);
+          ctx.beginPath();
+          ctx.moveTo(left, y);
+          ctx.lineTo(left + width, y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = dim;
+        ctx.fillText(tick(v), left - 6 * r, y);
+      }
+      if (unit) {
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText(unit, left + 4 * r, u.valToPos(band[1], scale, true) + 2 * r);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+      }
+    });
+    ctx.restore();
+  };
 
   // Cursors, the trigger level and its point: drawn over the traces.
   const decorate = (u: uPlot, ink: string) => {
@@ -437,7 +493,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
     if (d.kind === "pan") {
       // Both axes move with the pointer: a zoomed y view pans up and down too.
       view.current.x = panXRange(d.min, d.max, p.x - d.x0, p.w);
-      view.current.y = panYRange(d.ymin ?? 0, d.ymax ?? 0, p.y - (d.y0 ?? p.y), p.h, { log: useLogY });
+      if (lanes < 2) view.current.y = panYRange(d.ymin ?? 0, d.ymax ?? 0, p.y - (d.y0 ?? p.y), p.h, { log: useLogY });
       if (!frozen) setFrozen(true); // panning back in time freezes the Scope
       u.redraw(true);
     } else if (d.kind === "cursor" && cursors) {
@@ -464,7 +520,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
       e.preventDefault();
       const p = local(e);
       const f = e.deltaY > 0 ? 1.25 : 0.8;
-      if (e.shiftKey) {
+      if (e.shiftKey && lanes < 2) {
         const at = u.posToVal(p.y, "y"), [a, b] = [u.scales.y.min ?? 0, u.scales.y.max ?? 1];
         view.current.y = zoomRangeAround(a, b, at, f, useLogY);
       } else {
@@ -563,7 +619,6 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
     setMenu("");
   };
 
-  const toggle = (on: boolean, label: string) => (on ? `[ ${label} ]` : label);
   const trig = settings.trigger;
   const tapList = (taps ?? []).filter((t) => t.label.toLowerCase().includes(tapQuery.toLowerCase()));
 
@@ -615,8 +670,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
         />
         {channels.length > 0 && (
           <>
-            <span className="scope-unit y">{mode === "fft" ? "dB" : mode === "xy" ? shown[1]?.c.unit : units[0]}</span>
-            {mode === "time" && units.length > 1 && <span className="scope-unit y2">{units[1]}</span>}
+            {lanes < 2 && <span className="scope-unit y">{mode === "fft" ? "dB" : mode === "xy" ? shown[1]?.c.unit : units[0]}</span>}
             <span className="scope-unit x">{mode === "fft" ? "Hz" : mode === "xy" ? shown[0]?.c.unit : "s"}</span>
           </>
         )}
@@ -643,7 +697,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
         )}
       </div>
       <figcaption ref={caption}>
-        <span>{name}</span>
+        <b>{name}</b>
         <span className={`scope-status ${status}`}>{status}</span>
         <span className="scope-keys">
           {!compact && (
@@ -651,99 +705,85 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
               <span className="scope-modes" role="radiogroup" aria-label="Mode">
                 {MODES.map((m) => (
                   <button key={m} role="radio" aria-checked={mode === m} className={mode === m ? "on" : ""} onClick={() => set({ mode: m === "time" ? undefined : m })}>
-                    {mode === m ? `[ ${m} ]` : m}
+                    {m}
                   </button>
                 ))}
               </span>
-              {mode === "time" && (
-                <span className="scope-spans" role="radiogroup" aria-label="Span mode">
-                  {(["track", "squish"] as const).map((m) => {
-                    const active = (m === "track" && timeSpanMode === "tracking") || (m === "squish" && timeSpanMode === "squishing");
-                    return (
-                      <button
-                        key={m}
-                        role="radio"
-                        aria-checked={active}
-                        className={active ? "on" : ""}
-                        title={m === "track" ? "Tracking: constant tspan window follows current time" : "Squishing: tspan equals current time, fitting entire run"}
-                        onClick={() => {
-                          if (m === "track") {
-                            const nextW = settings.window ?? liveWindow.current ?? 10;
-                            liveWindow.current = nextW;
-                            set({ timeSpanMode: "tracking", window: nextW });
-                          } else {
-                            liveWindow.current = undefined;
-                            set({ timeSpanMode: "squishing", window: undefined });
-                          }
-                        }}
-                      >
-                        {active ? `[ ${m} ]` : m}
-                      </button>
-                    );
-                  })}
-                </span>
-              )}
-              <span className="scope-tools" role="radiogroup" aria-label="Tool">
-                {(["pan", "zoom"] as const).map((t) => {
-                  const on = tool === t;
-                  return (
-                    <button
-                      key={t}
-                      role="radio"
-                      aria-checked={on}
-                      className={on ? "on" : ""}
-                      title={t === "pan" ? "Pan: drag to pan along time and value" : "Zoom: drag a rectangle to zoom in (Z)"}
-                      onClick={() => setTool(t)}
-                    >
-                      {on ? `[ ${t} ]` : t}
-                    </button>
-                  );
-                })}
-              </span>
+              <i className="scope-sep" />
               {onTap && (
-                <button className="key small" title="Wire an output into this Scope" onClick={(e) => openMenu("tap", e.currentTarget)}>
+                <button title="Wire an output into this Scope" onClick={(e) => openMenu("tap", e.currentTarget)}>
                   + tap
                 </button>
               )}
-              <button className={`key small${settings.grid !== false ? " on" : ""}`} title="Show or hide grid (G)" onClick={() => set({ grid: settings.grid === false ? true : false })}>
-                {toggle(settings.grid !== false, "grid")}
+              <button className={isFrozen && live ? "on" : ""} aria-pressed={frozen && live} disabled={!live} title="Freeze or follow (F)" onClick={toggleFreeze}>
+                freeze
               </button>
-              <button className={`key small${isFrozen && live ? " on" : ""}`} disabled={!live} title="Freeze or follow (F)" onClick={toggleFreeze}>
-                {toggle(frozen && live, "freeze")}
+              <button className={cursors ? "on" : ""} aria-pressed={!!cursors} disabled={mode !== "time" || !channels.length} title="Two cursors and their deltas (C)" onClick={toggleCursors}>
+                cursors
               </button>
-              <button className={`key small${cursors ? " on" : ""}`} disabled={mode !== "time" || !channels.length} title="Two cursors and their deltas (C)" onClick={toggleCursors}>
-                {toggle(!!cursors, "cursors")}
-              </button>
-              <button className={`key small${trig ? " on" : ""}`} disabled={mode !== "time"} title="Trigger (T)" onClick={(e) => openMenu("trigger", e.currentTarget)}>
-                {toggle(!!trig, "trigger")}
+              <button className={trig ? "on" : ""} aria-pressed={!!trig} disabled={mode !== "time"} title="Trigger (T)" onClick={(e) => openMenu("trigger", e.currentTarget)}>
+                trigger
               </button>
             </>
           )}
-          <button className="key small" disabled={!channels.length} title="Fit the graph to its data (A, double-click)" aria-label="Fit graph" onClick={autoscale}>
-            ⌂
-          </button>
-          <button className="key small" title="More" aria-haspopup="menu" aria-expanded={menu === "more"} onClick={(e) => openMenu("more", e.currentTarget)}>
+          <button title="More" aria-label="More" aria-haspopup="menu" aria-expanded={menu === "more"} onClick={(e) => openMenu("more", e.currentTarget)}>
             ⋯
           </button>
         </span>
         {menu === "more" && (
           <div className={`scope-pop${menuBelow ? " below" : ""}`} role="menu">
             <button className="opt" disabled={!channels.length} onClick={() => { autoscale(); setMenu(""); }}>
-              Fit graph
+              Fit graph <i>A, double-click</i>
             </button>
             {compact && (
               <div className="scope-row">
                 {MODES.map((m) => (
                   <button key={m} className={`opt${mode === m ? " on" : ""}`} onClick={() => set({ mode: m === "time" ? undefined : m })}>
-                    {mode === m ? `[ ${m} ]` : m}
+                    {m}
                   </button>
                 ))}
               </div>
             )}
+            {mode === "time" && (
+              <div className="scope-row" role="radiogroup" aria-label="Span">
+                {(["track", "squish"] as const).map((m) => {
+                  const active = (m === "track") === (timeSpanMode === "tracking");
+                  return (
+                    <button
+                      key={m}
+                      role="radio"
+                      aria-checked={active}
+                      className={`opt${active ? " on" : ""}`}
+                      title={m === "track" ? "Tracking: a window of constant length follows the run" : "Squishing: the whole run, so far"}
+                      onClick={() => {
+                        if (m === "track") {
+                          const nextW = settings.window ?? liveWindow.current ?? 10;
+                          liveWindow.current = nextW;
+                          set({ timeSpanMode: "tracking", window: nextW });
+                        } else {
+                          liveWindow.current = undefined;
+                          set({ timeSpanMode: "squishing", window: undefined });
+                        }
+                      }}
+                    >
+                      {m}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            <div className="scope-row" role="radiogroup" aria-label="Tool">
+              {(["pan", "zoom"] as const).map((t) => (
+                <button key={t} role="radio" aria-checked={tool === t} className={`opt${tool === t ? " on" : ""}`}
+                  title={t === "pan" ? "Pan: drag to move along time and value" : "Zoom: drag a rectangle to zoom in (Z)"} onClick={() => setTool(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
             <div className="scope-row" aria-label="Draw">
               {DRAWS.map((d) => (
                 <button key={d} className={`opt${draw === d ? " on" : ""}`} onClick={() => set({ draw: d === "line" ? undefined : d })}>
-                  {draw === d ? `[ ${d} ]` : d}
+                  {d}
                 </button>
               ))}
             </div>
@@ -771,9 +811,9 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
                 {onTap && (
                   <button className="opt" onClick={() => openMenu("tap")}>+ tap</button>
                 )}
-                <button className="opt" disabled={!live} onClick={toggleFreeze}>{toggle(frozen && live, "freeze")}</button>
-                <button className="opt" disabled={mode !== "time"} onClick={toggleCursors}>{toggle(!!cursors, "cursors")}</button>
-                <button className="opt" disabled={mode !== "time"} onClick={() => openMenu("trigger")}>{toggle(!!trig, "trigger")}</button>
+                <button className={`opt${frozen && live ? " on" : ""}`} disabled={!live} onClick={toggleFreeze}>freeze</button>
+                <button className={`opt${cursors ? " on" : ""}`} disabled={mode !== "time"} onClick={toggleCursors}>cursors</button>
+                <button className={`opt${trig ? " on" : ""}`} disabled={mode !== "time"} onClick={() => openMenu("trigger")}>trigger</button>
               </>
             )}
             <hr />
@@ -788,7 +828,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
             <div className="scope-row">
               {(["rising", "falling"] as const).map((edge) => (
                 <button key={edge} className={`opt${(trig?.edge ?? "rising") === edge ? " on" : ""}`} onClick={() => set({ trigger: { source: trig?.source ?? shown[0]?.c.id ?? "", level: trig?.level ?? 0, ...trig, edge } })}>
-                  {(trig?.edge ?? "rising") === edge ? `[ ${edge} ]` : edge}
+                  {edge}
                 </button>
               ))}
             </div>
@@ -812,7 +852,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
             <div className="scope-row">
               {(["auto", "single"] as const).map((m) => (
                 <button key={m} className={`opt${(trig?.single ? "single" : "auto") === m ? " on" : ""}`} disabled={!trig} onClick={() => { if (trig) { set({ trigger: { ...trig, single: m === "single" || undefined } }); autoscale(); } }}>
-                  {(trig?.single ? "single" : "auto") === m ? `[ ${m} ]` : m}
+                  {m}
                 </button>
               ))}
             </div>
