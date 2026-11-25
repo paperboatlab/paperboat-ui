@@ -8,7 +8,9 @@ import type { IconName } from "./icons.ts";
 export type MenuEntry =
   | { id: string; label: string; icon?: IconName; shortcut?: string; checked?: boolean; disabled?: boolean; why?: string; run: () => void }
   | "-"
-  | { note: string };
+  | { note: string }
+  /** A group's name over its items, in mono caps (the owning app's group in a file or tab menu). */
+  | { group: string };
 
 export function Menu({ label, items, onClose, triggerRef, className = "" }: {
   label: string;
@@ -25,6 +27,7 @@ export function Menu({ label, items, onClose, triggerRef, className = "" }: {
       {items.map((it, n) => {
         if (it === "-") return <hr key={n} />;
         if ("note" in it) return <div key={n} className="menu-note">{it.note}</div>;
+        if ("group" in it) return <div key={n} className="menu-group">{it.group}</div>;
         return (
           <button
             key={it.id}
