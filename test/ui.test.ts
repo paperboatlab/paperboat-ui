@@ -132,3 +132,7 @@ test("notifications: newest first, an update moves its entry up, at most LOG_MAX
   assert.equal(log.length, LOG_MAX);
   assert.deepEqual([ago(0, 10_000), ago(0, 180_000), ago(0, 7_200_000)], ["now", "3 min ago", "2 h ago"]);
 });
+
+test("the history's styles are scoped to its own popover, never a bare class an app may use", () => {
+  assert.doesNotMatch(css("ui.css"), /(^|[\s,}])\.notes?\b/m);
+});

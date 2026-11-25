@@ -193,17 +193,17 @@ kbd.pb-kbd { font: 11px var(--font-mono); color: var(--text-muted); border: 1px 
 .notes-anchor { position: relative; display: inline-block; }
 .notes-anchor > .key { border-radius: var(--radius-md); }
 .notes-anchor > .key.failed { color: var(--danger-text); }
-.popover.notes { width: var(--toast-width); padding: 10px 6px 6px; }
-.notes h3 { display: flex; align-items: center; justify-content: space-between; margin: 0 8px 6px; }
-.notes ul { list-style: none; margin: 0; padding: 0; max-height: min(60vh, 420px); overflow: auto; }
-.notes li { display: flex; gap: 10px; align-items: center; padding: 7px 8px; border-radius: var(--radius-md); }
-.notes li + li { border-top: 1px solid var(--line); border-radius: 0; }
-.notes li > div { flex: 1; min-width: 0; }
-.notes li b { display: block; font-weight: 600; font-size: 12.5px; }
-.notes li small { color: var(--text-muted); font: 11px var(--font-mono); }
-.notes li.failed b, .notes li.failed .toast-mark { color: var(--danger-text); }
-.notes li .toast-mark { color: var(--accent-text); }
-.notes time { flex: none; color: var(--text-muted); font: 11px var(--font-mono); }
+.popover.notifications { width: var(--toast-width); padding: 10px 6px 6px; }
+.popover.notifications h3 { display: flex; align-items: center; justify-content: space-between; margin: 0 8px 6px; }
+.popover.notifications ul { list-style: none; margin: 0; padding: 0; max-height: min(60vh, 420px); overflow: auto; }
+.popover.notifications li { display: flex; gap: 10px; align-items: center; padding: 7px 8px; border-radius: var(--radius-md); }
+.popover.notifications li + li { border-top: 1px solid var(--line); border-radius: 0; }
+.popover.notifications li > div { flex: 1; min-width: 0; }
+.popover.notifications li b { display: block; font-weight: 600; font-size: 12.5px; }
+.popover.notifications li small { color: var(--text-muted); font: 11px var(--font-mono); }
+.popover.notifications li.failed b, .popover.notifications li.failed .toast-mark { color: var(--danger-text); }
+.popover.notifications li .toast-mark { color: var(--accent-text); }
+.popover.notifications time { flex: none; color: var(--text-muted); font: 11px var(--font-mono); }
 
 /* ── the theme key: a disc that turns half a turn on a change; a panel of three previews ── */
 .theme-picker { position: relative; display: inline-block; }

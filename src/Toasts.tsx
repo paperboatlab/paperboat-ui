@@ -87,7 +87,7 @@ export function Notifications({ log, seenAt, markSeen, clearLog }: { log: Note[]
         <Icon name={unseen.length ? "bell-dot" : "bell"} />
       </button>
       {open && (
-        <div ref={pop} className="popover notes" role="dialog" aria-label="Notifications">
+        <div ref={pop} className="popover notifications" role="dialog" aria-label="Notifications">
           <h3>Notifications{log.length > 0 && <Key size="sm" kind="quiet" onClick={clearLog}>Clear</Key>}</h3>
           {log.length ? (
             <ul>
