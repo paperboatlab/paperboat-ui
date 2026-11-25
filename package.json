@@ -57,6 +57,10 @@
     "./hub": {
       "types": "./src/hub/index.ts",
       "default": "./src/hub/index.ts"
+    },
+    "./stage": {
+      "types": "./src/stage/index.ts",
+      "default": "./src/stage/index.ts"
     }
   },
   "publishConfig": {
@@ -64,7 +68,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.ts test/canvas/*.test.ts test/editor/*.test.ts test/plot/*.test.ts",
+    "test": "node --test test/*.test.ts test/canvas/*.test.ts test/editor/*.test.ts test/plot/*.test.ts test/stage/*.test.ts",
     "icons": "python3 scripts/icons.py ${REBRAND:-../../../Cloud/gdrive/Projects/paperboatlab/agent-docs/rebrand}",
     "demo": "esbuild demo/demo.tsx demo/parts.tsx demo/hub.tsx --bundle --format=esm --outdir=demo/out --loader:.woff2=file --loader:.woff=file --loader:.ttf=file --jsx=automatic --log-level=warning && cp -r src/marks demo/out/"
   },
@@ -91,8 +95,10 @@
     "@fontsource/geist-mono": "^5.3.0",
     "@fontsource/geist-sans": "^5.3.0",
     "@lezer/highlight": "^1.2.5",
+    "@types/three": "^0.187.0",
     "katex": "^0.19.1",
     "smol-toml": "^1.9.1",
+    "three": "^0.187.0",
     "uplot": "^1.6.32"
   },
   "devDependencies": {
