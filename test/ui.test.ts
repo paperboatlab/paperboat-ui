@@ -134,5 +134,5 @@ test("notifications: newest first, an update moves its entry up, at most LOG_MAX
 });
 
 test("the history's styles are scoped to its own popover, never a bare class an app may use", () => {
-  assert.doesNotMatch(css("ui.css"), /(^|[\s,}])\.notes?\b/m);
+  assert.doesNotMatch(css("ui.css"), /(^|[\s,}])\.notes?(?![\w-])/m);
 });
