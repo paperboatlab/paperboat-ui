@@ -61,3 +61,10 @@ test("fuzzy: letters in order, word starts first", () => {
 test("the TUI spinner: the designed sequence", () => {
   assert.deepEqual(GLYPH_FRAMES.map((g) => g.codePointAt(0)! - 0xe000), [0, 1, 2, 3, 4, 5, 5, 6, 7]);
 });
+
+test("the Console is a floating window, exported from the kit", () => {
+  assert.match(read("index.ts"), /ConsoleWindow/);
+  const c = read("Console.tsx");
+  assert.match(c, /<RemoveKey label="Close the Console/, "closed by the round ×, not a text key");
+  assert.doesNotMatch(c, /key small/, "the rebrand's key sizes (sm), not the legacy kit's");
+});
