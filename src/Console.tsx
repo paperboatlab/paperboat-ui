@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { useDismiss } from "./dismiss.tsx";
+import { RemoveKey } from "./Key.tsx";
 /** One Console line; `node` names the block it is about. */
 export type Log = { level: string; text: string; node?: string };
 type Logs = Log[];
@@ -61,7 +62,10 @@ export function Console({ logs, onBlock }: { logs: Logs; onBlock?: (id: string) 
   );
 }
 
-/** The Console as a window floating in the middle of the screen; the header's Console key toggles it. */
+/**
+ * The Console as a window floating in the middle of the screen, never a docked panel: View › Console, the rail's
+ * Console or Ctrl ` toggle it; Escape, its × or a press outside closes it.
+ */
 export function ConsoleWindow({
   logs,
   errors,
@@ -83,10 +87,8 @@ export function ConsoleWindow({
       <header className="console-head">
         <h2>Console</h2>
         <span className="lbl">{`${logs.length} ${logs.length === 1 ? "line" : "lines"}${errors ? ` · ${errors} ${errors === 1 ? "error" : "errors"}` : ""}`}</span>
-        {logs.length > 0 && <CopyKey text={() => logs.map(logText).join("\n")} label="Copy all" title="Copy every line as plain text" className="key small" />}
-        <button className="key small" title="Close the Console (Esc)" onClick={onClose}>
-          Close
-        </button>
+        {logs.length > 0 && <CopyKey text={() => logs.map(logText).join("\n")} label="Copy all" title="Copy every line as plain text" className="key quiet sm" />}
+        <RemoveKey label="Close the Console (Esc)" onClick={onClose} />
       </header>
       <div className="console-body">
         <Console logs={logs} onBlock={onBlock} />

@@ -8,3 +8,4 @@ export { EditorSettingsKey } from "./EditorSettingsKey.tsx";
 export { useEditorSettings, useAppConfig, readConfig, configTemplate, type ConfigStore, type ConfigFile, type AppConfig } from "./useEditorSettings.ts";
 export { tabMenu, tabsToClose, afterClose, orderTabs, type TabClose, type TabSet, type TabActions } from "./tabs.ts";
 export { TabMenu } from "./TabMenu.tsx";
+export { livePreview, type LivePreviewOptions } from "./livePreview.ts";
