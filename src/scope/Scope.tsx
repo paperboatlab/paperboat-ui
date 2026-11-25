@@ -10,6 +10,8 @@
  * Imports only React, uPlot and its siblings, and types from the host (tested), so it can move
  * into a shared kit for a studio app (#160) and render a finished result with live={false}.
  */
+import { useDismiss } from "../dismiss.tsx";
+import { Icon } from "../Icon.tsx";
 import { seriesColor, token } from "../plot/tokens.ts";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
@@ -105,6 +107,8 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
   const keyRowWidth = useRef(0);
   const frame = useRef<HTMLElement>(null);
   const caption = useRef<HTMLElement>(null);
+  const pop = useRef<HTMLDivElement>(null);
+  const keys = useRef<HTMLSpanElement>(null);
   const host = useRef<HTMLDivElement>(null);
   const plot = useRef<uPlot | null>(null);
   const view = useRef<View>({ x: null, y: null });
@@ -125,6 +129,9 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
     setMenuBelow(Boolean(rect && rect.top < window.innerHeight / 2));
     setMenu(name);
   };
+
+  // A press outside the open menu, or Escape, closes it; a press on a caption key is left to that key.
+  useDismiss(pop, () => setMenu(""), { enabled: menu !== "", triggerRef: keys });
 
   // The caption's keys fold into ⋯ when the tile is too narrow for them (#273): a full row needs
   // about 770px with every choice on. Measure after layout, before paint, so it never spills.
@@ -699,7 +706,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
       <figcaption ref={caption}>
         <b>{name}</b>
         <span className={`scope-status ${status}`}>{status}</span>
-        <span className="scope-keys">
+        <span className="scope-keys" ref={keys}>
           {!compact && (
             <>
               <span className="scope-modes" role="radiogroup" aria-label="Mode">
@@ -718,20 +725,36 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
               <button className={isFrozen && live ? "on" : ""} aria-pressed={frozen && live} disabled={!live} title="Freeze or follow (F)" onClick={toggleFreeze}>
                 freeze
               </button>
-              <button className={cursors ? "on" : ""} aria-pressed={!!cursors} disabled={mode !== "time" || !channels.length} title="Two cursors and their deltas (C)" onClick={toggleCursors}>
-                cursors
-              </button>
               <button className={trig ? "on" : ""} aria-pressed={!!trig} disabled={mode !== "time"} title="Trigger (T)" onClick={(e) => openMenu("trigger", e.currentTarget)}>
                 trigger
               </button>
+              <i className="scope-sep" />
             </>
           )}
+          {/* The plot's tools, as Plot2D has them (Articula, Julix): always in view, never folded. */}
+          <span className="scope-tools" role="group" aria-label="Tools">
+            <button className={`pb-plot2d-btn${tool === "pan" ? " on" : ""}`} aria-pressed={tool === "pan"} title="Pan: drag to move along time and value" aria-label="Pan" onClick={() => setTool("pan")}>
+              <Icon name="move" size={13} />
+            </button>
+            <button className={`pb-plot2d-btn${tool === "zoom" ? " on" : ""}`} aria-pressed={tool === "zoom"} title="Box zoom: drag a rectangle (Z)" aria-label="Box zoom" onClick={() => setTool((t) => (t === "zoom" ? "pan" : "zoom"))}>
+              <Icon name="zoom-in" size={13} />
+            </button>
+            <button className={`pb-plot2d-btn${cursors ? " on" : ""}`} aria-pressed={!!cursors} disabled={mode !== "time" || !channels.length} title="Two cursors and their deltas (C)" onClick={toggleCursors}>
+              A/B
+            </button>
+            <button className={`pb-plot2d-btn${settings.grid !== false ? " on" : ""}`} aria-pressed={settings.grid !== false} title="Grid (G)" onClick={() => set({ grid: settings.grid === false ? true : false })}>
+              grid
+            </button>
+            <button className="pb-plot2d-btn" disabled={!channels.length} title="Fit the graph (A, double-click)" aria-label="Fit the graph" onClick={autoscale}>
+              <Icon name="screen-full" size={13} />
+            </button>
+          </span>
           <button title="More" aria-label="More" aria-haspopup="menu" aria-expanded={menu === "more"} onClick={(e) => openMenu("more", e.currentTarget)}>
             ⋯
           </button>
         </span>
         {menu === "more" && (
-          <div className={`scope-pop${menuBelow ? " below" : ""}`} role="menu">
+          <div ref={pop} className={`scope-pop${menuBelow ? " below" : ""}`} role="menu">
             <button className="opt" disabled={!channels.length} onClick={() => { autoscale(); setMenu(""); }}>
               Fit graph <i>A, double-click</i>
             </button>
@@ -824,7 +847,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
           </div>
         )}
         {menu === "trigger" && (
-          <div className={`scope-pop${menuBelow ? " below" : ""}`} role="dialog" aria-label="Trigger">
+          <div ref={pop} className={`scope-pop${menuBelow ? " below" : ""}`} role="dialog" aria-label="Trigger">
             <div className="scope-row">
               {(["rising", "falling"] as const).map((edge) => (
                 <button key={edge} className={`opt${(trig?.edge ?? "rising") === edge ? " on" : ""}`} onClick={() => set({ trigger: { source: trig?.source ?? shown[0]?.c.id ?? "", level: trig?.level ?? 0, ...trig, edge } })}>
@@ -862,7 +885,7 @@ export function Scope({ name, channels, version, live, settings, onSettings, sma
           </div>
         )}
         {menu === "tap" && (
-          <div className={`scope-pop${menuBelow ? " below" : ""}`} role="dialog" aria-label="Tap an output">
+          <div ref={pop} className={`scope-pop${menuBelow ? " below" : ""}`} role="dialog" aria-label="Tap an output">
             <input className="well" autoFocus placeholder="/ search outputs" value={tapQuery} onChange={(e) => setTapQuery(e.target.value)} />
             <div className="scope-taps">
               {tapList.length === 0 && <span className="muted">no outputs</span>}
