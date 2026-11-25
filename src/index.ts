@@ -37,6 +37,8 @@ export { readStored, writeStored } from "./storage.ts";
 export { HelpWindow, sanitizeHtml } from "./Help.tsx";
 export * from "./help.ts";
 export { VariableEditor } from "./ValueTable.tsx";
+export { VariableList, VariableGroup, VariableRow } from "./VariableList.tsx";
+export { typeLine, valueText } from "./variables.ts";
 export * from "./valueTable.ts";
 export { compareVersions, newerRelease } from "./versions.ts";
 export { mathHtml, INLINE_MATH } from "./math.ts";

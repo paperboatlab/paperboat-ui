@@ -3,7 +3,7 @@
 export { Scope, scopeWidget, findTrigger, spectrum, stats, toCsv, valueAt } from "../scope/index.ts";
 export type { ScopeMode, TimeSpanMode, ScopeTool, DrawStyle, Trigger, ScopeSettings } from "../scope/index.ts";
 export type { ScopeChannel, ScopeSamples, TapPort } from "../scope/index.ts";
-export { Instrument } from "./Instrument.tsx";
+export { Instrument, InstrumentIdle } from "./Instrument.tsx";
 export type { InstrumentProps } from "./Instrument.tsx";
 export { Sparkline } from "./Sparkline.tsx";
 export type { SparklineProps } from "./Sparkline.tsx";

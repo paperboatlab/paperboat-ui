@@ -9,6 +9,9 @@
 .instrument > figcaption > output { margin-left: auto; font-family: var(--font-mono); color: var(--text); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
 .instrument.idle > .screen { background: transparent; border: 1px dashed var(--line-strong); color: var(--text-muted); }
 .instrument.idle > figcaption > output { color: var(--text-muted); }
+/* idle, why it is empty: a muted line at the frame's foot, in its middle when nothing else is drawn */
+.instrument-hint { position: absolute; left: 0; right: 0; bottom: 8px; margin: 0; padding: 0 10px; text-align: center; font: var(--size-2xs) var(--font-sans); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+.screen > .instrument-hint:only-child { top: 50%; bottom: auto; transform: translateY(-50%); white-space: normal; }
 
 /* The scope. */
 .instrument.scope { outline: none; }
