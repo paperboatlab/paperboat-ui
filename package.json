@@ -53,6 +53,10 @@
     "./packages": {
       "types": "./src/packages/index.ts",
       "default": "./src/packages/index.ts"
+    },
+    "./hub": {
+      "types": "./src/hub/index.ts",
+      "default": "./src/hub/index.ts"
     }
   },
   "publishConfig": {
@@ -62,7 +66,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts test/canvas/*.test.ts test/editor/*.test.ts test/plot/*.test.ts",
     "icons": "python3 scripts/icons.py ${REBRAND:-../../../Cloud/gdrive/Projects/paperboatlab/agent-docs/rebrand}",
-    "demo": "esbuild demo/demo.tsx demo/parts.tsx --bundle --format=esm --outdir=demo/out --loader:.woff2=file --loader:.woff=file --loader:.ttf=file --jsx=automatic --log-level=warning && cp -r src/marks demo/out/"
+    "demo": "esbuild demo/demo.tsx demo/parts.tsx demo/hub.tsx --bundle --format=esm --outdir=demo/out --loader:.woff2=file --loader:.woff=file --loader:.ttf=file --jsx=automatic --log-level=warning && cp -r src/marks demo/out/"
   },
   "peerDependencies": {
     "@xyflow/react": "^12.12.1",

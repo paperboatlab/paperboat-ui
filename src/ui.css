@@ -16,6 +16,7 @@
 @import "./plot/instruments.css";
 @import "./scope/scope.css";
 @import "./packages/packages.css";
+@import "./hub/hub.css";
 @import "./parts.css";
 @import "./theme-transition.css";
 @import "./split.css";
