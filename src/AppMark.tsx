@@ -5,7 +5,8 @@
 import { useEffect, useRef, useState } from "react";
 import { FOLD_MS, FRAMES, frameAt, restMs, type App } from "./fold.ts";
 
-const url = (app: App, frame: number) =>
+/** A frame of the app's fold (1 the parcel … FRAMES), past the last the rest pose. */
+export const markUrl = (app: App, frame: number) =>
   frame > FRAMES[app] ? new URL(`./marks/${app}/rest.webp`, import.meta.url).href : new URL(`./marks/${app}/${String(frame).padStart(2, "0")}.webp`, import.meta.url).href;
 
 export function AppMark({ app, size = 24, idle = false, paused = false, label }: {
@@ -21,7 +22,7 @@ export function AppMark({ app, size = 24, idle = false, paused = false, label }:
   useEffect(() => {
     if (!idle || typeof window === "undefined") return;
     if (matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    for (let f = 1; f <= FRAMES[app]; f++) new Image().src = url(app, f);  // ready before the first fold
+    for (let f = 1; f <= FRAMES[app]; f++) new Image().src = markUrl(app, f);  // ready before the first fold
     let timer = 0, raf = 0, rested = 0, last = performance.now(), wait = restMs();
     const awake = () => !document.hidden && document.hasFocus() && !paused && !still.current;
     const tick = () => {  // count rest only while awake
@@ -50,7 +51,7 @@ export function AppMark({ app, size = 24, idle = false, paused = false, label }:
   return (
     <img
       className="app-mark"
-      src={url(app, frame)}
+      src={markUrl(app, frame)}
       width={size}
       height={size}
       alt={label ?? ""}

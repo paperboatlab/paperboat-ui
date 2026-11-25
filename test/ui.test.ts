@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { test } from "node:test";
-import { FOLD_MS, FRAMES, frameAt, REST_MIN_MS, restMs, APPS } from "../src/fold.ts";
+import { FOLD_MS, FRAMES, frameAt, REST_MIN_MS, restMs, splashFrame, APPS } from "../src/fold.ts";
 import { fuzzy } from "../src/fuzzy.ts";
 import { GLYPH_FRAMES } from "../src/glyphs.ts";
 
@@ -80,4 +80,18 @@ test("the page rail, quick add and the run dock follow the rebrand", () => {
   const dock = read("Dock.tsx");
   assert.match(dock, /<Key kind="primary" icon="play"/, "Run is the one tinted key");
   assert.doesNotMatch(dock, /[▶■]/, "icons from the registry, not text glyphs");
+});
+
+test("the splash: the parcel to the rest pose, shown late, failed in red with Retry", () => {
+  for (const app of APPS) {
+    assert.equal(splashFrame(app, 0), 1, `${app}: starts on the parcel`);
+    assert.equal(splashFrame(app, 1), FRAMES[app] + 1, `${app}: ends on the rest pose`);
+    for (let p = 0; p < 1; p += 0.05) assert.ok(splashFrame(app, p + 0.05) >= splashFrame(app, p), `${app}: unfolding never folds`);
+  }
+  const index = read("index.ts");
+  assert.match(index, /\bSplash\b/); assert.match(index, /\bMenuBar\b/);
+  const s = read("Splash.tsx");
+  assert.match(s, /SHOW_MS = 350/, "a fast start never flashes");
+  assert.match(s, /<Key kind="primary" onClick=\{onRetry\}>Retry/, "Retry is the one tinted key");
+  assert.match(css("ui.css"), /\.splash-stage\.failed \.splash-say \{ color: var\(--danger-text\)/);
 });

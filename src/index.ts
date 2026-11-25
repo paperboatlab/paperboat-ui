@@ -2,13 +2,14 @@
 //   import "@paperboatlab/ui/tokens.css"; import "@paperboatlab/ui/ui.css";
 // No app logic here: an app's own canvas, notebooks or pages live in the app.
 export { AppMark } from "./AppMark.tsx";
-export { APPS, FRAMES, FOLD_MS, frameAt, restMs, type App } from "./fold.ts";
+export { APPS, FRAMES, FOLD_MS, frameAt, restMs, splashFrame, type App } from "./fold.ts";
 export { Console, ConsoleWindow, logText, type Log } from "./Console.tsx";
 export { Dialog } from "./Dialog.tsx";
 export { Icon } from "./Icon.tsx";
 export { ICONS, type IconName } from "./icons.ts";
 export { Key, RemoveKey, type KeyProps } from "./Key.tsx";
 export { Menu, type MenuEntry } from "./Menu.tsx";
+export { MenuBar } from "./Menus.tsx";
 export { Panel } from "./Panel.tsx";
 export { Split } from "./Split.tsx";
 export { resolveSize, keySize, maxSize, SPLIT_SNAP, SPLIT_STEP, SPLIT_STEP_BIG, type SplitLimits } from "./split.ts";
@@ -19,6 +20,7 @@ export { PageRail, type PageRailItem } from "./PageRail.tsx";
 export { Dock, type DockProps } from "./Dock.tsx";
 export { Search, type SearchItem } from "./Search.tsx";
 export { Spinner } from "./Spinner.tsx";
+export { Splash } from "./Splash.tsx";
 export { GLYPH_FRAMES, GLYPH_FALLBACK, GLYPH_FRAME_MS } from "./glyphs.ts";
 export { Segmented, Tabs, Switch } from "./controls.tsx";
 export { Toasts, useToasts, type Toast } from "./Toasts.tsx";
