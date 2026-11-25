@@ -4,14 +4,18 @@
 // a note: labels only for the focus and what the pointer is on, no keys. One quiet key fits it to view.
 import { Handle, Position, ReactFlow, ReactFlowProvider, useReactFlow, useStore, type Edge, type Node, type NodeProps } from "@xyflow/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "../Icon.tsx";
+import type { IconName } from "../icons.ts";
 import { Key } from "../Key.tsx";
 import { Force } from "./force.ts";
 
-/** A note or file: its label, and its type's tone (the --file-* colours, brand.html §11). */
-export type GraphNode = { id: string; label: string; tone?: string; missing?: boolean };
+/** A note or file: its label, and its type as the file tree shows it (`fileIconFor`: the icon and its tone,
+ *  the --file-* colours, brand.html §11), so a note, a table, a Julia script or a Simplicial station reads
+ *  as what it is. */
+export type GraphNode = { id: string; label: string; icon?: IconName; tone?: string; missing?: boolean };
 export type GraphLink = { source: string; target: string };
 
-type Dot = { label: string; tone?: string; missing?: boolean; r: number; state: "" | "focus" | "near" | "far"; labelled: boolean };
+type Dot = { label: string; icon?: IconName; tone?: string; missing?: boolean; r: number; state: "" | "focus" | "near" | "far"; labelled: boolean };
 
 const handle = { left: "50%", top: "50%", transform: "translate(-50%, -50%)", opacity: 0, width: 1, height: 1, minWidth: 0, minHeight: 0, border: 0 } as const;
 
@@ -20,6 +24,7 @@ function DotNode({ data }: NodeProps<Node<Dot>>) {
     <div className={`graph-dot ${data.state}${data.missing ? " missing" : ""}`} style={{ width: data.r * 2, height: data.r * 2, color: data.tone ? `var(--file-${data.tone})` : undefined }}>
       <Handle type="target" position={Position.Top} style={handle} isConnectable={false} />
       <Handle type="source" position={Position.Top} style={handle} isConnectable={false} />
+      {data.icon && <Icon name={data.icon} size={Math.round(data.r * 1.1)} />}
       {data.labelled && <span className="graph-label">{data.label}</span>}
     </div>
   );
@@ -97,10 +102,10 @@ function Graph({ nodes, links, focus, onOpen, compact, ariaLabel }: Props) {
   const at = new Map((sim.current?.nodes ?? []).map((n) => [n.id, n]));
   const showAll = !compact && zoom >= 0.7;
   const rfNodes: Node<Dot>[] = nodes.map((n) => {
-    const p = at.get(n.id), r = 3.5 + Math.sqrt(degree.get(n.id) ?? 0) * 2.2;
+    const p = at.get(n.id), r = (compact ? 8 : 10) + Math.sqrt(degree.get(n.id) ?? 0) * (compact ? 1.5 : 2.5);
     const state = n.id === focus ? "focus" : near ? (near.has(n.id) ? "near" : "far") : "";
     const labelled = showAll ? state !== "far" : n.id === focus || n.id === hover || (!!hover && state === "near");
-    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, width: r * 2, height: r * 2, handles: centre(n.id, r), data: { label: n.label, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
+    return { id: n.id, type: "dot", position: { x: (p?.x ?? 0) - r, y: (p?.y ?? 0) - r }, width: r * 2, height: r * 2, handles: centre(n.id, r), data: { label: n.label, icon: n.icon, tone: n.tone, missing: n.missing, r, state, labelled }, draggable: true, selectable: false };
   });
   const rfEdges: Edge[] = links.map((l) => {
     const lit = !!hover && (l.source === hover || l.target === hover);
