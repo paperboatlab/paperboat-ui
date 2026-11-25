@@ -34,3 +34,10 @@ test("the faces follow the rebrand", () => {
   assert.match(card, /<Icon name="a-station"/, "a linked block shows the station mark from the registry");
   assert.doesNotMatch(card, /✎/, "icons from the registry, not text glyphs");
 });
+
+test("a running plate is outlined; the canvas tools are round keys from the registry", () => {
+  const css = read("canvas.css").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(css, /\.compact-block\.running \.plate \{ border-color/, "CompactBlock's class is its word");
+  const tools = read("CanvasTools.tsx");
+  for (const icon of ["question", "zoom-out", "zoom-in", "screen-full"]) assert.match(tools, new RegExp(`icon="${icon}"`));
+});
