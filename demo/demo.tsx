@@ -1,10 +1,17 @@
 // A page with every component, light and dark: `npm run demo`, then open demo/index.html.
 import { StrictMode, useState } from "react";
+import type { Runtime } from "../src/runtimes.ts";
 import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
 import { Editor, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
-import { About, AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+import { About, AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, RuntimesKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
+
+const RUNTIMES: Runtime[] = [
+  { id: "jl", name: "Julia 1.11.6", lang: "julia@1.11.6", state: "busy", via: "podman", up: 2520, memory: 1.2 * 2 ** 30, cpu: 87, now: "cell [4] in step-response-5cm · 0.6 s", note: "used by 5 cells in 3 notes", onInterrupt: () => {}, onRestart: () => {}, onStop: () => {} },
+  { id: "py", name: "Python 3.12", lang: "python", state: "idle", via: "podman", up: 5400, idle: 240, memory: 310 * 2 ** 20, note: "used by 1 cell in pump-check", onRestart: () => {}, onStop: () => {} },
+  { id: "omc", name: "OpenModelica 1.27", lang: "openmodelica", state: "off", note: "needed by Tank.mo", onStart: () => {} },
+];
 
 const JL = `using DifferentialEquations
 using JulixPlot
@@ -40,8 +47,17 @@ function Demo() {
       <header className="panel" style={{ gridColumn: "1 / -1", overflow: "visible", flexDirection: "row", alignItems: "center", gap: 10, padding: "0 10px" }}>
         <AppMark app="paperboat" size={26} idle label="Paperboat" />
         <b style={{ font: "600 17px var(--font-display)" }}>Paperboat</b>
+        <span className="demo-keys" style={{ marginLeft: 24, display: "flex", gap: 18, alignItems: "center" }}>
+          <RuntimesKey runtimes={[]} scope="this folder" />
+          <RuntimesKey count={1} live scope="this folder" />
+          <RuntimesKey failed scope="this workspace" error="omc exited (code 139): the next call starts a new session"
+            runtimes={[{ id: "omc", name: "OpenModelica 1.24.0", lang: "omc", state: "failed", via: "session", note: "Tank.mo stopped at t = 4.2 s" }]} />
+          <RuntimesKey scope="this hub" count={2} />
+          <button type="button" className="key" aria-label="Console: 3 errors" title="Console: 3 errors"><Icon name="a-console" />Console<b className="badge bad">3</b></button>
+        </span>
         <span style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
           <Key icon="search" size="sm" shortcut="Ctrl K" onClick={() => setSearch(true)}>Search</Key>
+          <RuntimesKey runtimes={RUNTIMES} scope="tank-lab" footer={(close) => <><span>Each cell and block names its runtime.</span><Key size="sm" kind="quiet" icon="a-runtimes" onClick={close}>Launcher › Runtimes</Key></>} />
           <PanelsKey panels={[{ id: "l", label: "Runtimes", keys: "Ctrl B", shown: !left }]} layout={{ l: [4, 4, 16, 36], m: [22, 4, 38, 36] }} onToggle={() => setLeft((h) => !h)} />
           <Notifications {...notes} />
           <ThemePicker theme={theme} onChange={setTheme} />
