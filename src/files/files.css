@@ -74,3 +74,6 @@
 @media (prefers-reduced-motion: reduce) {
   .rail > .rail-tabs, .rail > .file-rail-body, .panel-stand { transition: none !important; }
 }
+/* a row's warning (FileEntry.warn): the warning icon and a word, in muted ink, never red */
+.file-warn { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; min-width: 0; font: var(--size-3xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-warn .pb-icon { flex: none; }

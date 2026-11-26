@@ -61,6 +61,10 @@
     "./stage": {
       "types": "./src/stage/index.ts",
       "default": "./src/stage/index.ts"
+    },
+    "./workspace": {
+      "types": "./src/workspace/index.ts",
+      "default": "./src/workspace/index.ts"
     }
   },
   "publishConfig": {

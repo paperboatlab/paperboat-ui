@@ -4,6 +4,7 @@ import { byMenu, isEnabled, type Command, type Menu } from "./commands.ts";
 type MenuId = string;
 import { useDismiss } from "./dismiss.tsx";
 import { Icon } from "./Icon.tsx";
+import { itemSide, SubMenu } from "./Menu.tsx";
 
 /**
  * The menu bar (#78): one menu per `MenuId` that has commands. An ARIA menubar: Tab enters it once,
@@ -25,7 +26,11 @@ export function MenuBar({ commands, menus: own, groupTitles = {}, menuLabels }: 
   const focusFirst = useRef(false); // opened with the keyboard: move into the menu
 
   const titles = () => [...(root.current?.querySelectorAll<HTMLButtonElement>(".menu-title") ?? [])];
-  const items = () => [...(root.current?.querySelectorAll<HTMLElement>('.menu-item:not([aria-disabled="true"])') ?? [])];
+  // the enabled items of the menu the focus is in (a submenu's own, or the open menu's)
+  const items = () => {
+    const here = (document.activeElement as HTMLElement | null)?.closest(".menu") ?? root.current?.querySelector(".menu-wrap > .menu");
+    return [...(here?.querySelectorAll<HTMLElement>('.menu-item:not([aria-disabled="true"])') ?? [])].filter((i) => i.closest(".menu") === here);
+  };
 
   useEffect(() => {
     if (open && focusFirst.current) {
@@ -89,12 +94,12 @@ export function MenuBar({ commands, menus: own, groupTitles = {}, menuLabels }: 
     }
   };
 
-  const activate = (c: Command) => {
-    if (!isEnabled(c)) return;
+  const pick = (run: () => void) => {
     setOpen(null);
     (document.activeElement as HTMLElement | null)?.blur(); // the keys go back to the page
-    c.run();
+    run();
   };
+  const activate = (c: Command) => isEnabled(c) && pick(c.run);
 
   return (
     <div className="menubar" role="menubar" aria-label="Menus" data-own-keys ref={root} onKeyDown={onKey}>
@@ -119,11 +124,13 @@ export function MenuBar({ commands, menus: own, groupTitles = {}, menuLabels }: 
                 const first = j === 0 || m.items[j - 1].group !== c.group;
                 const on = isEnabled(c);
                 const radio = c.group in groupTitles;
+                const slot = m.items.some((x) => x.checked !== undefined);
+                const icon = c.icon ? <Icon name={c.icon} size={14} /> : m.items.some((x) => x.icon) && <span className="menu-icon-slot" />;
                 return (
                   <div key={c.id} role="none">
                     {first && j > 0 && <hr role="separator" />}
                     {first && groupTitles[c.group] && <div className="menu-note" role="presentation">{groupTitles[c.group]}</div>}
-                    <button
+                    {c.sub ? <SubMenu label={c.label} icon={icon} slot={slot} items={c.sub} onPick={pick} /> : <button
                       className="menu-item"
                       role={c.checked === undefined ? "menuitem" : radio ? "menuitemradio" : "menuitemcheckbox"}
                       aria-checked={c.checked}
@@ -132,12 +139,12 @@ export function MenuBar({ commands, menus: own, groupTitles = {}, menuLabels }: 
                       title={on ? undefined : c.why}
                       onClick={() => activate(c)}
                     >
-                      <span className="menu-label">{m.items.some((x) => x.checked !== undefined) && <Icon name="chosen" className="check" size={14} />}{c.label}</span>
+                      <span className="menu-label">{slot && <Icon name="chosen" className="check" size={14} />}{icon}{c.label}</span>
                       <span className="menu-side">
-                        {c.meta && <span className="menu-meta">{c.meta}</span>}
-                        {c.shortcut && <kbd>{c.shortcut}</kbd>}
+                        {c.meta && c.shortcut && <span className="menu-meta">{c.meta}</span>}
+                        {itemSide({ ...c, disabled: !on })}
                       </span>
-                    </button>
+                    </button>}
                   </div>
                 );
               })}
