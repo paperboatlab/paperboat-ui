@@ -203,6 +203,8 @@ type PickProps = {
   list: (hub: Hub) => Promise<readonly FileEntry[]>;
   /** The preview of a picked file: what it holds, when it was saved. */
   describe?: (hub: Hub, entry: FileEntry) => ReactNode;
+  /** Open on this hub's tree, past the where-from step (the selector's switch in a file-by-file app). */
+  start?: Hub;
   /** Hand over to the system's picker (open or save). */
   onComputer: () => void;
   onClose: () => void;
@@ -226,14 +228,14 @@ export function SaveFile(props: PickProps & { name: string; onSave: (hub: Hub, p
   return <Pick {...props} mode="save" />;
 }
 
-function Pick({ mode, what, types, hubs, list, describe, onComputer, onClose, ...rest }: PickProps & {
+function Pick({ mode, what, types, hubs, list, describe, start, onComputer, onClose, ...rest }: PickProps & {
   mode: "open" | "save";
   onOpen?: (hub: Hub, path: string) => void;
   name?: string;
   onSave?: (hub: Hub, path: string) => void;
 }) {
   const save = mode === "save";
-  const [hub, setHub] = useState<Hub | null>(null);
+  const [hub, setHub] = useState<Hub | null>(start ?? null);
   const [entries, setEntries] = useState<readonly FileEntry[] | null>(null);
   const [failed, setFailed] = useState("");
   const [all, setAll] = useState<"opens" | "all">("opens");
