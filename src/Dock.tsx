@@ -162,7 +162,7 @@ export function StationWindow({
       <header className="console-head">
         <h2>Station</h2>
         <span className={`lbl conn-${connection}`}>{connection === "open" ? `connected: ${engine || "ready"}` : connection}</span>
-        <button className="key small" title="Close (Esc)" onClick={onClose}>
+        <button className="key sm" title="Close (Esc)" onClick={onClose}>
           Close
         </button>
       </header>
@@ -184,7 +184,7 @@ export function StationWindow({
       <div className="station-running">
         <div className="station-running-head">
           <span className="lbl muted">Running stations</span>
-          <button type="button" className="key small" onClick={loadRunning} disabled={looking}>
+          <button type="button" className="key sm" onClick={loadRunning} disabled={looking}>
             {looking ? "Looking…" : "Refresh"}
           </button>
         </div>
@@ -221,7 +221,7 @@ export function StationWindow({
       <div className="station-presets">
         <span className="lbl muted">Presets:</span>
         {presets.map((p) => (
-          <button key={p} type="button" className="key small" onClick={() => setDraft(p)}>
+          <button key={p} type="button" className="key sm" onClick={() => setDraft(p)}>
             {p}
           </button>
         ))}

@@ -42,7 +42,7 @@ export function FileRail({
         {onAdd && tab === "files" && (
           <button
             type="button"
-            className="key small rail-add"
+            className="key sm rail-add"
             title={addTitle}
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();

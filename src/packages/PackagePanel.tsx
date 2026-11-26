@@ -168,7 +168,7 @@ export function PackagePanel({ runtime, environment, registry, busy, error, outp
               {runtime.tag && <span className="tag">{runtime.tag}</span>}
             </div>
             {runtime.update && (
-              <button className="key small" onClick={runtime.update.run} disabled={Boolean(busy) || runtime.update.disabled} title={runtime.update.title}>
+              <button className="key sm" onClick={runtime.update.run} disabled={Boolean(busy) || runtime.update.disabled} title={runtime.update.title}>
                 {runtime.update.label}
               </button>
             )}
@@ -230,7 +230,7 @@ export function PackagePanel({ runtime, environment, registry, busy, error, outp
                     {!p.status && p.update && <span className="upd has"> → {p.update}</span>}
                   </span>
                   {p.update && environment.update && !p.status && (
-                    <button type="button" className="key small" disabled={Boolean(busy)} title={`Update ${p.name} to ${p.update}`} onClick={() => environment.update!(p.name, p.update!)}>
+                    <button type="button" className="key sm" disabled={Boolean(busy)} title={`Update ${p.name} to ${p.update}`} onClick={() => environment.update!(p.name, p.update!)}>
                       Update
                     </button>
                   )}
@@ -244,12 +244,12 @@ export function PackagePanel({ runtime, environment, registry, busy, error, outp
               {environment.packages.length === 0 && <p className="hint">{environment.empty ?? `No ${noun}s yet. Add one from the registry.`}</p>}
             </div>
             <div className="pk-foot">
-              <button className="key small" type="button" onClick={() => setView("registry")}>
+              <button className="key sm" type="button" onClick={() => setView("registry")}>
                 Browse registry
               </button>
               <span className="sp" />
               {environment.actions?.map((a) => (
-                <button key={a.label} className="key small" onClick={a.run} disabled={Boolean(busy) || a.disabled} title={a.title}>
+                <button key={a.label} className="key sm" onClick={a.run} disabled={Boolean(busy) || a.disabled} title={a.title}>
                   {a.label}
                 </button>
               ))}
@@ -305,7 +305,7 @@ export function PackagePanel({ runtime, environment, registry, busy, error, outp
                 {installed.has(detail.name) && (!registry.pickVersion || version === environment?.packages.find((p) => p.name === detail.name)?.version) ? (
                   <span className="tag pk-installed">installed</span>
                 ) : (
-                  <button className="key small" type="button" disabled={Boolean(busy)} onClick={() => registry.add(detail.name, registry.pickVersion ? version : undefined)}>
+                  <button className="key sm" type="button" disabled={Boolean(busy)} onClick={() => registry.add(detail.name, registry.pickVersion ? version : undefined)}>
                     {installed.has(detail.name) ? `Switch to ${version}` : `Add ${detail.name}`}
                   </button>
                 )}
@@ -325,7 +325,7 @@ export function PackagePanel({ runtime, environment, registry, busy, error, outp
                   {installed.has(item.name) ? (
                     <span className="tag pk-installed">added</span>
                   ) : (
-                    <button className="key small" type="button" disabled={Boolean(busy)} onClick={() => (registry.pickVersion ? open(item) : registry.add(item.name))}>
+                    <button className="key sm" type="button" disabled={Boolean(busy)} onClick={() => (registry.pickVersion ? open(item) : registry.add(item.name))}>
                       Add
                     </button>
                   )}

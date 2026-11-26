@@ -143,10 +143,10 @@ function GridEditor({
     <Dialog title={name} tags={tags ?? [type, `${rows} × ${cols}`]} wide className="tall ve-window" onClose={onClose}>
       {!readOnly && (
         <div className="ve-tools">
-          <button type="button" className="key small" onClick={addRow}>+ row</button>
-          <button type="button" className="key small" onClick={addCol}>+ column</button>
-          <button type="button" className="key small" onClick={dropRow} disabled={rows < 2} title="Delete the selected row">− row</button>
-          <button type="button" className="key small" onClick={dropCol} disabled={cols < 2} title="Delete the selected column">− column</button>
+          <button type="button" className="key sm" onClick={addRow}>+ row</button>
+          <button type="button" className="key sm" onClick={addCol}>+ column</button>
+          <button type="button" className="key sm" onClick={dropRow} disabled={rows < 2} title="Delete the selected row">− row</button>
+          <button type="button" className="key sm" onClick={dropCol} disabled={cols < 2} title="Delete the selected column">− column</button>
           <span className="sp" />
           <span className="tag">{name}[{at[0] + 1}{cols > 1 || kind === "matrix" ? `, ${at[1] + 1}` : ""}]</span>
         </div>
