@@ -242,7 +242,7 @@ export function TypedPath({ title, what = "folder", initial = "", onOpen, onClos
       <p>In a browser the page can't open your system's dialog: type the {what}'s path. In a Paperboat window it opens the dialog instead.</p>
       <label className={`well ws-path${tried && !ok ? " error" : ""}`}>
         <Icon name={what === "folder" ? "folder" : "file"} size={14} />
-        <input aria-label={`The ${what}'s path`} autoFocus spellCheck={false} placeholder={what === "folder" ? "~/projects/tank-level" : "~/projects/tank-level/identify.jl"}
+        <input aria-label={`The ${what}'s path`} autoFocus spellCheck={false} placeholder={what === "folder" ? "~/projects/tank-level" : "~/projects/tank-level/…"}
           value={path} onChange={(e) => setPath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && go()} />
       </label>
       {tried && !ok && <small className="field-error">A whole path: from / or ~ (C:\ on Windows)</small>}
