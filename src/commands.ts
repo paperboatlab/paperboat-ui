@@ -3,12 +3,15 @@
 // whether it is enabled can't drift between them. Pure functions and types; the app draws them.
 
 import { useEffect, useRef } from "react";
+import type { IconName } from "./icons.ts";
+import type { MenuEntry } from "./Menu.tsx";
 
 /** A menu: an app names its own (`{ id: "file", label: "File" }`), in the order they appear. */
 export type Menu = { id: string; label: string };
 
-/** A key combination. `ctrl` also means ⌘ on a Mac. `key` is `KeyboardEvent.key`, lower-case. */
-export type Chord = { key: string; ctrl?: boolean; alt?: boolean; shift?: boolean };
+/** A key combination. `ctrl` also means ⌘ on a Mac. `key` is `KeyboardEvent.key`, lower-case.
+ *  `then`: a second stroke, as VS Code's Ctrl K Ctrl O (the first waits for it; see `keyAction`). */
+export type Chord = { key: string; ctrl?: boolean; alt?: boolean; shift?: boolean; then?: Chord };
 
 export type Command = {
   id: string;
@@ -31,6 +34,10 @@ export type Command = {
   meta?: string;
   /** Left out of the command search (the command that opens it). */
   quiet?: boolean;
+  /** Drawn before the label (only where the registry gives the meaning: Connect to a hub's mark, Settings' gear). */
+  icon?: IconName;
+  /** A submenu (Open recent): the item opens it instead of running. One level at most. */
+  sub?: MenuEntry[];
   run: () => void;
 };
 
@@ -50,11 +57,35 @@ export function chordMatches(c: Chord, e: KeyLike): boolean {
   );
 }
 
-/** "Ctrl+Shift+K". */
+/** "Ctrl+Shift+K", "Ctrl+K Ctrl+O". */
 export function describe(c: Chord): string {
   const key = c.key.charAt(0).toUpperCase() + c.key.slice(1); // "K", "F1", "Enter"
-  return [c.ctrl && "Ctrl", c.alt && "Alt", c.shift && "Shift", key].filter(Boolean).join("+");
+  const one = [c.ctrl && "Ctrl", c.alt && "Alt", c.shift && "Shift", key].filter(Boolean).join("+");
+  return c.then ? `${one} ${describe(c.then)}` : one;
 }
+
+/** The command a single stroke runs (not the first of a sequence). */
+const stroke = (commands: Command[], e: KeyLike) => commands.find((c) => c.chord && !c.chord.then && chordMatches(c.chord, e));
+
+/**
+ * What a key does. `first` is the stroke still waiting for its second (Ctrl K of Ctrl K Ctrl O).
+ * `run`: this key's command (a sequence's second stroke, or its own); `before`: the waiting stroke's own
+ * command, run first when this key doesn't finish a sequence (Ctrl K then anything else: the search);
+ * `wait`: this key starts a sequence, so it waits for the next one.
+ */
+export function keyAction(commands: Command[], e: KeyLike, first?: KeyLike): { run?: Command; before?: Command; wait: boolean } {
+  let before: Command | undefined;
+  if (first) {
+    const seq = commands.find((c) => c.chord?.then && chordMatches(c.chord, first) && chordMatches(c.chord.then, e));
+    if (seq) return { run: seq, wait: false };
+    before = stroke(commands, first);
+  }
+  if (commands.some((c) => c.chord?.then && chordMatches(c.chord, e))) return { before, wait: true };
+  return { run: stroke(commands, e), before, wait: false };
+}
+
+/** How long a sequence's first stroke waits for its second before it runs its own command. */
+export const SEQUENCE_MS = 1000;
 
 /** The commands by menu, in the menus' order, with their titles. A menu with no commands is left out. */
 export function byMenu(commands: Command[], menus: Menu[]): (Menu & { items: Command[] })[] {
@@ -101,19 +132,32 @@ export function ownKeys(target: EventTarget | null): boolean {
 /**
  * The registry's own shortcuts: every command with a `chord` that is enabled. They work even
  * while typing in a field (a chord with Ctrl or Alt isn't text) and are then not a key for the page.
+ * A sequence (Ctrl K Ctrl O) waits up to SEQUENCE_MS for its second stroke; when another key comes, or
+ * none, the first stroke's own command runs (Ctrl K alone still opens the search, a moment later).
+ * Ctrl N and Ctrl W never reach a browser tab's page; they work in a Paperboat window.
  */
 export function useShortcuts(commands: Command[]) {
   const latest = useRef(commands);
   latest.current = commands;
   useEffect(() => {
+    let first: KeyLike | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const go = (c?: Command) => c && isEnabled(c) && c.run();
     const onKey = (e: KeyboardEvent) => {
-      if (e.repeat) return;
-      const hit = latest.current.find((c) => c.chord && chordMatches(c.chord, e));
-      if (!hit) return;
+      if (e.repeat || ["Control", "Meta", "Shift", "Alt"].includes(e.key)) return;
+      clearTimeout(timer);
+      const a = keyAction(latest.current, e, first);
+      first = undefined;
+      go(a.before);
+      if (!a.run && !a.wait) return;
       e.preventDefault(); // not a key for the page, and not the browser's (Ctrl+K)
-      if (isEnabled(hit)) hit.run();
+      if (a.wait) {
+        const held = { key: e.key, ctrlKey: e.ctrlKey, metaKey: e.metaKey, altKey: e.altKey, shiftKey: e.shiftKey };
+        first = held;
+        timer = setTimeout(() => { first = undefined; go(stroke(latest.current, held)); }, SEQUENCE_MS);
+      } else go(a.run);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => { clearTimeout(timer); window.removeEventListener("keydown", onKey); };
   }, []);
 }

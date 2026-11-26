@@ -10,7 +10,7 @@ export { appName, builtOn, versionInfo, KIT_CREDITS, FONT_CREDITS, type Credit }
 export { Icon } from "./Icon.tsx";
 export { ICONS, type IconName } from "./icons.ts";
 export { Key, RemoveKey, type KeyProps } from "./Key.tsx";
-export { Menu, type MenuEntry } from "./Menu.tsx";
+export { Menu, type MenuEntry, type MenuItem } from "./Menu.tsx";
 export { MenuBar } from "./Menus.tsx";
 export { Panel } from "./Panel.tsx";
 export { Split } from "./Split.tsx";
