@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { afterClose, orderTabs, tabMenu, tabsToClose } from "../../src/editor/tabs.ts";
+import fs from "node:fs";
+import { afterClose, orderTabs, revealDelta, tabMenu, tabsToClose } from "../../src/editor/tabs.ts";
 
 const tabs = ["a.jl", "b.jl", "c.jl", "d.jl", "e.jl"];
 const set = { tabs, pinned: new Set(["a.jl"]), dirty: (p: string) => p === "d.jl" };
@@ -34,4 +35,22 @@ test("the menu: an item that would do nothing stays greyed with why; the file's 
   const only = tabMenu("a.jl", { tabs: ["a.jl"], pinned: new Set(["a.jl"]) }, { close: () => {} });
   const all = only.find((i) => typeof i === "object" && "id" in i && i.id === "tab-all") as { disabled?: boolean; why?: string };
   assert.deepEqual([all.disabled, all.why], [true, "Every tab is pinned"]);
+});
+
+test("the shown tab scrolls into view by the least move, a too-wide one shows its start", () => {
+  const strip = { left: 100, right: 500 };
+  assert.equal(revealDelta(strip, { left: 200, right: 300 }), 0);
+  assert.equal(revealDelta(strip, { left: 450, right: 560 }), 60);   // past the right edge: just enough
+  assert.equal(revealDelta(strip, { left: 40, right: 140 }), -60);   // past the left edge
+  assert.equal(revealDelta(strip, { left: 520, right: 1000 }), 420); // wider than the strip: its start
+});
+
+test("EditorTabs: a tablist that scrolls, closed by the round ×, its menu the kit's TabMenu", () => {
+  const src = fs.readFileSync(new URL("../../src/editor/EditorTabs.tsx", import.meta.url), "utf8");
+  assert.match(src, /role="tablist"/);
+  assert.match(src, /<RemoveKey label=\{`Close/);
+  assert.match(src, /<TabMenu /);
+  const css = fs.readFileSync(new URL("../../src/ui.css", import.meta.url), "utf8");
+  assert.match(css, /\.editor-tabs-strip \{[^}]*overflow-x: auto[^}]*scrollbar-width: none/, "scrolls, no scrollbar");
+  assert.match(css, /\.editor-tabs \{[^}]*height: var\(--panel-head-height\)/, "lines up with panel heads");
 });

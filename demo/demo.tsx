@@ -3,7 +3,7 @@ import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
-import { Editor, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, languageFor } from "../src/editor/index.ts";
+import { Editor, EditorTabs, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, afterClose, languageFor, orderTabs, tabMenu } from "../src/editor/index.ts";
 import { About, AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const JL = `using DifferentialEquations
@@ -18,6 +18,25 @@ function pendulum!(du, u, p, t)
     du[2] = -(g / L) * sin(θ) - c * ω  # "drag"
 end
 `;
+
+// enough tabs to overflow the strip; the shown one sits far right so it has to scroll into view
+const FILES = ["Project.toml", "pendulum.jl", "fit.jl", "sweep.jl", "plots.jl", "measured.csv", "notes.md", "src/model.jl", "src/solve.jl", "test/runtests.jl", "data/params.json", "README.md"];
+
+function DemoTabs() {
+  const [files, setFiles] = useState(FILES);
+  const [current, setCurrent] = useState<string | null>(new URLSearchParams(location.search).get("tab") ?? "test/runtests.jl");
+  const [pinned, setPinned] = useState<ReadonlySet<string>>(new Set(["Project.toml"]));
+  const dirty = (p: string) => p === "sweep.jl" || p === "test/runtests.jl";
+  const close = (paths: string[]) => { const next = afterClose(files, current, paths); setFiles(next.tabs); setCurrent(next.current); };
+  const pin = (p: string, on: boolean) => { const s = new Set(pinned); if (on) s.add(p); else s.delete(p); setPinned(s); setFiles(orderTabs(files, s)); };
+  return (
+    <EditorTabs tabs={files.map((id) => ({ id, dirty: dirty(id), pinned: pinned.has(id) }))} current={current} onShow={setCurrent}
+      onClose={(p) => close([p])} onUnpin={(p) => pin(p, false)}
+      menu={(p) => tabMenu(p, { tabs: files, pinned, dirty }, { close, pin, reveal: () => {} })}>
+      <Key size="sm" kind="quiet" icon="play">Run file</Key>
+    </EditorTabs>
+  );
+}
 
 function Demo() {
   const [theme, setTheme] = useState<Theme>((new URLSearchParams(location.search).get("theme") as Theme) || "light");
@@ -63,6 +82,7 @@ function Demo() {
           </div>
         </Panel>
         <Panel name="pendulum.jl" count="Julia · Ink">
+          <DemoTabs />
           <div style={{ padding: "8px 12px" }}><Segmented label="Editor theme" value={edTheme} onChange={setEdTheme} options={EDITOR_THEMES.map((t) => ({ value: t.id, label: t.label }))} /></div>
           <div style={{ height: 250, borderTop: "1px solid var(--line)" }}>
             <Editor key={"jl"} ariaLabel="pendulum.jl" language={languageFor("pendulum.jl")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme }} appTheme={shown} base={JL.replace("0.3", "0.25").replace("using DifferentialEquations\n", "")}
