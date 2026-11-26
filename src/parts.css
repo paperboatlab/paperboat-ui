@@ -5,7 +5,7 @@
 /* menu bar: titles quiet; the open one rises on raised grey. Its menu is the kit's .menu (ui.css). */
 .menubar { display: flex; gap: 2px; }
 .menu-wrap { position: relative; display: inline-flex; }
-.menu-wrap > .menu { position: absolute; top: calc(100% + 6px); left: 0; }
+.menu-wrap > .menu { position: absolute; top: calc(100% + 6px); left: 0; width: max-content; }  /* sized by its items, not the title it hangs from */
 .menu-title { height: 28px; padding: 0 10px; border: 0; border-radius: var(--radius-md); background: none; color: var(--text-muted); font: 400 var(--size-sm) var(--font-sans); cursor: pointer; transition: color var(--motion), background var(--motion); }
 .menu-title:hover { color: var(--text); background: var(--surface-sunken); }
 .menu-title[aria-expanded="true"] { color: var(--text); background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line); }
