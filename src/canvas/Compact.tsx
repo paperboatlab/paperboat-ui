@@ -61,6 +61,7 @@ export function CompactBlock({
   connectors,
   wires,
   live,
+  art,
 }: {
   id: string;
   def: BlockDef;
@@ -81,6 +82,8 @@ export function CompactBlock({
   connectors?: Connectors;
   /** How many wires meet at each icon port (3 or more draw a junction dot). */
   wires?: Record<string, number>;
+  /** The app's own drawing of the icon, in place of `view.icon`'s token art; the icon still sizes the plate and places its ports. */
+  art?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [over, setOver] = useState(false);
@@ -135,7 +138,7 @@ export function CompactBlock({
           if ((e.key === "Enter" || e.key === " ") && card) setOpen(!open);
         }}
       >
-        {icon ? <Icon icon={icon} type={def.type} fill={(t) => captionValue(t, params)} on={isOn(live)} /> : <Glyph name={glyphName} />}
+        {icon && art ? art : icon ? <Icon icon={icon} type={def.type} fill={(t) => captionValue(t, params)} on={isOn(live)} /> : <Glyph name={glyphName} />}
         {hasIconPorts(icon) ? (
           <IconPorts icon={icon!} params={params} connectors={connectors} wires={wires} />
         ) : (
