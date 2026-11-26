@@ -36,19 +36,9 @@
 .hub-pick-text small, .hub-pick em { font: normal var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
 .hub-pick em.bad { color: var(--danger-text); }
 
-/* the Settings pane: label and hint left, the control right */
-.hub-settings section { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-raised); padding: 0 12px; margin-bottom: 12px; }
-.hub-settings h3 { font: 600 var(--size-sm) var(--font-display); margin: 14px 0 2px; }
-.hub-row-set { display: flex; align-items: center; gap: 18px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.hub-row-set:last-child { border-bottom: 0; }
-.hub-row-set .sl { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.hub-row-set .sl b { font-weight: 500; }
-.hub-row-set .sl small { font-size: var(--size-2xs); color: var(--text-muted); }
-.hub-row-set .sctl { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.hub-row-set .well { min-width: 120px; }
-.hub-row-set .well.wide { min-width: 0; width: 260px; flex: 0 1 auto; max-width: 420px; overflow: hidden; white-space: nowrap; }
-.hub-row-set .well.wide > span { overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }   /* a long path keeps its end */
-.hub-row-set .sl { min-width: 160px; }
+.hub-settings .set-row .sl { min-width: 160px; }
+.hub-settings .well.wide { min-width: 0; width: 260px; flex: 0 1 auto; max-width: 420px; overflow: hidden; white-space: nowrap; }
+.hub-settings .well.wide > span { overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }   /* a long path keeps its end */
 .hub-cmd { font: var(--size-2xs) var(--font-mono); color: var(--text-muted); }
 .hub-cmd::before { content: "$ "; }
 

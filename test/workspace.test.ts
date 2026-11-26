@@ -65,18 +65,15 @@ test("the File menu: the same items in the same order, greyed with why", () => {
   assert.equal(menu({ hubOnly: true }).find((c) => c.id === "file.connect")!.label, "Open a hub…");
 });
 
-const K = (key: string, ctrl = false) => ({ key, ctrlKey: ctrl, metaKey: false, altKey: false, shiftKey: false });
+const K = (key: string, ctrl = false, shift = false) => ({ key, ctrlKey: ctrl, metaKey: false, altKey: false, shiftKey: shift });
 
-test("Ctrl K Ctrl O: the first stroke waits; anything else gives Ctrl K its own command", () => {
+test("Open folder is Ctrl Shift O; Ctrl K opens the search at once, nothing waits for a second stroke", () => {
   const cmds: Command[] = [
     ...menu(),
     { id: "search", label: "Search", menu: "view", group: "s", chord: { key: "k", ctrl: true }, run },
   ];
-  assert.deepEqual(keyAction(cmds, K("k", true)), { before: undefined, wait: true });
-  assert.equal(keyAction(cmds, K("o", true), K("k", true)).run?.id, "file.openFolder");
-  const other = keyAction(cmds, K("s", true), K("k", true));
-  assert.equal(other.before?.id, "search");
-  assert.equal(other.run?.id, "file.save");
+  assert.equal(keyAction(cmds, K("k", true)).run?.id, "search");
+  assert.equal(keyAction(cmds, K("O", true, true)).run?.id, "file.openFolder");
   assert.equal(keyAction(cmds, K("o", true)).run?.id, "file.open");
   assert.equal(keyAction(cmds, K("x")).run, undefined);
 });

@@ -550,3 +550,27 @@ button.editor-tab-pin:focus-visible { outline: 2px solid var(--focus); }
 .var-row.open > .var-row-head:hover { background: none; }
 .var-row-error { margin: 0; padding: 0 8px 6px; font: var(--size-2xs) var(--font-sans); color: var(--danger-text); }
 .var-row-body { display: grid; gap: 8px; padding: 2px 8px 10px; }
+
+/* Settings (Settings.tsx): a rail of pages left, the page right; rows of name and hint left, the control right */
+.dialog.settings { width: min(880px, calc(100vw - 32px)); height: min(620px, calc(100vh - 64px)); padding-bottom: 0; }
+.settings-body { flex: 1; min-height: 0; display: flex; gap: 18px; }
+.settings-nav { flex: none; width: 168px; display: flex; flex-direction: column; gap: 2px; padding-bottom: 18px; }
+.settings-nav button { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 10px; border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; transition: background var(--motion), color var(--motion); }
+.settings-nav button:hover { background: var(--row-hover); color: var(--text); }
+.settings-nav button[aria-current="page"] { background: var(--surface-sunken); color: var(--text); font-weight: 500; }
+.settings-nav button:focus-visible { outline: 2px solid var(--focus); }
+.settings-page { flex: 1; min-width: 0; overflow: auto; padding-bottom: 18px; }
+.settings-section { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-raised); padding: 0 12px; margin-bottom: 12px; }
+.settings-section h3 { font: 600 var(--size-sm) var(--font-display); margin: 14px 0 2px; }
+.settings-section > .theme-choices { padding: 8px 0 2px; gap: 14px; }
+.settings-note { margin: 4px 2px 12px; font-size: var(--size-2xs); color: var(--text-muted); }
+.settings-section .settings-note { margin: 2px 0 12px; }
+.set-row { display: flex; align-items: center; gap: 18px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.set-row:last-child { border-bottom: 0; }
+.set-row .sl { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.set-row .sl b { font-weight: 500; }
+.set-row .sl small { font-size: var(--size-2xs); color: var(--text-muted); }
+.set-row .sctl { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.set-row .well { min-width: 120px; }
+.set-row.key-row { justify-content: space-between; padding: 7px 0; }
+.set-row.key-row kbd { font: var(--size-2xs) var(--font-mono); color: var(--text-muted); }

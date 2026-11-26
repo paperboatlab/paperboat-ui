@@ -51,7 +51,7 @@ export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, no
 }) {
   const [over, setOver] = useState(false);
   const shown = recentFor({ version: 1, recent: [...recent] }, app.toLowerCase(), { hubs: hubs || !!hubOnly, folders: !hubOnly });
-  const folderKey = <Key key="folder" kind={hubOnly ? undefined : "primary"} icon="folder-opened" shortcut="Ctrl K Ctrl O" onClick={onOpenFolder}
+  const folderKey = <Key key="folder" kind={hubOnly ? undefined : "primary"} icon="folder-opened" shortcut="Ctrl Shift O" onClick={onOpenFolder}
     title={hubOnly ? "A plain folder asks: make it a hub, or open a hub" : undefined}>Open folder…</Key>;
   const group = (title: string, rows: RecentEntry[], side = "") => rows.length > 0 && (
     <div className="start-group">
@@ -138,7 +138,7 @@ export function WorkspaceWell({ workspace, home, recent, hubs = [], onOpenFolder
     "-",
     { id: "ws.close", label: "Close hub", run: onClose },
   ] : [
-    { id: "ws.open", label: "Open folder…", shortcut: "Ctrl K Ctrl O", run: onOpenFolder },
+    { id: "ws.open", label: "Open folder…", shortcut: "Ctrl Shift O", run: onOpenFolder },
     { id: "ws.recent", label: "Open recent", sub: recent, run: () => {} },
     ...(onConnect && hubs.length ? ["-" as const, { id: "ws.connect", label: "Connect to a hub…", icon: "mark-malachite", run: onConnect } as MenuEntry] : []),
     "-",

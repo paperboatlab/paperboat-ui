@@ -156,7 +156,7 @@ export function HubSettings({ hub, values, account, commands, onSet, onRename, o
   useEffect(() => { setAuthor(values.author); setIgnore(values.ignore); }, [values.author, values.ignore]);
   const cloud = hub.place !== "local";
   const row = (label: string, hint: string, control: ReactNode, cmd: string) => (
-    <div className="hub-row-set">
+    <div className="set-row">
       <div className="sl"><b>{label}</b><small>{hint}</small>{commands && <code className="hub-cmd">paperboat {cmd}</code>}</div>
       <div className="sctl">{control}</div>
     </div>
@@ -169,23 +169,23 @@ export function HubSettings({ hub, values, account, commands, onSet, onRename, o
   );
   return (
     <div className="hub-settings">
-      <section><h3>The hub</h3>
+      <section className="settings-section"><h3>The hub</h3>
         {row("Name", "The folder keeps its name; apps show this one", <><span className="well">{hub.name}</span><Key size="sm" onClick={onRename}>Rename</Key></>, `hub rename ${hub.name} <name>`)}
         {row("Author", "Written on every note, run and version made here", text(author, setAuthor, "author", "Author"), `hub config ${hub.name} author "${values.author}"`)}
       </section>
-      <section><h3>Where it lives</h3>
+      <section className="settings-section"><h3>Where it lives</h3>
         {row("Folder", cloud ? (values.sync === undefined ? `In ${PLACE_NAMES[hub.place]}: its app on this computer keeps it in sync` : `In ${PLACE_NAMES[hub.place]}${account ? `, as ${account}` : ""}`) : "On this computer",
           <><span className="well wide" title={hub.path}>{cloud ? <Icon name="cloud" size={14} /> : <Icon name="folder" size={14} />}<span>{`\u200e${hub.path}`}</span></span><Key size="sm" onClick={onMove}>Move…</Key></>,
           `hub move ${hub.name} <folder>`)}
         {cloud && values.sync !== undefined && row("Sync", hub.sync ? `Now: ${hub.sync.text}` : "", <Switch label="Sync" checked={values.sync ?? true} onChange={(on) => onSet("sync", on)} />, `hub sync ${hub.name} ${values.sync === false ? "--resume" : "--pause"}`)}
       </section>
-      <section><h3>History</h3>
+      <section className="settings-section"><h3>History</h3>
         {row("Keep versions", "Every save is a version; restoring one keeps the current one too",
           <Segmented label="Keep versions" value={values.keep} onChange={(v) => onSet("keep", v)} options={[{ value: "90d", label: "90 days" }, { value: "1y", label: "1 year" }, { value: "always", label: "Always" }]} />,
           `hub config ${hub.name} keep ${values.keep}`)}
         {row("Leave out", "Never versioned or synced: scratch files, caches", text(ignore, setIgnore, "ignore", "Leave out", true), `hub config ${hub.name} ignore "${values.ignore}"`)}
       </section>
-      <section><h3>Remove</h3>
+      <section className="settings-section"><h3>Remove</h3>
         {row("Remove from the list", "Paperboat forgets the hub; the folder and its files stay where they are", <Key size="sm" kind="danger" onClick={onRemove}>Remove from the list</Key>, `hub remove ${hub.name}`)}
       </section>
     </div>
