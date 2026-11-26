@@ -229,6 +229,11 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .toast b { display: block; font-weight: 600; font-size: var(--size-sm); }
 .toast small { color: var(--text-muted); font: var(--size-meta) var(--font-mono); }
 .toast-mark { flex: none; color: var(--accent-text); }
+.toast-mark.warn, .popover.notifications li .toast-mark.warn { color: var(--text); } /* a warning: ink, never red */
+.toast:has(.toast-acts) { align-items: flex-start; }
+.toast-acts { display: flex; gap: 6px; margin-top: 8px; }
+.popover.notifications .toast-acts { margin-top: 6px; }
+.popover.notifications li:has(.toast-acts) { align-items: flex-start; }
 .toast.failed { border-color: var(--danger); }
 .toast.failed b, .toast.failed .toast-mark { color: var(--danger-text); }
 /* the history: the bar's Notifications key and its popover, newest first */

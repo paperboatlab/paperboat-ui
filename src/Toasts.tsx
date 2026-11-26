@@ -2,7 +2,10 @@
 // --toast-*). The rules, so every app tells news the same way:
 // - working: a spinner, stays until the same id is shown again as done or failed;
 // - done: a check, leaves on its own after --toast-stay, held while the pointer or focus is on it;
+// - warning: the warning mark in ink (never red: nothing failed), stays until dismissed;
 // - failed: the error mark in red, a red border, stays until dismissed, read out as an alert;
+// - actions: up to two keys under the words (E2's Save, E3's Review), a follow-up, never a question; a toast
+//   with one stays until used or dismissed, using it dismisses the toast, and its entry in the bell keeps them;
 // - they stack bottom right, rise in on --glide, fade out on --motion, and the stack closes up on --glide;
 // - every toast is kept in the history, the bar's Notifications key (a bell; a dot while some are unseen,
 //   red while an unseen one failed), so one that left unread can be found again.
@@ -11,10 +14,10 @@ import { useDismiss } from "./dismiss.tsx";
 import { Icon } from "./Icon.tsx";
 import { Key, RemoveKey } from "./Key.tsx";
 import { Spinner } from "./Spinner.tsx";
-import { ago, leaves, ms, record, type Note, type ToastState } from "./toast.ts";
+import { ago, leaves, ms, record, type Note, type NoteAction, type ToastState } from "./toast.ts";
 
-export type Toast = { id: number; title: string; detail?: string; state?: ToastState };
-export type { Note };
+export type Toast = { id: number; title: string; detail?: string; state?: ToastState; actions?: NoteAction[] };
+export type { Note, NoteAction };
 const OUT_MS = 450; // fade on --motion (150), then close up on --glide (300)
 
 export function useToasts() {
@@ -37,8 +40,18 @@ export function useToasts() {
 function Mark({ state }: { state?: ToastState }) {
   if (state === "working") return <Spinner />;
   if (state === "done") return <Icon name="check" className="toast-mark" />;
+  if (state === "warning") return <Icon name="warning" className="toast-mark warn" />;
   if (state === "failed") return <Icon name="error" className="toast-mark" />;
   return null;
+}
+
+function Actions({ actions, after }: { actions?: NoteAction[]; after?: () => void }) {
+  if (!actions?.length) return null;
+  return (
+    <span className="toast-acts">
+      {actions.map((a) => <Key key={a.label} size="sm" kind={a.primary ? "primary" : undefined} onClick={() => { a.run(); after?.(); }}>{a.label}</Key>)}
+    </span>
+  );
 }
 
 function ToastView({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
@@ -46,16 +59,16 @@ function ToastView({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }
   const [held, setHeld] = useState(false);
   const leave = useCallback(() => { setOut(true); setTimeout(onDismiss, OUT_MS); }, [onDismiss]);
   useEffect(() => {
-    if (held || !leaves(toast.state)) return;
+    if (held || !leaves(toast.state, toast.actions)) return;
     const t = setTimeout(leave, ms(getComputedStyle(document.documentElement).getPropertyValue("--toast-stay"), 5000));
     return () => clearTimeout(t);
-  }, [toast.state, held, leave]);
+  }, [toast.state, toast.actions, held, leave]);
   const hold = { onMouseEnter: () => setHeld(true), onMouseLeave: () => setHeld(false), onFocus: () => setHeld(true), onBlur: () => setHeld(false) };
   return (
     <div className={`toast-slot${out ? " out" : ""}`}><div>
       <div className={`toast${toast.state === "failed" ? " failed" : ""}`} role={toast.state === "failed" ? "alert" : "status"} {...hold}>
         <Mark state={toast.state} />
-        <div><b>{toast.title}</b>{toast.detail && <small>{toast.detail}</small>}</div>
+        <div><b>{toast.title}</b>{toast.detail && <small>{toast.detail}</small>}<Actions actions={toast.actions} after={leave} /></div>
         <RemoveKey label="Dismiss" onClick={leave} />
       </div>
     </div></div>
@@ -94,7 +107,7 @@ export function Notifications({ log, seenAt, markSeen, clearLog }: { log: Note[]
               {log.map((n) => (
                 <li key={n.id} className={n.state === "failed" ? "failed" : ""}>
                   <Mark state={n.state} />
-                  <div><b>{n.title}</b>{n.detail && <small>{n.detail}</small>}</div>
+                  <div><b>{n.title}</b>{n.detail && <small>{n.detail}</small>}<Actions actions={n.actions} after={() => setOpen(false)} /></div>
                   <time dateTime={new Date(n.at).toISOString()}>{ago(n.at, now)}</time>
                 </li>
               ))}

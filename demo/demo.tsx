@@ -134,6 +134,8 @@ function Demo() {
               <Key onClick={() => setAbout("articula")}>About</Key>
               <Key onClick={() => show({ title: "Pulled julia", detail: "ghcr.io/paperboatlab/julia · 412 MB", state: "done" })}>Toast</Key>
               <Key onClick={() => show({ title: "Pull failed", detail: "no network", state: "failed" })}>Failed toast</Key>
+              <Key onClick={() => show({ title: "Opened level-loop on tank-rig", detail: "found at stations/tank-rig.pst; Save keeps the new place", state: "done", actions: [{ label: "Save", run: () => show({ title: "Saved", detail: "level-loop.psf", state: "done" }) }] })}>Toast with a key</Key>
+              <Key onClick={() => show({ title: "tank-rig is 0.3.0; level-loop was made on 0.2.0", detail: "2 of its changes don't fit the new version", state: "warning", actions: [{ label: "Review", primary: true, run: () => {} }] })}>Warning</Key>
               <Key onClick={() => { const id = show({ title: "Pulling python", detail: "ghcr.io/paperboatlab/python", state: "working" }); setTimeout(() => show({ id, title: "Pulled python", detail: "ghcr.io/paperboatlab/python · 288 MB", state: "done" }), 2500); }}>Working → done</Key>
             </div>
             {menu && (
