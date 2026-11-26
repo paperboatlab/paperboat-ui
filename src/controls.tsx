@@ -27,15 +27,17 @@ function useGlide() {
   return { box, mark };
 }
 
-export function Segmented<T extends string>({ label, options, value, onChange }: {
+export function Segmented<T extends string>({ label, options, value, onChange, size }: {
   label: string;
+  /** "sm": in a panel head or a tool strip. */
+  size?: "sm";
   options: { value: T; label: ReactNode; hint?: string }[];
   value: T;
   onChange: (v: T) => void;
 }) {
   const { box, mark } = useGlide();
   return (
-    <div ref={box} className="seg" role="radiogroup" aria-label={label} onKeyDown={(e) => step(e, options, value, onChange)}>
+    <div ref={box} className={size ? `seg ${size}` : "seg"} role="radiogroup" aria-label={label} onKeyDown={(e) => step(e, options, value, onChange)}>
       <span ref={mark} className="seg-thumb" aria-hidden="true" />
       {options.map((o) => (
         <button key={o.value} type="button" role="radio" aria-checked={o.value === value} tabIndex={o.value === value ? 0 : -1} title={o.hint} onClick={() => onChange(o.value)}>

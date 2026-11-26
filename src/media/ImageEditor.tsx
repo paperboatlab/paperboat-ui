@@ -105,7 +105,7 @@ export function ImageEditor({ src, type = "image/png", name, onSave, onCancel }:
       <div className="pb-imgedit-bar">
         <Key size="sm" kind="quiet" round icon="rotate-left" label="Rotate left" onClick={() => rotate(-90)} />
         <Key size="sm" kind="quiet" round icon="rotate-right" label="Rotate right" onClick={() => rotate(90)} />
-        <span className="pb-imgedit-sep" />
+        <span className="sep pb-imgedit-sep" />
         <Segmented label="Crop ratio" value={ratio} onChange={pickRatio} options={RATIOS} />
         <span className="pb-imgedit-size">{px ? `${px.w} × ${px.h}` : ""}</span>
         <span className="pb-imgedit-end">

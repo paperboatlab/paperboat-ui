@@ -27,7 +27,7 @@ kbd.kbd { font: 500 var(--size-3xs) var(--font-mono); border: 1px solid var(--li
 .logs li::marker { color: var(--text-on-screen-muted); }
 .log-warn { font-weight: 600; }
 .log-error { color: var(--danger-text); }
-.console-window .logs .log-error { color: var(--red-dark); }
+.console-window .logs .log-error { color: var(--danger-on-screen); }
 .log-node { font: inherit; margin-right: 6px; padding: 0 5px; color: var(--text-on-screen); background: transparent; border: 1px solid var(--text-on-screen-muted); border-radius: var(--radius-sm); cursor: pointer; }
 .log-node:hover { border-color: var(--text-on-screen); }
 .logs .log-copy { margin-left: 8px; padding: 0 5px; font: var(--size-3xs) var(--font-sans); color: var(--text-on-screen-muted); background: transparent; border: 1px solid var(--text-on-screen-muted); border-radius: var(--radius-sm); visibility: hidden; cursor: pointer; }
@@ -49,7 +49,7 @@ kbd.kbd { font: 500 var(--size-3xs) var(--font-mono); border: 1px solid var(--li
 .msg.info .msg-level { color: var(--text-muted); }
 .msg-body { min-width: 0; }
 .msg-text { margin: 0; font: var(--size-xs) / 1.45 var(--font-sans); color: var(--text); }
-.msg-source { display: inline-flex; align-items: center; margin-top: 4px; padding: 0; border: 0; background: none; cursor: pointer; font: 11.5px var(--font-mono); color: var(--text-muted); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 2px; }
+.msg-source { display: inline-flex; align-items: center; margin-top: 4px; padding: 0; border: 0; background: none; cursor: pointer; font: var(--size-meta) var(--font-mono); color: var(--text-muted); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 2px; }
 .msg-source:hover { color: var(--text); }
 span.msg-source { cursor: default; }
 .msg-empty { margin: 0; padding: 12px 0; font: var(--size-xs) var(--font-sans); color: var(--text-muted); }
@@ -60,7 +60,7 @@ span.msg-source { cursor: default; }
 .run-status.run-status-empty { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .debug-dock { gap: 6px; }
 .debug-dock > .key.primary:first-child { min-width: 11ch; justify-content: center; }  /* Continue and Pause swap in one place */
-.debug-dock .run-status { margin-left: 6px; padding-left: 12px; border-left: 1px solid var(--line); font: 400 11.5px var(--font-mono); color: var(--text-muted); }
+.debug-dock .run-status { margin-left: 6px; padding-left: 12px; border-left: 1px solid var(--line); font: 400 var(--size-meta) var(--font-mono); color: var(--text-muted); }
 .run-options { display: inline-flex; align-items: center; gap: 8px; font: var(--size-2xs) var(--font-sans); color: var(--text-muted); }
 .run-options input, .run-options select { height: 30px; background: var(--surface-well); box-shadow: var(--well-shadow); color: var(--text); border: 0; border-radius: var(--radius-md); padding: 0 8px; font: var(--size-xs) var(--font-mono); }
 .run-options input:disabled, .run-options select:disabled { opacity: 0.45; }
@@ -78,17 +78,17 @@ span.msg-source { cursor: default; }
 .help-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(200px, 280px) minmax(0, 1fr); }
 .help-list { margin: 0; padding: 8px; list-style: none; overflow: auto; border-right: 1px solid var(--line); background: var(--surface-sunken); }
 .help-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 6px; padding: 6px 8px; border-radius: var(--radius-md); cursor: pointer; }
-.help-list li:hover { background: color-mix(in srgb, var(--surface-raised) 60%, transparent); }
+.help-list li:hover { background: var(--row-hover); }
 .help-list li.on { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line); }
 .help-list b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 var(--size-2xs) var(--font-mono); color: var(--text); }
-.help-list small { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 11.5px var(--font-sans); color: var(--text-muted); }
+.help-list small { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--size-meta) var(--font-sans); color: var(--text-muted); }
 .help-kind { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); text-transform: lowercase; }
 .help-empty { color: var(--text-muted); font: var(--size-xs) var(--font-sans); cursor: default; }
 .help-page { min-width: 0; overflow: auto; padding: 16px 20px; font: var(--size-sm) / 1.55 var(--font-sans); color: var(--text); }
 .help-page > header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
 .help-page h2 { margin: 0; font: 600 18px var(--font-display); }
 .help-page p, .help-page ul { margin: 0 0 12px; }
-.help-page > h3 { margin: 16px 0 8px; font: 500 10.5px var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.help-page > h3 { margin: 16px 0 8px; }
 .help-page code { font: 0.92em var(--font-mono); padding: 0 3px; background: var(--surface-sunken); border-radius: 3px; }
 .help-page pre { overflow: auto; padding: 8px 12px; background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-md); font: var(--size-2xs) var(--font-mono); }
 .help-page pre code { padding: 0; background: none; }

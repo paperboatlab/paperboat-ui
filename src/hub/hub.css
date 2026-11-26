@@ -44,11 +44,11 @@
 .hub-row-set .sl { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .hub-row-set .sl b { font-weight: 500; }
 .hub-row-set .sl small { font-size: var(--size-2xs); color: var(--text-muted); }
-.hub-row-set .sctl { display: flex; align-items: center; gap: 8px; }
+.hub-row-set .sctl { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .hub-row-set .well { min-width: 120px; }
-.hub-row-set .well.wide { min-width: 260px; max-width: 420px; overflow: hidden; white-space: nowrap; }
+.hub-row-set .well.wide { min-width: 0; width: 260px; flex: 0 1 auto; max-width: 420px; overflow: hidden; white-space: nowrap; }
 .hub-row-set .well.wide > span { overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left; }   /* a long path keeps its end */
-.hub-row-set .sl { min-width: 200px; }
+.hub-row-set .sl { min-width: 160px; }
 .hub-cmd { font: var(--size-2xs) var(--font-mono); color: var(--text-muted); }
 .hub-cmd::before { content: "$ "; }
 

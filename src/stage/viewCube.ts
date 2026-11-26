@@ -4,6 +4,9 @@
 import * as THREE from "three";
 import type { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+/** The axes' colours in every 3D view (the stage's view cube and its axes; an app's own 3D view takes these). */
+export const AXIS_COLORS = { x: "#e5484d", y: "#30a46c", z: "#3e63dd" } as const;
+
 /** Side of the cube's corner of the scene, and its distance from the edges, in px. */
 const SIZE = 96;
 const MARGIN = 8;
@@ -82,9 +85,9 @@ export function viewCube(
   };
   const origin = new THREE.Vector3(-0.5, -0.5, -0.5);
   const axisSpecs = [
-    { dir: [1, 0, 0], name: "x", color: "#e5484d" },
-    { dir: [0, 1, 0], name: "y", color: "#30a46c" },
-    { dir: [0, 0, 1], name: "z", color: "#3e63dd" },
+    { dir: [1, 0, 0], name: "x", color: AXIS_COLORS.x },
+    { dir: [0, 1, 0], name: "y", color: AXIS_COLORS.y },
+    { dir: [0, 0, 1], name: "z", color: AXIS_COLORS.z },
   ];
   const shaftLen = 0.90;
   const headLen = 0.16;
