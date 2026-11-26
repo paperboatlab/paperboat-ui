@@ -6,8 +6,11 @@ import type { ReactNode } from "react";
 import { Icon } from "./Icon.tsx";
 import type { IconName } from "./icons.ts";
 
-export function Panel({ name, count, side, hidden = false, onHidden, width = 250, icon, head, tools, className = "", children }: {
+export function Panel({ name, showName = true, count, side, hidden = false, onHidden, width = 250, icon, head, tools, className = "", children }: {
   name: string;
+  /** false: the view already says the name (the rail names the page), so the head opens on its count;
+   *  the name still labels the panel and its slim bar. REBRAND "A name once". */
+  showName?: boolean;
   count?: ReactNode;
   /** A panel that can hide toward its edge. */
   side?: "left" | "right" | "bottom";
@@ -26,7 +29,7 @@ export function Panel({ name, count, side, hidden = false, onHidden, width = 250
   const body = (
     <>
       <div className="panel-head">
-        <b>{name}</b>
+        {showName && <b>{name}</b>}
         {head}
         {count !== undefined && <small>{count}</small>}
         {tools && <span className="tools">{tools}</span>}
