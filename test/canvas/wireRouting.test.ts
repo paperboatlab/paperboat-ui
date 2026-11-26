@@ -112,6 +112,26 @@ test("wires out of one port share a trunk and branch off it, at a dot", () => {
   assert.equal(score.collinearOverlaps + score.crossings, 0, "a shared trunk is neither an overlap nor a crossing");
 });
 
+test("a port's loops drop down its trunk, so feedback branches off the same line", () => {
+  // theta feeds a scope to the right and two controllers to the left (loops): one split point, one dot.
+  const wires: RouteInput[] = [
+    { id: "scope", source: "P", sourceHandle: "theta", target: "S", targetHandle: "in", sx: 300, sy: 100, tx: 500, ty: 160 },
+    { id: "ctrl", source: "P", sourceHandle: "theta", target: "C", targetHandle: "in", sx: 300, sy: 100, tx: 100, ty: 100 },
+    { id: "ctrl2", source: "P", sourceHandle: "theta", target: "D", targetHandle: "in", sx: 300, sy: 100, tx: 50, ty: 40 },
+  ];
+  const obstacles: Obstacle[] = [
+    { id: "P", x: 220, y: 70, width: 80, height: 60 },
+    { id: "C", x: 100, y: 70, width: 80, height: 60 },
+    { id: "D", x: 50, y: 10, width: 40, height: 60 },
+    { id: "S", x: 500, y: 130, width: 80, height: 60 },
+  ];
+  const routes = routeWires(wires, obstacles);
+  assert.deepEqual(["scope", "ctrl", "ctrl2"].map((id) => routes.get(id)!.points[1]), [[400, 100], [400, 100], [400, 100]]);
+  assert.equal(routes.get("ctrl")!.kind, "back");
+  const dots = branchPoints(wires.map((w) => ({ id: w.id, from: "P:theta", points: routes.get(w.id)!.points })));
+  assert.deepEqual([...dots.values()], [[[400, 158]], [[400, 158]], [[400, 158]]], "branch points 2 px apart draw as one dot");
+});
+
 test("a branch point stays a square corner", () => {
   const pts: Point[] = [[0, 0], [50, 0], [50, 40]];
   assert.match(roundedPolyline(pts, 8), / Q /);

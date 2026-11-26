@@ -387,10 +387,11 @@ export function middleOf(points: readonly Point[]): Point {
 
 /**
  * Route all wires on the canvas in one deterministic pass:
- * 1. Back wires (loops) are assigned distinct horizontal tracks below all intermediate obstacles
- *    and nested so shorter loops sit closer to blocks without overlapping.
- * 2. Forward wires (signal and step) run square, out of each port then across; wires into one
- *    port get distinct vertical channels.
+ * 1. Forward wires (signal and step) run square, out of each port then across; wires into one
+ *    port get distinct vertical channels, wires out of one port share one (a trunk).
+ * 2. Back wires (loops) are assigned distinct horizontal tracks below all intermediate obstacles
+ *    and nested so shorter loops sit closer to blocks without overlapping; out of a port with
+ *    forward wires they drop down its trunk.
  */
 export function routeWires(
   wires: readonly RouteInput[],
@@ -406,73 +407,6 @@ export function routeWires(
 
   const backWires = wires.filter(isBack);
   const forwardWires = wires.filter((w) => !isBack(w));
-
-  // --- Back-wires (loops) ---
-  if (backWires.length > 0) {
-    // Sort loops by horizontal span: inner (shorter) loops get lower lanes (closer to blocks).
-    const sortedLoops = [...backWires].sort(
-      (a, b) =>
-        (a.sx - a.tx) - (b.sx - b.tx) ||
-        a.sx - b.sx ||
-        byText(a.source, b.source) ||
-        byText(a.id, b.id),
-    );
-    const loopLaneMap = new Map(sortedLoops.map((w, lane) => [w.id, lane]));
-
-    // Exit lanes per source handle
-    const bySource = byPort(backWires, "source");
-    const sourceExitLaneMap = new Map<string, number>();
-    for (const list of bySource.values()) {
-      list.sort((a, b) => a.ty - b.ty || byText(a.id, b.id));
-      list.forEach((w, i) => sourceExitLaneMap.set(w.id, i));
-    }
-
-    // Exit lanes per target handle
-    const byTarget = byPort(backWires, "target");
-    const targetExitLaneMap = new Map<string, number>();
-    for (const list of byTarget.values()) {
-      list.sort((a, b) => a.sy - b.sy || byText(a.id, b.id));
-      list.forEach((w, i) => targetExitLaneMap.set(w.id, i));
-    }
-
-    for (const w of backWires) {
-      const loopLane = loopLaneMap.get(w.id) ?? 0;
-      const sLane = sourceExitLaneMap.get(w.id) ?? 0;
-      const tLane = targetExitLaneMap.get(w.id) ?? 0;
-
-      const exitSource = backWireExitDistance(sLane);
-      const exitTarget = backWireExitDistance(tLane);
-
-      // Find obstacles whose horizontal bounds overlap [tx - exitTarget - 4, sx + exitSource + 4]
-      const spanMin = w.tx - exitTarget - 4;
-      const spanMax = w.sx + exitSource + 4;
-      const obstaclesInSpan = obstacles.filter((o) => o.x + o.width >= spanMin && o.x <= spanMax);
-      const maxObstacleBottom = obstaclesInSpan.length
-        ? Math.max(...obstaclesInSpan.map((o) => o.y + o.height))
-        : -Infinity;
-
-      const baseBelow = Math.max(w.sy, w.ty, maxObstacleBottom) + 28;
-      const below = baseBelow + backWireLaneOffset(loopLane);
-
-      const pts: [number, number][] = [
-        [w.sx, w.sy],
-        [w.sx + exitSource, w.sy],
-        [w.sx + exitSource, below],
-        [w.tx - exitTarget, below],
-        [w.tx - exitTarget, w.ty],
-        [w.tx, w.ty],
-      ];
-      const points = simplify(pts);
-      results.set(w.id, {
-        id: w.id,
-        kind: "back",
-        points,
-        path: roundedPolyline(points, 10),
-        labelX: (w.sx + w.tx) / 2,
-        labelY: below,
-      });
-    }
-  }
 
   // --- Forward wires (signal and step): obstacle-aware, parallel-lane separated ---
   const baseChannelByWire = new Map<string, number>();
@@ -494,10 +428,13 @@ export function routeWires(
   // Wires out of one port (left to right) share a trunk: one channel for them all, so they run as one line
   // and branch off it, as in a block diagram. The channel sits halfway to the nearest reader, moved aside
   // when that runs through a block or along another wire; chosen when the first of them is routed.
-  const trees = [...byPort(forwardWires, "source").values()].filter(
-    (list) => list.length > 1 && list.every((w) => (w.sourcePosition ?? "right") === "right" && (w.targetPosition ?? "left") === "left" && w.tx - w.sx >= 2 * STUB),
-  );
-  const treeOf = new Map(trees.flatMap((list) => list.map((w) => [w.id, list] as const)));
+  // A port's loops (back wires) drop down that channel too.
+  const treeOf = new Map<string, RouteInput[]>();
+  for (const list of byPort(wires, "source").values()) {
+    const forward = list.filter((w) => !isBack(w));
+    const wide = (w: RouteInput) => (w.sourcePosition ?? "right") === "right" && (w.targetPosition ?? "left") === "left" && w.tx - w.sx >= 2 * STUB;
+    if (list.length > 1 && forward.length && forward.every(wide)) for (const w of list) treeOf.set(w.id, forward);
+  }
   const treeChannel = new Map<readonly RouteInput[], number>();
   const channelFor = (list: readonly RouteInput[]): number => {
     const known = treeChannel.get(list);
@@ -676,6 +613,66 @@ export function routeWires(
     });
   }
 
+  // --- Back-wires (loops) ---
+  if (backWires.length > 0) {
+    // Sort loops by horizontal span: inner (shorter) loops get lower lanes (closer to blocks).
+    const sortedLoops = [...backWires].sort(
+      (a, b) =>
+        (a.sx - a.tx) - (b.sx - b.tx) ||
+        a.sx - b.sx ||
+        byText(a.source, b.source) ||
+        byText(a.id, b.id),
+    );
+    const loopLaneMap = new Map(sortedLoops.map((w, lane) => [w.id, lane]));
+
+    // Exit lanes per target handle
+    const byTarget = byPort(backWires, "target");
+    const targetExitLaneMap = new Map<string, number>();
+    for (const list of byTarget.values()) {
+      list.sort((a, b) => a.sy - b.sy || byText(a.id, b.id));
+      list.forEach((w, i) => targetExitLaneMap.set(w.id, i));
+    }
+
+    for (const w of backWires) {
+      const loopLane = loopLaneMap.get(w.id) ?? 0;
+      const tLane = targetExitLaneMap.get(w.id) ?? 0;
+
+      // Loops out of one port drop down one line, the trunk of the port's forward wires if it has any.
+      const tree = treeOf.get(w.id);
+      const exitSource = tree ? channelFor(tree) - w.sx : backWireExitDistance(0);
+      const exitTarget = backWireExitDistance(tLane);
+
+      // Find obstacles whose horizontal bounds overlap [tx - exitTarget - 4, sx + exitSource + 4]
+      const spanMin = w.tx - exitTarget - 4;
+      const spanMax = w.sx + exitSource + 4;
+      const obstaclesInSpan = obstacles.filter((o) => o.x + o.width >= spanMin && o.x <= spanMax);
+      const maxObstacleBottom = obstaclesInSpan.length
+        ? Math.max(...obstaclesInSpan.map((o) => o.y + o.height))
+        : -Infinity;
+
+      const baseBelow = Math.max(w.sy, w.ty, maxObstacleBottom) + 28;
+      const below = baseBelow + backWireLaneOffset(loopLane);
+
+      const pts: [number, number][] = [
+        [w.sx, w.sy],
+        [w.sx + exitSource, w.sy],
+        [w.sx + exitSource, below],
+        [w.tx - exitTarget, below],
+        [w.tx - exitTarget, w.ty],
+        [w.tx, w.ty],
+      ];
+      const points = simplify(pts);
+      results.set(w.id, {
+        id: w.id,
+        kind: "back",
+        points,
+        path: roundedPolyline(points, 10),
+        labelX: (w.sx + w.tx) / 2,
+        labelY: below,
+      });
+    }
+  }
+
   return results;
 }
 
@@ -712,13 +709,16 @@ export function branchPoints(wires: readonly { id: string; from: string; points:
   };
   const groups = new Map<string, { id: string; points: Point[] }[]>();
   for (const w of wires) groups.set(w.from, [...(groups.get(w.from) ?? []), { id: w.id, points: simplify(w.points) }]);
-  for (const list of groups.values())
+  for (const list of groups.values()) {
+    const dots: Point[] = []; // one dot for branch points a few pixels apart
     for (let i = 0; i < list.length; i++)
       for (let j = i + 1; j < list.length; j++) {
-        const p = divergence(list[i].points, list[j].points);
-        if (!p || (p[0] === list[i].points[0][0] && p[1] === list[i].points[0][1])) continue;
+        const at = divergence(list[i].points, list[j].points);
+        if (!at || (at[0] === list[i].points[0][0] && at[1] === list[i].points[0][1])) continue;
+        const p = dots.find((q) => Math.abs(q[0] - at[0]) + Math.abs(q[1] - at[1]) < 6) ?? (dots.push(at), at);
         add(list[i].id, p);
         add(list[j].id, p);
       }
+  }
   return out;
 }
