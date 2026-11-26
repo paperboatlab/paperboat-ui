@@ -221,3 +221,13 @@
 .canvas-help dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 16px; }
 .canvas-help dt { color: var(--text-muted); white-space: nowrap; }
 .canvas-help dd { margin: 0; }
+/* A number param typed (ParamField): a bound one in the ink outline; the variables it may mean listed under it. */
+.param-expr { min-width: 72px; max-width: 24ch; }
+.param-expr.bound { background: none; box-shadow: none; border: 1px solid var(--line-ink); font-weight: 500; text-align: left; cursor: text; }
+.param-expr:focus { text-align: left; }
+.param-hints { position: fixed; z-index: 50; min-width: 220px; max-width: 320px; padding: 4px; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-1); animation: pb-rise var(--glide); }
+.param-hint { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 4px 8px; border-radius: var(--radius-sm); cursor: pointer; }
+.param-hint[aria-selected="true"] { background: color-mix(in srgb, var(--accent) var(--tint), transparent); }
+.param-hint b { display: block; font: 500 var(--size-xs)/1.35 var(--font-mono); color: var(--text); }
+.param-hint small { display: block; font: var(--size-2xs)/1.35 var(--font-mono); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.param-hint em { font: normal var(--size-xs) var(--font-mono); color: var(--text); font-variant-numeric: tabular-nums; }

@@ -1,13 +1,15 @@
 // One setting on a block's card or a station object's plate: its name left, its value right in a well (mono,
 // right-aligned; focus the ink ring), its unit after it. A value bound to a variable shows the variable's name in
 // an ink outline (a formula marked ƒ) and what it comes to in grey; a click opens the binding (`onBound`), which
-// is the app's (its variables live there).
-import { isRef } from "./bindings.ts";
+// is the app's (its variables live there). Given `vars`, a number param is typed instead (ParamField): a number,
+// a variable's name or a formula, with the variables suggested as you type.
+import { isRef, type VarHint } from "./bindings.ts";
+import { ParamField } from "./ParamField.tsx";
 import { NumberField } from "../NumberField.tsx";
 import { Switch } from "../controls.tsx";
 import type { ParamDef, ParamValue } from "./types.ts";
 
-export function ParamRow({ def, value, onChange, disabled, onBound, computed, label }: {
+export function ParamRow({ def, value, onChange, disabled, onBound, computed, label, vars }: {
   def: ParamDef;
   value: ParamValue | undefined;
   onChange: (v: ParamValue) => void;
@@ -18,11 +20,20 @@ export function ParamRow({ def, value, onChange, disabled, onBound, computed, la
   computed?: string;
   /** Its label; default the param's id. */
   label?: string;
+  /** The variables a number param may be typed as (ParamField); without, it takes numbers and binds by `onBound`. */
+  vars?: readonly VarHint[];
 }) {
   const name = label ?? def.id;
   const unit = "unit" in def && def.unit ? <span className="unit">{def.unit}</span> : null;
   let field;
-  if (isRef(value)) {
+  if (vars && def.type === "number") {
+    field = (
+      <>
+        <ParamField label={name} value={value} fallback={def.default} vars={vars} disabled={disabled} onChange={onChange} />
+        {isRef(value) && computed !== undefined && <em>{computed}</em>}
+      </>
+    );
+  } else if (isRef(value)) {
     const formula = "expr" in value;
     field = (
       <>
