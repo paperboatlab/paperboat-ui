@@ -1,5 +1,6 @@
 // The runtimes key's words (RuntimesKey.tsx; ui-example "Runtimes key"): a row's logo and line, the key's
 // badge and name. Pure, so the apps show a session the same way whatever their daemon calls it.
+import type { IconName } from "./icons.ts";
 
 /** Not started, starting, up and idle, running something, failed. */
 export type RuntimeState = "off" | "starting" | "idle" | "busy" | "failed";
@@ -32,12 +33,16 @@ export type Runtime = {
 export const STATE_WORDS: Record<RuntimeState, string> = { off: "not started", starting: "starting", idle: "idle", busy: "running", failed: "failed" };
 
 const LOGOS: Record<string, string> = { julia: "jl", python: "py", openmodelica: "mo", modelica: "mo", omc: "mo" };
+const ICONS: Record<string, IconName> = { jl: "lang-julia", py: "lang-python", mo: "lang-modelica" };
 
 /** The two letters in a row's square: "julia@1.11.9" is jl. */
 export function runtimeLogo(lang: string) {
   const l = lang.split("@")[0].trim().toLowerCase();
   return LOGOS[l] ?? l.slice(0, 2);
 }
+
+/** The language's icon (icons.toml lang-*), or undefined for a language without one: then its letters. */
+export const runtimeIcon = (lang: string): IconName | undefined => ICONS[runtimeLogo(lang)];
 
 export const duration = (s: number) => (s < 60 ? `${Math.round(s)} s` : s < 3600 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`);
 export const bytes = (b: number) => (b >= 1 << 30 ? `${(b / (1 << 30)).toFixed(1)} GB` : `${Math.round(b / (1 << 20))} MB`);

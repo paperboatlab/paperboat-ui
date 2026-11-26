@@ -6,7 +6,7 @@ import { useDismiss, useFocusReturn } from "./dismiss.tsx";
 import { Icon } from "./Icon.tsx";
 import type { IconName } from "./icons.ts";
 import { Key } from "./Key.tsx";
-import { runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, type Runtime, type RuntimesSummary } from "./runtimes.ts";
+import { runtimeIcon, runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, type Runtime, type RuntimesSummary } from "./runtimes.ts";
 import { Spinner } from "./Spinner.tsx";
 
 export type RuntimesKeyProps = {
@@ -73,12 +73,18 @@ function Peek({ trigger, onClose, scope, error, runtimes, footer }: { trigger: R
 
 const act = (icon: IconName, label: string, run?: () => void) => run && <Key key={icon} size="sm" kind="quiet" round icon={icon} label={label} onClick={run} />;
 
+/** A runtime's logo: its language's icon, or two letters for a language without one. Its square is the app's. */
+export function RuntimeMark({ lang, size }: { lang: string; size?: number }) {
+  const icon = runtimeIcon(lang);
+  return icon ? <Icon name={icon} size={size} /> : <>{runtimeLogo(lang)}</>;
+}
+
 function Row({ r }: { r: Runtime }) {
   const up = r.state !== "off" && r.state !== "failed";
   const working = r.state === "busy" || r.state === "starting";
   return (
     <div className={`runtime ${r.state}`}>
-      <span className="runtime-logo" aria-hidden="true">{runtimeLogo(r.lang)}</span>
+      <span className="runtime-logo" aria-hidden="true"><RuntimeMark lang={r.lang} /></span>
       <div>
         <b>{r.name}</b>
         <small>{runtimeLine(r)}</small>

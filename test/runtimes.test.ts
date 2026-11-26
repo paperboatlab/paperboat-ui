@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { test } from "node:test";
-import { runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, type Runtime } from "../src/runtimes.ts";
+import { runtimeIcon, runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, type Runtime } from "../src/runtimes.ts";
 
 const rt = (state: Runtime["state"], extra: Partial<Runtime> = {}): Runtime => ({ id: state, name: "Julia 1.11.6", lang: "julia", state, ...extra });
 
 test("a runtime's logo: its language, a pin's version dropped", () => {
   assert.deepEqual(["julia", "julia@1.11.9", "Python", "openmodelica", "omc", "rust"].map(runtimeLogo), ["jl", "jl", "py", "mo", "mo", "ru"]);
+  assert.deepEqual(["julia@1.11.9", "Python", "omc", "rust"].map(runtimeIcon), ["lang-julia", "lang-python", "lang-modelica", undefined]);
 });
 
 test("a runtime's line says its state in words", () => {
