@@ -26,6 +26,8 @@ export { Splash } from "./Splash.tsx";
 export { GLYPH_FRAMES, GLYPH_FALLBACK, GLYPH_FRAME_MS } from "./glyphs.ts";
 export { Segmented, Tabs, Switch } from "./controls.tsx";
 export { Notifications, Toasts, useToasts, type Note, type Toast } from "./Toasts.tsx";
+export { RuntimesKey, type RuntimesKeyProps } from "./RuntimesKey.tsx";
+export { runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, STATE_WORDS, type Runtime, type RuntimeState, type RuntimesSummary } from "./runtimes.ts";
 export { ago, record, LOG_MAX } from "./toast.ts";
 export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";

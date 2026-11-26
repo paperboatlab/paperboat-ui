@@ -232,6 +232,38 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .popover.notifications li .toast-mark { color: var(--accent-text); }
 .popover.notifications time { flex: none; color: var(--text-muted); font: var(--size-3xs) var(--font-mono); }
 
+/* ── a badge on a key's corner (a count, ! for failed): .bad in the danger colour, .live in the accent ── */
+.key .badge { position: absolute; top: calc(-1 * var(--space-1) - 2px); right: calc(-1 * var(--space-2) + 1px); min-width: 16px; height: 16px; padding: 0 var(--space-1); box-sizing: border-box; display: grid; place-items: center; border-radius: var(--radius-round); background: var(--surface-raised); border: 1px solid var(--line-strong); font: 600 var(--size-3xs)/1 var(--font-mono); color: var(--text-muted); }
+.key .badge.live { border-color: var(--accent-select); color: var(--accent-text); }
+.key .badge.bad { border-color: var(--danger); color: var(--danger-text); }
+/* a key while something it stands for works: the live pill's travelling light round its border */
+.key.live { border-color: transparent; background: linear-gradient(var(--surface-raised), var(--surface-raised)) padding-box, conic-gradient(from var(--pb-angle), var(--line) 0 60%, var(--accent) 100%) border-box; animation: pb-turn var(--live-time) linear infinite; }
+@media (prefers-reduced-motion: reduce) { .key.live { animation: none; } }
+
+/* ── the runtimes key (RuntimesKey) and its peek: one row per runtime, a dashed logo while not started ── */
+.runtimes-key { position: relative; display: inline-block; }
+.runtimes-key > .key { border-radius: var(--radius-md); }
+.popover.runtimes { width: min(var(--runtimes-width), calc(100vw - 2 * var(--gutter))); padding: 0; z-index: 60; font-size: var(--size-sm); }
+.runtimes-head { display: flex; align-items: baseline; gap: var(--space-2); padding: var(--space-3) var(--space-3) var(--space-2); }
+.runtimes-head b { font: 600 var(--size-md) var(--font-display); }
+.runtimes-head span { margin-left: auto; font: var(--size-3xs) var(--font-mono); color: var(--text-muted); }
+.runtime { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: var(--space-3); padding: var(--space-3); border-top: 1px solid var(--line); align-items: start; }
+.runtime b { font-weight: 600; }
+.runtime small { display: block; font: var(--size-3xs) var(--font-mono); color: var(--text-muted); }
+.runtime p { margin: var(--space-1) 0 0; font-size: var(--size-2xs); color: var(--text-muted); }
+.runtime .runtime-now { color: var(--accent-text); display: flex; align-items: center; gap: 6px; }
+.runtime-logo { width: 30px; height: 30px; box-sizing: border-box; border-radius: var(--radius-md); display: grid; place-items: center; font: 600 var(--size-2xs) var(--font-mono); background: var(--surface-sunken); border: 1px solid var(--line); }
+.runtime.busy .runtime-logo, .runtime.starting .runtime-logo { border-color: var(--accent-select); }
+.runtime.off .runtime-logo { background: none; border-style: dashed; color: var(--text-muted); }
+.runtime.off b { color: var(--text-muted); }
+.runtime.failed .runtime-logo { border-color: var(--danger); }
+.runtime.failed p { color: var(--danger-text); }
+.runtime-acts { display: flex; gap: 2px; }
+.runtimes-error, .runtimes-wait { margin: 0; padding: var(--space-2) var(--space-3); font-size: var(--size-2xs); color: var(--text-muted); display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--line); }
+.runtimes-error { color: var(--danger-text); }
+.runtimes-foot { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); border-top: 1px solid var(--line); font-size: var(--size-2xs); color: var(--text-muted); }
+.runtimes-foot > .key { margin-left: auto; }
+
 /* ── the theme key: a disc that turns half a turn on a change; a panel of three previews ── */
 .theme-picker { position: relative; display: inline-block; }
 .theme-picker > .key { border-radius: var(--radius-md); }
