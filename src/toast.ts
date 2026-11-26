@@ -6,12 +6,17 @@ export function ms(v: string, fallback: number) {
   return Number.isFinite(n) ? (/ms\s*$/.test(v) ? n : n * 1000) : fallback;
 }
 
-/** Whether a toast in this state leaves on its own: working waits for its end, a failure for the user. */
-export const leaves = (state?: ToastState) => state !== "working" && state !== "failed";
+/** Whether a toast leaves on its own: working waits for its end; a failure, a warning or one that offers a key
+ *  waits for the user. */
+export const leaves = (state?: ToastState, actions?: readonly NoteAction[]) =>
+  state !== "working" && state !== "failed" && state !== "warning" && !actions?.length;
 
-export type ToastState = "working" | "done" | "failed";
+/** warning: something to look at that didn't stop the work (the warning mark in ink, never red). */
+export type ToastState = "working" | "done" | "warning" | "failed";
+/** A key on a toast, under its words (Save, Review): a follow-up, never a question. One may be primary. */
+export type NoteAction = { label: string; run: () => void; primary?: boolean };
 /** One entry of the notifications history: a toast and when it last changed. */
-export type Note = { id: number; title: string; detail?: string; state?: ToastState; at: number };
+export type Note = { id: number; title: string; detail?: string; state?: ToastState; actions?: NoteAction[]; at: number };
 export const LOG_MAX = 50;
 
 /** The history with this toast added, or its entry (same id) moved up with the latest news; newest first. */

@@ -122,6 +122,16 @@ test("toasts: done leaves after --toast-stay, working and failed stay", async ()
   assert.match(read("tokens.css"), /--toast-stay:\s*\d/);
 });
 
+test("toasts: a warning, and one that offers a key, wait for the user; the warning is ink", async () => {
+  const { leaves, record } = await import("../src/toast.ts");
+  const save = [{ label: "Save", run: () => {} }];
+  assert.deepEqual([leaves("warning"), leaves("done", save), leaves("done", [])], [false, false, true]);
+  const log = record([], { id: 1, title: "Opened", state: "done", actions: save, at: 1 });
+  assert.equal(log[0].actions?.[0].label, "Save"); // the bell keeps the keys
+  assert.match(read("ui.css"), /\.toast-mark\.warn[^{]*\{ color: var\(--text\)/);
+  assert.match(read("Toasts.tsx"), /name="warning"/);
+});
+
 test("notifications: newest first, an update moves its entry up, at most LOG_MAX", async () => {
   const { record, ago, LOG_MAX } = await import("../src/toast.ts");
   let log = record([], { id: 1, title: "Pulling", state: "working", at: 1 });
