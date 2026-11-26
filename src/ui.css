@@ -363,7 +363,9 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 html[data-window] .frame > .bar { -webkit-app-region: drag; user-select: none; }
 html[data-window] .frame > .bar :is(button, a, input, select, textarea, label, [role], [tabindex], [contenteditable]) { -webkit-app-region: no-drag; }
 html[data-window="darwin"] .frame > .bar { padding-left: 80px; }
-.window-keys { display: flex; align-items: center; gap: 2px; }
+/* the keys float over every scrim, on the room WindowKeys keeps in the bar (3 keys of 34 px, 2 px apart) */
+.window-keys-room { width: 106px; height: 30px; flex: none; }
+.window-keys { position: fixed; z-index: 1000; display: flex; align-items: center; gap: 2px; -webkit-app-region: no-drag; }
 .window-keys .wk { all: unset; box-sizing: border-box; width: 34px; height: 30px; display: grid; place-items: center; border-radius: var(--radius-md); color: var(--text-muted); transition: background var(--motion), color var(--motion); }
 .window-keys .wk:hover { background: var(--surface-sunken); color: var(--text); }
 .window-keys .wk:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
