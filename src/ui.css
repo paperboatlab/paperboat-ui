@@ -348,8 +348,9 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
    round the work, no edges between them; the work sits in a bay cut into it, its cards the only cards.
    On the window root: class "frame"; round the work: class "bay" (the app lays out what is inside) ── */
 .frame { background: var(--surface-panel); }
-.frame .bar, .frame .rail, .frame .panel.side { background: none; border-color: transparent; border-radius: 0; }
-.frame .panel.side > .panel-inner > .panel-head { border-bottom-color: transparent; }
+/* only the frame's own parts: a pill's .bar stays, and a side panel inside the bay (Julix's Figure) stays a card */
+.frame > .bar, .frame .rail, .frame .panel.side:not(.bay .panel) { background: none; border-color: transparent; border-radius: 0; }
+.frame .panel.side:not(.bay .panel) > .panel-inner > .panel-head { border-bottom-color: transparent; }
 .bay { background: var(--surface-ground); border: 1px solid var(--line); border-radius: var(--radius-bay); padding: var(--gutter); box-shadow: var(--well-shadow); min-width: 0; min-height: 0; box-sizing: border-box; }
 
 /* ── the page rail (Simplicial's frame): pages only, icons alone sharing its height; a page's chip grows
