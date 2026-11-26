@@ -44,6 +44,14 @@ export function orderTabs(tabs: readonly string[], pinned: ReadonlySet<string>):
   return [...tabs.filter((t) => pinned.has(t)), ...tabs.filter((t) => !pinned.has(t))];
 }
 
+/** How far a strip spanning [left, right] scrolls (+ right) to show a tab spanning [left, right] wholly:
+ *  nothing when it is in view, else the least move; a tab wider than the strip shows its start. */
+export function revealDelta(strip: { left: number; right: number }, tab: { left: number; right: number }): number {
+  if (tab.left < strip.left) return tab.left - strip.left;
+  if (tab.right > strip.right) return Math.min(tab.right - strip.right, tab.left - strip.left);
+  return 0;
+}
+
 export type TabActions = {
   /** Save what is unsaved among `paths`, then drop them (afterClose gives the new strip). */
   close: (paths: string[]) => void;

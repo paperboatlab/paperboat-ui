@@ -466,6 +466,29 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .cm-live .cm-lp-math-block { padding: 6px 0; text-align: center; cursor: text; overflow-x: auto; }
 .cm-live .cm-lp-cell { padding: 6px 0; font-family: var(--font-sans); white-space: normal; cursor: text; }
 .pb-editor .cm-editor.cm-focused { outline: none; }
+/* the editor's tabs (EditorTabs, ui-example.html §14 .cp-tabs): a panel head's height, the strip scrolls (width 0:
+   its tabs never widen the panel)
+   sideways with no scrollbar, the shown tab underlined in the accent over the head's line, the right-clicked
+   one tinted while its menu is open; the round × shows on hover, focus and the shown tab */
+.editor-tabs { display: flex; align-items: stretch; height: var(--panel-head-height); flex: none; min-width: 0; box-shadow: inset 0 -1px 0 var(--line); }
+.editor-tabs-strip { display: flex; flex: 1; width: 0; min-width: 0; padding-left: var(--space-1); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.editor-tabs-strip::-webkit-scrollbar { display: none; }
+.editor-tab { display: flex; align-items: center; gap: var(--space-2); flex: none; padding: 0 var(--space-2) 0 var(--space-3); font: var(--size-xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; cursor: pointer; position: relative; user-select: none; }
+.editor-tab:hover, .editor-tab.on { color: var(--text); }
+.editor-tab.on::after { content: ""; position: absolute; left: var(--space-2); right: var(--space-2); bottom: 0; height: 2px; border-radius: 2px; background: var(--accent); }
+.editor-tab.ctx { background: var(--surface-sunken); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.editor-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; border-radius: var(--radius-md); }
+.editor-tab-icon { display: inline-flex; flex: none; }
+.editor-tab-dirty { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
+.editor-tab-x { display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; opacity: 0; transition: opacity var(--motion); }
+.editor-tab:hover .editor-tab-x, .editor-tab.on .editor-tab-x, .editor-tab.ctx .editor-tab-x, .editor-tab-x:focus-within { opacity: 1; }
+.editor-tab-x .remove { width: var(--space-4); height: var(--space-4); background: none; }
+.editor-tab-x .remove svg { width: 7px; height: 7px; }
+.editor-tab-pin { all: unset; display: inline-grid; place-items: center; width: var(--space-4); height: var(--space-4); flex: none; color: var(--text-muted); border-radius: 50%; }
+button.editor-tab-pin { cursor: pointer; }
+button.editor-tab-pin:hover { color: var(--text); background: var(--surface-sunken); }
+button.editor-tab-pin:focus-visible { outline: 2px solid var(--focus); }
+.editor-tabs-end { display: flex; align-items: center; gap: var(--space-1); padding: 0 var(--space-2); flex: none; }
 /* git changes since the last commit: grey shapes, never green and red */
 .cm-git-gutter .cm-gutterElement { width: 8px; padding: 0 2px; display: flex; align-items: center; }
 .cm-git-add, .cm-git-mod { display: block; width: 4px; height: 12px; border-radius: 1px; }
