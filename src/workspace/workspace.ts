@@ -133,8 +133,12 @@ export function fileMenu(o: FileMenuOptions): Command[] {
 
 /** Open recent's items: folders and hubs, then the app's files (`recentFor`'s groups), and Clear recent. */
 export function recentMenu(shown: ReturnType<typeof recentFor>, onOpen: (e: RecentEntry) => void, onClear: () => void, max = 8): MenuEntry[] {
+  // two entries with the same name tell themselves apart by the folder they're in
+  const all = [...shown.folders, ...shown.hubs, ...shown.files];
+  const twice = (e: RecentEntry) => all.filter((x) => baseName(x.path) === baseName(e.path)).length > 1;
   const item = (e: RecentEntry): MenuEntry => ({
     id: `${e.kind}:${e.path}`, label: baseName(e.path), run: () => onOpen(e),
+    ...(twice(e) ? { meta: baseName(e.path.slice(0, e.path.length - baseName(e.path).length).replace(/[\\/]+$/, "")) } : {}),
     icon: e.kind === "hub" ? "mark-malachite" : fileIconFor(e.path, e.kind === "folder" ? "folder" : "file").icon,
   });
   const places = [...shown.folders, ...shown.hubs].sort((a, b) => b.at - a.at).slice(0, max);

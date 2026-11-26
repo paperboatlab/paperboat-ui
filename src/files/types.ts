@@ -7,7 +7,7 @@ export type FileTone = "simplicial" | "articula" | "julix" | "malachite" | "fold
 const BY_EXT: Record<string, [IconName, FileTone]> = {
   psf: ["mark-simplicial", "simplicial"], pst: ["mark-simplicial", "simplicial"], mnb: ["mark-malachite", "malachite"],  // our formats: their mark
   mo: ["file-code", "articula"], fmu: ["file-zip", "articula"],
-  jl: ["file-code", "julix"], py: ["file-code", "steel"],
+  jl: ["file-code", "julix"], mx: ["notebook", "julix"], py: ["file-code", "steel"],
   toml: ["settings-gear", "slate"], json: ["json", "amber"], csv: ["table", "green"],
   md: ["markdown", "steel"],
   ...Object.fromEntries(["png", "jpg", "jpeg", "gif", "svg", "webp", "avif", "bmp", "mp4", "m4v", "webm", "mov", "ogv", "mp3", "m4a", "wav", "ogg", "oga", "flac"]
