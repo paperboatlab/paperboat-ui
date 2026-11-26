@@ -250,6 +250,12 @@ export const ICONS = {
   "rotate-right": ["0 0 16 16", "<path d='M11.2 5.3a4.5 4.5 0 1 0 1.3 3.2M8.2 5.3h3v-3'/>", true],
   /** Edit a picture (opens the image editor) */
   "edit": ["0 0 16 16", "<path d='M10.5 2.5l3 3-8 8h-3v-3zM9 4l3 3'/>", true],
+  /** The Julia runtime: a runtime's logo (Launcher › Runtimes, the Runtimes key's rows) */
+  "lang-julia": ["0 0 16 16", "<path d='M8 2l2.5 2.5L8 7 5.5 4.5zM4.5 8.5 7 11l-2.5 2.5L2 11zM11.5 8.5 14 11l-2.5 2.5L9 11z'/>", true],
+  /** The Python runtime: a runtime's logo (Launcher › Runtimes, the Runtimes key's rows) */
+  "lang-python": ["0 0 16 16", "<path d='M5.5 7.5h5v-5h-5v3h-3v5h3zM10.5 8.5h-5v5h5v-3h3v-5h-3z'/><path d='M7 4h.5M8.5 12h.5'/>", true],
+  /** The OpenModelica runtime (Modelica): a runtime's logo (Launcher › Runtimes, the Runtimes key's rows) */
+  "lang-modelica": ["0 0 16 16", "<path d='M3.5 3.5h9v9h-9zM1.5 7.5h2M12.5 7.5h2'/><path d='M5.5 10.5v-5l2.5 3 2.5-3v5'/>", true],
   /** Keyboard shortcuts (Settings › Shortcuts) */
   "keys": ["0 0 16 16", "<rect x='1.5' y='4.5' width='13' height='7' rx='1'/><path d='M4 7h1M7 7h2M11 7h1M4.5 9.5h7'/>", true],
   /** The org (or a repository) on GitHub: a link, never an action */
