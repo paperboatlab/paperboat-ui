@@ -18,6 +18,11 @@ export type FileEntry = {
   glyph?: ReactNode;
   /** A short right-hand label ("jl", "package", …). */
   badge?: string;
+  /** The entry it belongs under (a flow's station, by path): the picker's "By station" view. `null`: it
+   *  should have one, but it wasn't found (it shows under the orphans' group). */
+  parent?: string | null;
+  /** A short warning on the row ("pump-rig 0.1.0 not found"), with the warning icon; never red. */
+  warn?: string;
 };
 
 export type FileLabels = {
@@ -204,7 +209,7 @@ export const FileTree = forwardRef<FileTreeHandle, {
             <span className="caret">{entry.kind === "folder" && <Icon name={open ? "chevron-down" : "chevron-right"} size={14} />}</span>
             <span className="file-icon">{entry.glyph ?? <TypeIcon entry={entry} open={open} />}</span>
             <span className="nm">{entry.name}</span>
-            <span className="k">{entry.badge ?? ""}</span>
+            {entry.warn ? <span className="file-warn" title={entry.warn}><Icon name="warning" size={12} />{entry.warn}</span> : <span className="k">{entry.badge ?? ""}</span>}
           </button>
         );
       })}

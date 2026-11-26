@@ -81,3 +81,24 @@ export function pickable(entries: readonly FileEntry[], types: readonly string[]
   }
   return entries.filter((e) => keep.has(e.path));
 }
+
+/** A file's folder in the hub ("" at the top). */
+export const folderOf = (path: string) => (path.includes("/") ? path.slice(0, path.lastIndexOf("/")) : "");
+
+/**
+ * The picker's "By station" view (FileEntry `parent`): each parent (a file the app opens that belongs under
+ * nothing) with the entries under it, and the orphans (`parent: null`, or a parent that isn't in the hub).
+ * `find` keeps the entries whose name has it, and a parent whose children do.
+ */
+export function byParent(entries: readonly FileEntry[], types: readonly string[], find = ""): { parents: { entry: FileEntry; children: FileEntry[] }[]; orphans: FileEntry[] } {
+  const files = pickable(entries, types).filter((e) => e.kind === "file");
+  const needle = find.trim().toLowerCase();
+  const has = (e: FileEntry) => !needle || e.name.toLowerCase().includes(needle);
+  const tops = files.filter((e) => e.parent === undefined);
+  const known = new Set(tops.map((e) => e.path));
+  const under = (p: string) => files.filter((e) => e.parent === p);
+  const parents = tops.map((entry) => ({ entry, children: has(entry) ? under(entry.path) : under(entry.path).filter(has) }))
+    .filter((g) => has(g.entry) || g.children.length > 0);
+  const orphans = files.filter((e) => (e.parent === null || (typeof e.parent === "string" && !known.has(e.parent))) && has(e));
+  return { parents, orphans };
+}

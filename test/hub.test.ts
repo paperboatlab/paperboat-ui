@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { FileEntry } from "../src/files/FileTree.tsx";
-import { hubStatus, hubWhere, pickable, saveName, type Hub } from "../src/hub/hub.ts";
+import { byParent, folderOf, hubStatus, hubWhere, pickable, saveName, type Hub } from "../src/hub/hub.ts";
 
 const E = (path: string, kind: "file" | "folder" = "file"): FileEntry => ({ path, name: path.split("/").pop()!, depth: path.split("/").length - 1, kind });
 const tree = [
@@ -44,4 +44,20 @@ test("Save as adds the app's type unless the name has one of its types", () => {
   assert.equal(saveName("cart.pst", ["psf", "pst"]), "cart.pst");
   assert.equal(saveName("v2.final", ["psf"]), "v2.final.psf");
   assert.equal(saveName("  ", ["psf"]), "");
+});
+
+test("By station: each station with its flows under it, the lost ones last", () => {
+  const F = (path: string, parent?: string | null, warn?: string): FileEntry => ({ ...E(path), parent, warn });
+  const entries = [E("stations", "folder"), F("stations/tank-rig.pst"), F("stations/pendulum.pst"), E("flows", "folder"),
+    F("flows/level-loop.psf", "stations/tank-rig.pst"), F("notes/limits.psf", "stations/tank-rig.pst"), F("flows/swing.psf", "stations/pendulum.pst"),
+    F("flows/old.psf", null, "pump-rig 0.1.0 not found"), F("flows/stray.psf", "stations/gone.pst"), F("data.csv")];
+  const g = byParent(entries, ["psf", "pst"]);
+  assert.deepEqual(g.parents.map((p) => [p.entry.name, p.children.map((c) => c.name)]),
+    [["tank-rig.pst", ["level-loop.psf", "limits.psf"]], ["pendulum.pst", ["swing.psf"]]]);
+  assert.deepEqual(g.orphans.map((e) => e.name), ["old.psf", "stray.psf"]);
+  const found = byParent(entries, ["psf", "pst"], "swing");
+  assert.deepEqual(found.parents.map((p) => [p.entry.name, p.children.map((c) => c.name)]), [["pendulum.pst", ["swing.psf"]]]);
+  assert.deepEqual(found.orphans, []);
+  assert.equal(folderOf("flows/a.psf"), "flows");
+  assert.equal(folderOf("a.psf"), "");
 });
