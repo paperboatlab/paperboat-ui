@@ -31,7 +31,7 @@
 /* the app's own menu: the kit's Menu under a head that names the file */
 .file-menu.own { padding: 0; background: none; border: 0; box-shadow: none; width: 280px; }
 .file-menu.own .menu { position: static; width: 100%; box-sizing: border-box; border-top-left-radius: 0; border-top-right-radius: 0; }
-.file-menu-head { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-bottom: 0; border-radius: var(--radius-md) var(--radius-md) 0 0; font: 11.5px var(--font-mono); color: var(--text-muted); box-shadow: var(--shadow-1); }
+.file-menu-head { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--surface-raised); border: 1px solid var(--line); border-bottom: 0; border-radius: var(--radius-md) var(--radius-md) 0 0; font: var(--size-meta) var(--font-mono); color: var(--text-muted); box-shadow: var(--shadow-1); }
 
 /* The rail: tab strip, body (the files panel and any other tab), and a standing tab when folded.
    The app places the rail and sizes it; folded, it should give the rail ~30px. */

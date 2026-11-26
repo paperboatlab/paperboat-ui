@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { Icon } from "./Icon.tsx";
 import type { IconName } from "./icons.ts";
 
-export function Panel({ name, count, side, hidden = false, onHidden, width = 250, icon, head, className = "", children }: {
+export function Panel({ name, count, side, hidden = false, onHidden, width = 250, icon, head, tools, className = "", children }: {
   name: string;
   count?: ReactNode;
   /** A panel that can hide toward its edge. */
@@ -18,6 +18,8 @@ export function Panel({ name, count, side, hidden = false, onHidden, width = 250
   icon?: IconName;
   /** More in the head, before the count. */
   head?: ReactNode;
+  /** Keys at the head's right end, before the hide key (the count then follows the name). */
+  tools?: ReactNode;
   className?: string;
   children?: ReactNode;
 }) {
@@ -27,6 +29,7 @@ export function Panel({ name, count, side, hidden = false, onHidden, width = 250
         <b>{name}</b>
         {head}
         {count !== undefined && <small>{count}</small>}
+        {tools && <span className="tools">{tools}</span>}
         {side && onHidden && (
           <button type="button" className="hide-key" aria-label={`${hidden ? "Show" : "Hide"} ${name}`} title={`${hidden ? "Show" : "Hide"} ${name}`} onClick={() => onHidden(!hidden)}>
             <Icon name={`hide-${side}`} />
