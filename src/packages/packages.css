@@ -29,7 +29,7 @@
 /* A newer release: the version reads "0.1.0 → 0.1.1" and an Update key sits before the ×. */
 .pk-pkg.has-update { grid-template-columns: minmax(0, 1fr) auto auto 18px; }
 .pk-pkg .upd.has { color: var(--accent-text); }
-.pk-pkg .key.small { height: 20px; padding: 0 7px; font-size: 11.5px; }
+.pk-pkg .key.sm { height: 20px; padding: 0 7px; font-size: 11.5px; }
 .pk-row { grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
 .pk-pkg .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 var(--size-2xs) var(--font-mono); }
 .pk-pkg .ver { color: var(--text-muted); font: 400 var(--size-2xs) var(--font-mono); font-variant-numeric: tabular-nums; }

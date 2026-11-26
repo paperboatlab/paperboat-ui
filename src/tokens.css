@@ -155,9 +155,7 @@
   --line-strong: #4a4a4a;
   --line-ink: var(--night-900);
   --dots: rgb(255 255 255 / 0.1);
-  --signal: var(--orange-dark);
   --danger: var(--red-dark);
-  --signal-text: var(--orange-dark);
   --danger-text: var(--red-dark);
   --focus: var(--night-900);
   --scene-bg: #1d1d1d;
@@ -183,9 +181,7 @@
     --line-strong: #4a4a4a;
     --line-ink: var(--night-900);
     --dots: rgb(255 255 255 / 0.1);
-    --signal: var(--orange-dark);
     --danger: var(--red-dark);
-    --signal-text: var(--orange-dark);
     --danger-text: var(--red-dark);
     --focus: var(--night-900);
     --scene-bg: #1d1d1d;
@@ -278,6 +274,8 @@
   --accent: var(--slate-700);
   --accent-text: var(--slate-700);
   --text-on-accent: #ffffff;
+  /* --signal is the accent in both themes: the base dark blocks above set no --signal of their own, or the
+     retired orange would win there (a :root[data-theme] rule outranks this bare :root) */
   --signal: var(--accent);
   --signal-text: var(--accent-text);
   --text-on-signal: var(--text-on-accent);

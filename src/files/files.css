@@ -42,7 +42,7 @@
 .file-rail-tab { position: relative; height: 100%; display: inline-flex; align-items: center; }
 .file-rail-tab.on { color: var(--text); }
 .file-rail-tab.on::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--accent); }  /* tabs are underlined */
-/* One size in every app, above an app's own .key.small. */
+/* One size in every app, above an app's own .key.sm. */
 .file-rail-tabs .key.rail-add { margin-left: auto; height: 22px; min-width: 24px; padding: 0 6px; }
 .rail-add + .panel-toggle { margin-left: 2px; }
 .file-rail-tab + .panel-toggle { margin-left: auto; }
