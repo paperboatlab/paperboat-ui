@@ -2,7 +2,8 @@
 // bar: the app's bar is the title bar, dragged by its empty space, and a double click on it maximizes. On
 // Windows and Linux our keys (Minimize, Maximize or Restore, Close) end the bar after a hairline; on macOS
 // the system's lights sit at the bar's left and we draw nothing. In a browser tab: nothing at all.
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "./Icon.tsx";
 
 /** What a Paperboat window gives its page: `window.paperboatWindow` (paperboat/apps/launcher/electron/bridge.ts). */
@@ -24,12 +25,32 @@ export const windowControls = (): WindowControls | undefined =>
 const ACTS = "button, a, input, select, textarea, label, [role], [tabindex], [contenteditable]";
 
 /**
+ * The keys are drawn on a layer of their own over everything (a dialog's scrim, the search), placed on the
+ * room they keep in the bar: the window can always be minimized, maximized or closed.
+ *
  * The last thing in an app's bar, after the theme key. Marks the page as a Paperboat window
  * (`html[data-window]`, which makes the frame's bar the title bar) and draws the keys where they belong.
  */
 export function WindowKeys() {
   const w = windowControls();
   const [max, setMax] = useState(false);
+  const room = useRef<HTMLSpanElement>(null);
+  const [at, setAt] = useState<{ top: number; left: number } | null>(null);
+  // follow the room in the bar: after a render (the bar's keys changing), a resize
+  const place = () => {
+    const r = room.current?.getBoundingClientRect();
+    if (r) setAt((a) => (a && a.top === r.top && a.left === r.left ? a : { top: r.top, left: r.left }));
+  };
+  useLayoutEffect(place);
+  useLayoutEffect(() => {
+    const el = room.current;
+    if (!el) return;
+    const ro = new ResizeObserver(place);
+    ro.observe(el);
+    ro.observe(document.documentElement);
+    addEventListener("resize", place);
+    return () => { ro.disconnect(); removeEventListener("resize", place); };
+  }, [w]);
   useEffect(() => {
     if (!w) return;
     const root = document.documentElement;
@@ -47,13 +68,15 @@ export function WindowKeys() {
   return (
     <>
       <span className="sep" />
-      <span className="window-keys" role="group" aria-label="Window">
+      <span className="window-keys-room" ref={room} aria-hidden="true" />
+      {at && createPortal(
+      <span className="window-keys" role="group" aria-label="Window" style={{ top: at.top, left: at.left }}>
         <button type="button" className="wk" title="Minimize" aria-label="Minimize" onClick={() => w.minimize()}><Icon name="chrome-minimize" /></button>
         <button type="button" className="wk" title={max ? "Restore" : "Maximize"} aria-label={max ? "Restore" : "Maximize"} onClick={() => w.toggleMaximize()}>
           <Icon name={max ? "chrome-restore" : "chrome-maximize"} />
         </button>
         <button type="button" className="wk" title="Close" aria-label="Close" onClick={() => w.close()}><Icon name="chrome-close" /></button>
-      </span>
+      </span>, document.body)}
     </>
   );
 }
