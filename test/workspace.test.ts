@@ -80,3 +80,11 @@ test("Ctrl K Ctrl O: the first stroke waits; anything else gives Ctrl K its own 
   assert.equal(keyAction(cmds, K("o", true)).run?.id, "file.open");
   assert.equal(keyAction(cmds, K("x")).run, undefined);
 });
+
+test("Open recent tells two files of the same name apart by their folder", () => {
+  let store = parseRecent(null);
+  for (const path of ["/p/tank-level/identify.jl", "/p/pendulum/identify.jl", "/p/pendulum/sweep.jl"])
+    store = addRecent(store, { kind: "file", path, app: "julix", at: 1 });
+  const items = recentMenu(recentFor(store, "julix"), () => {}, () => {}).filter((e) => typeof e === "object" && "label" in e) as { label: string; meta?: string }[];
+  assert.deepEqual(items.filter((i) => i.label !== "Clear recent").map((i) => [i.label, i.meta]), [["sweep.jl", undefined], ["identify.jl", "pendulum"], ["identify.jl", "tank-level"]]);
+});
