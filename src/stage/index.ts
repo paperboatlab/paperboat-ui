@@ -5,6 +5,6 @@
 export { SceneView } from "./SceneView.tsx";
 export type { SceneLabel, ScenePlotLayer, ScenePlotPick, SceneCameraState } from "./SceneView.tsx";
 export type { Entity, View, Vec3, NumberArray } from "./types.ts";
-export { viewCube, type ViewCubeOptions } from "./viewCube.ts";
+export { AXIS_COLORS, viewCube, type ViewCubeOptions } from "./viewCube.ts";
 export { viewAxes } from "./viewAxes.ts";
 export { fieldColors, meshGeometry, meshLook, paintField, srgbToLinear } from "./meshes.ts";

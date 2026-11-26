@@ -9,7 +9,7 @@
 .pb-player.video .pb-player-bar { position: absolute; left: 8px; right: 8px; bottom: 8px; border-radius: var(--radius-md); box-shadow: var(--shadow-1); background: color-mix(in srgb, var(--surface-raised) 92%, transparent); }
 .pb-player.idle .pb-player-bar { opacity: 0; pointer-events: none; }
 .pb-player.idle { cursor: none; }
-.pb-player-time { font: 11.5px var(--font-mono); color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pb-player-time { font: var(--size-meta) var(--font-mono); color: var(--text); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pb-player-time i { font-style: normal; color: var(--text-muted); }
 .pb-player-line { position: relative; flex: 1; height: 18px; cursor: pointer; touch-action: none; }
 .pb-player-line::before, .pb-player-line i.loaded, .pb-player-line i.done { content: ""; position: absolute; left: 0; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px; }
@@ -19,7 +19,7 @@
 .pb-player-line i.thumb { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: var(--surface-raised); border: 1.5px solid var(--accent); opacity: 0; transition: opacity var(--motion); }
 .pb-player-line:hover i.thumb, .pb-player:focus-within i.thumb { opacity: 1; }
 .pb-player-vol { width: 64px; accent-color: var(--accent); }
-.pb-player-speed { all: unset; font: 11.5px var(--font-mono); color: var(--text); padding: 2px 6px; border-radius: var(--radius-sm); cursor: pointer; min-width: 30px; text-align: center; }
+.pb-player-speed { all: unset; font: var(--size-meta) var(--font-mono); color: var(--text); padding: 2px 6px; border-radius: var(--radius-sm); cursor: pointer; min-width: 30px; text-align: center; }
 .pb-player-speed:hover { background: var(--surface-sunken); }
 .pb-player-speed:focus-visible { box-shadow: 0 0 0 2px var(--accent-select); }
 .pb-player-start { all: unset; position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--surface-raised) 90%, transparent); color: var(--text); box-shadow: var(--shadow-1); cursor: pointer; }
@@ -28,8 +28,8 @@
 
 .pb-imgedit { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--surface-panel); }
 .pb-imgedit-bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-.pb-imgedit-sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
-.pb-imgedit-size { font: 11.5px var(--font-mono); color: var(--text-muted); margin-left: 6px; }
+.pb-imgedit-sep { margin: 0 4px; }  /* with .sep */
+.pb-imgedit-size { font: var(--size-meta) var(--font-mono); color: var(--text-muted); margin-left: 6px; }
 .pb-imgedit-end { margin-left: auto; display: flex; gap: 6px; }
 .pb-imgedit-stage { position: relative; flex: 1; min-height: 280px; display: grid; place-items: center; background: var(--surface-sunken); overflow: hidden; }
 .pb-imgedit-pic { position: relative; }

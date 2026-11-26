@@ -55,7 +55,9 @@
   --font-sans: "Geist Sans", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
+  --size-label: 10.5px; /* group labels in caps (menus, search, help, About) */
   --size-3xs: 11px;   /* shortcuts, ids, small print */
+  --size-meta: 11.5px; /* a head's count, hints and readouts in mono */
   --size-2xs: 12px;   /* labels, tags, captions */
   --size-xs: 12.5px;  /* values, keys, block text */
   --size-sm: 13px;    /* body */
@@ -136,6 +138,14 @@
 
   --select-outline: 2px solid var(--accent-select); /* a selected block, group, frame or pill (ui-example §05) */
   --select-offset: 3px;
+  --row-hover: color-mix(in srgb, var(--surface-raised) 60%, transparent);  /* a list row under the pointer */
+  /* A figure's paper: white unless the figure names its own (JulixPlot's dark theme), whatever the app's theme.
+     .pb-paper-light / .pb-paper-dark (paperClass) set these for a figure and everything in it. */
+  --surface-paper: #ffffff;
+  --paper-ink: #262626;
+  --paper-grid: #e5e5e5;
+  /* On the black screen (the Console, logs), in both themes: at least 4.5:1 on --surface-screen. */
+  --danger-on-screen: var(--red-dark);
 }
 
 /* ---- Semantic (dark) ------------------------------------------------------------- */
@@ -300,6 +310,12 @@
 :root[data-app="articula"]   { --accent: var(--blue-600);  --accent-text: var(--blue-700); }
 :root[data-app="julix"]      { --accent: var(--purple-600); --accent-text: var(--purple-600); }
 :root[data-app="malachite"]  { --accent: var(--green-600); --accent-text: var(--green-700); }
+/* the accent on the black screen: the app's light shade in both themes (the dark theme's accent) */
+:root { --accent-on-screen: var(--screen-text); }
+:root[data-app="simplicial"] { --accent-on-screen: var(--vermilion-300); }
+:root[data-app="articula"]   { --accent-on-screen: var(--blue-300); }
+:root[data-app="julix"]      { --accent-on-screen: var(--purple-300); }
+:root[data-app="malachite"]  { --accent-on-screen: var(--green-300); }
 
 /* Dark: the light tones, with near-black text on them */
 :root[data-theme="dark"] {
@@ -382,15 +398,22 @@
   --z-toast: 150;                      /* above dialogs (100), below the floating search (200) */
 }
 
+/* The runtimes key's peek (RuntimesKey.tsx, ui-example.html "Runtimes key") */
+:root {
+  --runtimes-width: 400px;
+}
+
 /* Paper: a figure that names its own background (JulixPlot's white, a dark theme of its own) keeps its keys,
    readouts and help in that paper's colours, whatever the app's theme. The light and dark roles, set on the
    figure (Plot2D does it from its background; a host draws a whole figure in one with paperClass, @paperboatlab/ui/plot). */
 .pb-paper-light {
+  --surface-paper: #ffffff; --paper-ink: #262626; --paper-grid: #e5e5e5;
   --surface-raised: var(--grey-50); --surface-sunken: #e1e1dd; --text: var(--grey-900); --text-muted: var(--grey-650);
   --line: var(--grey-300); --line-strong: var(--grey-500); --line-ink: var(--grey-900); --focus: var(--grey-900);
   color-scheme: light;
 }
 .pb-paper-dark {
+  --surface-paper: #1f1f21; --paper-ink: #e5e7eb; --paper-grid: rgb(255 255 255 / 0.14);
   --surface-raised: var(--night-100); --surface-sunken: #151515; --text: var(--night-850); --text-muted: var(--night-650);
   --line: #2e2e2e; --line-strong: #4a4a4a; --line-ink: var(--night-850); --focus: var(--night-850);
   color-scheme: dark;
