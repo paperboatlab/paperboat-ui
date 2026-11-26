@@ -14,6 +14,12 @@
 .react-flow__edge-path { stroke: var(--line-ink); stroke-width: 1.2px; }
 .wire-step { stroke-width: 2px !important; }
 .wire-arrow { fill: var(--line-ink); pointer-events: none; }
+/* A branch point: where a wire leaves the line it shares with others from the same port. */
+.wire-dot { fill: var(--line-ink); pointer-events: none; transition: opacity 0.12s; }
+.wire-dot.dim { opacity: 0.18; }
+.wire-dot.wire-commented { opacity: 0.25; }
+/* A branch being drawn out of a wire (Ctrl-drag or right-drag on it). */
+.wire-branching { fill: none; stroke: var(--line-ink); stroke-width: 1.2px; stroke-dasharray: 4 3; pointer-events: none; }
 .wire-arrow.dim { opacity: 0.18; }
 .wire-arrow.wire-commented { opacity: 0.25; }
 /* React Flow's default arrowhead is a grey that disappears on the dark canvas: ink it with

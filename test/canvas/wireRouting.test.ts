@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { dragSegment, orthoPoints, routeWires, scoreWireRoutes, simplify, squareUp, type Obstacle, type Point, type RouteInput } from "../../src/canvas/wireRouting.ts";
+import { branchPoints, dragSegment, nearestOnRoute, orthoPoints, roundedPolyline, routeWires, scoreWireRoutes, simplify, squareUp, type Obstacle, type Point, type RouteInput } from "../../src/canvas/wireRouting.ts";
 
 const square = (pts: Point[]) => pts.slice(1).every((q, i) => q[0] === pts[i][0] || q[1] === pts[i][1]);
 
@@ -85,4 +85,42 @@ test("fan-out from one source port splits cleanly without losing #55 shape", () 
   const routes = routeWires(wires, []);
   assert.deepEqual(routes.get("w1")!.points, [[100, 100], [200, 100], [200, 50], [300, 50]]);
   assert.deepEqual(routes.get("w2")!.points, [[100, 100], [200, 100], [200, 150], [300, 150]]);
+});
+
+test("wires out of one port share a trunk and branch off it, at a dot", () => {
+  // A's output feeds B (near, level with it), C (further, below) and D (above).
+  const wires: RouteInput[] = [
+    { id: "b", source: "A", sourceHandle: "out", target: "B", targetHandle: "in", sx: 100, sy: 100, tx: 200, ty: 100 },
+    { id: "c", source: "A", sourceHandle: "out", target: "C", targetHandle: "in", sx: 100, sy: 100, tx: 400, ty: 260 },
+    { id: "d", source: "A", sourceHandle: "out", target: "D", targetHandle: "in", sx: 100, sy: 100, tx: 300, ty: 20 },
+  ];
+  const routes = routeWires(wires, []);
+  const xs = ["c", "d"].map((id) => routes.get(id)!.points[1][0]);
+  assert.deepEqual(xs, [150, 150], "one channel, halfway to the nearest reader");
+  assert.deepEqual(routes.get("b")!.points, [[100, 100], [200, 100]]);
+  const dots = branchPoints(wires.map((w) => ({ id: w.id, from: `${w.source}:${w.sourceHandle}`, points: routes.get(w.id)!.points })));
+  assert.deepEqual(dots.get("b"), [[150, 100]], "c and d leave b's line at the channel");
+  assert.deepEqual(dots.get("c"), [[150, 100]]);
+  // Another port's wires are another tree; a split right at the port is no branch point.
+  const apart = branchPoints([
+    { id: "x", from: "A:out", points: [[0, 0], [0, 50]] },
+    { id: "y", from: "A:out", points: [[0, 0], [0, -50]] },
+    { id: "z", from: "A:two", points: [[0, 0], [0, 50]] },
+  ]);
+  assert.equal(apart.size, 0);
+  const score = scoreWireRoutes(routes.values(), wires, []);
+  assert.equal(score.collinearOverlaps + score.crossings, 0, "a shared trunk is neither an overlap nor a crossing");
+});
+
+test("a branch point stays a square corner", () => {
+  const pts: Point[] = [[0, 0], [50, 0], [50, 40]];
+  assert.match(roundedPolyline(pts, 8), / Q /);
+  assert.doesNotMatch(roundedPolyline(pts, 8, [[50, 0]]), / Q /);
+});
+
+test("a branch is pulled out of the route where it is nearest", () => {
+  const z: Point[] = [[0, 0], [50, 0], [50, 40], [100, 40]];
+  assert.deepEqual(nearestOnRoute(z, [20, 7]), [20, 0]);
+  assert.deepEqual(nearestOnRoute(z, [58.4, 21]), [50, 21]);
+  assert.deepEqual(nearestOnRoute(z, [140, 60]), [100, 40]);
 });
