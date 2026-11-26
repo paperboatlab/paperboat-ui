@@ -1,19 +1,7 @@
 /* The note graph (brand.html §10 tokens only): dots on the sunken grey, links as hairlines, the open note
-   in the accent ring, a hovered note's neighbourhood lit and the rest dimmed. Its one key is the kit's. */
-.note-graph { position: relative; width: 100%; height: 100%; background: var(--surface-sunken); }
-.note-graph .react-flow__pane { cursor: grab; }
-.note-graph .react-flow__node { cursor: pointer; }
-/* a node is its file type: the type's icon on a disc tinted in the type's colour (as the file tree's glyphs) */
-.graph-dot { position: relative; box-sizing: border-box; border-radius: 50%; display: grid; place-items: center; color: var(--text-muted);
-  background: color-mix(in srgb, currentColor 16%, var(--surface-raised)); border: 1.5px solid currentColor; transition: opacity var(--motion), box-shadow var(--motion); }
-.graph-dot > svg { display: block; }
-.graph-dot.missing { background: var(--surface-sunken); border: 1.5px dashed var(--line-strong); color: var(--text-muted); }
-.graph-dot.focus { box-shadow: 0 0 0 3px var(--surface-sunken), 0 0 0 5px var(--accent-select); }
-.graph-dot.far { opacity: 0.2; }
-.graph-label { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap; pointer-events: none; font: var(--size-3xs) var(--font-sans); color: var(--text-muted); }
-.graph-dot.focus .graph-label, .graph-dot.near .graph-label { color: var(--text); }
-.note-graph.compact .graph-label { font-size: 10px; }
-.note-graph .react-flow__edge-path { stroke: var(--line-strong); stroke-width: 1; transition: opacity var(--motion), stroke var(--motion); }
-.note-graph .react-flow__edge.lit .react-flow__edge-path { stroke: var(--line-ink); }
-.note-graph .react-flow__edge.far .react-flow__edge-path { opacity: 0.15; }
+   in the accent ring, a hovered note's neighbourhood lit and the rest dimmed. It is drawn on a canvas from
+   these tokens (NoteGraph.tsx reads them each frame); its one key is the kit's. */
+.note-graph { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--surface-sunken); }
+.note-graph > canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+.note-graph-wait { position: absolute; inset: 0; display: grid; place-items: center; font: var(--size-2xs) var(--font-sans); color: var(--text-muted); pointer-events: none; }
 .note-graph-keys { position: absolute; left: 12px; bottom: 12px; z-index: 5; display: flex; gap: 4px; }
