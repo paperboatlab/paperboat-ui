@@ -315,6 +315,7 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .panel-head b { font: 600 var(--size-sm) var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .panel-head small { font: var(--size-meta) var(--font-mono); color: var(--text-muted); white-space: nowrap; margin-left: auto; }
 .panel-head small + .hide-key { margin-left: 0; }
+.panel-head > small:first-child { margin-left: 0; }  /* no name (showName false): the count opens the head */
 .panel-head .hide-key { margin-left: auto; }
 /* a head's tools (Panel tools): at the right end before the hide key; the count then follows the name */
 .panel-head > .tools { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
@@ -342,6 +343,14 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .panel.bottom .hide-key svg { transition: transform var(--slide); }
 .panel.bottom.hidden .hide-key svg { transform: scaleY(-1); }
 .panel-slim .count { margin-top: auto; font: var(--size-3xs) var(--font-mono); writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; }
+
+/* ── the frame (REBRAND "Frame"): the bar, the rail and the side panels are one panel-grey surface wrapped
+   round the work, no edges between them; the work sits in a bay cut into it, its cards the only cards.
+   On the window root: class "frame"; round the work: class "bay" (the app lays out what is inside) ── */
+.frame { background: var(--surface-panel); }
+.frame .bar, .frame .rail, .frame .panel.side { background: none; border-color: transparent; border-radius: 0; }
+.frame .panel.side > .panel-inner > .panel-head { border-bottom-color: transparent; }
+.bay { background: var(--surface-ground); border: 1px solid var(--line); border-radius: var(--radius-bay); padding: var(--gutter); box-shadow: var(--well-shadow); min-width: 0; min-height: 0; box-sizing: border-box; }
 
 /* ── the page rail (Simplicial's frame): pages only, icons alone sharing its height; a page's chip grows
    on hover or focus to say what it is; it steps aside (aside) where every page is in view ── */

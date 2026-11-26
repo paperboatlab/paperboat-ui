@@ -297,6 +297,7 @@
   --radius-md: 8px;      /* keys, wells, pills' inner parts, menus */
   --radius-lg: 12px;     /* panels, cards, the bar, instruments */
   --radius-xl: 16px;     /* dialogs, the dock, floating windows */
+  --radius-bay: calc(var(--radius-lg) + var(--gutter) + 1px);  /* concentric: holds --radius-lg cards a gutter in, past its 1 px edge */
   --shadow-key: 0 1px 0 rgb(0 0 0 / 0.06);              /* keys sit on the panel */
   --tint: 14%;                                          /* the primary key: accent share over raised grey */
   --scrim: rgb(20 20 20 / 0.32);                        /* behind a dialog */
