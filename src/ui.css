@@ -353,6 +353,15 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .frame > .bar, .frame .rail, .frame .panel.side:not(.bay .panel) { background: none; border-color: transparent; border-radius: 0; }
 /* the bar's first key sits on the gutter line, where the bay starts when no panel is on its left (inside its 1 px edge) */
 .frame > .bar { padding-left: calc(var(--gutter) - 1px); }
+/* A Paperboat window (WindowKeys): the bar is the title bar, dragged by its empty space; what acts stays
+   clickable. macOS keeps the system's lights at the bar's left, so the mark moves past them. */
+html[data-window] .frame > .bar { -webkit-app-region: drag; user-select: none; }
+html[data-window] .frame > .bar :is(button, a, input, select, textarea, label, [role], [tabindex], [contenteditable]) { -webkit-app-region: no-drag; }
+html[data-window="darwin"] .frame > .bar { padding-left: 80px; }
+.window-keys { display: flex; align-items: center; gap: 2px; }
+.window-keys .wk { all: unset; box-sizing: border-box; width: 34px; height: 30px; display: grid; place-items: center; border-radius: var(--radius-md); color: var(--text-muted); transition: background var(--motion), color var(--motion); }
+.window-keys .wk:hover { background: var(--surface-sunken); color: var(--text); }
+.window-keys .wk:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 .frame .panel.side:not(.bay .panel) > .panel-inner > .panel-head { border-bottom-color: transparent; }
 .bay { background: var(--surface-ground); border: 1px solid var(--line); border-radius: var(--radius-bay); padding: var(--gutter); box-shadow: var(--well-shadow); min-width: 0; min-height: 0; box-sizing: border-box; }
 
