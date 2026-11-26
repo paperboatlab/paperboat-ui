@@ -1,0 +1,58 @@
+/* The one file workflow (agent-docs/rebrand/apps/files): the Start page, the workspace well, the dialogs. */
+
+/* the Start page, in the bay's card while there is no workspace: what to open, and Recent */
+.start-page { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 560px); justify-content: center; align-content: center; gap: 56px; padding: 40px; }
+.start-page.over { background: color-mix(in srgb, var(--accent) var(--tint), transparent); }
+.start-page h2 { margin: 0 0 6px; font: 600 22px var(--font-display); }
+.start-page p { margin: 0 0 20px; color: var(--text-muted); font-size: var(--size-sm); }
+.start-acts { display: flex; flex-direction: column; gap: 8px; }
+.start-acts .key { height: 36px; justify-content: flex-start; }
+.start-acts .key kbd { margin-left: auto; }
+.start-drop { margin-top: 22px; padding: 14px; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); text-align: center; color: var(--text-muted); font-size: var(--size-2xs); }
+.start-group + .start-group { margin-top: 16px; }
+.start-glab { display: flex; gap: 8px; margin: 0 0 8px; font: 500 var(--size-label) var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.start-glab span { margin-left: auto; text-transform: none; letter-spacing: 0; }
+.start-rec { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 8px; border-radius: var(--radius-md); cursor: pointer; }
+.start-rec:hover { background: color-mix(in srgb, var(--surface-raised) 60%, transparent); }
+.start-rec:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.start-rec b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.start-rec small { display: block; font: var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.start-rec em { font: normal var(--size-2xs) var(--font-mono); color: var(--text-muted); }
+.start-none { color: var(--text-muted); font-size: var(--size-2xs); }
+@media (max-width: 900px) { .start-page { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 32px; } }
+.ws-glyph { display: inline-flex; flex: none; }
+
+/* the workspace well: after the menu bar, a folder or a hub */
+.ws-well-wrap { position: relative; display: inline-flex; }
+.ws-well { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; height: 30px; min-width: 150px; max-width: 280px; padding: 0 9px 0 10px; background: var(--surface-well); box-shadow: var(--well-shadow); border-radius: var(--radius-md); font: var(--size-sm) var(--font-sans); color: var(--text); cursor: pointer; white-space: nowrap; }
+.ws-well:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.ws-well[aria-expanded="true"] { box-shadow: var(--well-shadow), 0 0 0 1px var(--line-strong); }
+.ws-well .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ws-well .st { font: var(--size-2xs) var(--font-mono); color: var(--text-muted); }
+.ws-well.bad .st { color: var(--danger-text); }
+.ws-well .chev { margin-left: auto; flex: none; color: var(--text-muted); transition: transform var(--motion); }
+.ws-well[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.ws-menu { position: absolute; left: 0; top: calc(100% + 6px); width: 300px; }
+
+/* menus: a head line, a submenu (one level), why an item can't run at the right */
+.menu-head { display: flex; align-items: center; gap: 8px; margin: -5px -5px 5px; padding: 8px 15px 7px; border-bottom: 1px solid var(--line); font: var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; }
+.menu-head > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.menu-sub-wrap { position: relative; }
+.menu-sub-wrap > .menu-item[aria-expanded="true"] { background: var(--surface-sunken); }
+.menu-sub { position: absolute; left: calc(100% - 4px); top: -6px; width: max-content; min-width: 220px; max-width: 320px; }
+.menu-sub-chev { color: var(--text-muted); flex: none; }
+.menu-icon-slot { width: 14px; flex: none; }
+.menu-meta.why { font-style: italic; }
+.menu-item .menu-meta { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-item[aria-disabled="true"] .menu-meta.why { opacity: 1; }
+
+/* the short dialogs (Open asks, Connect to a hub, a typed path) */
+.dialog.ws-ask { width: min(540px, 92vw); }
+.ws-hint { font-size: var(--size-2xs); color: var(--text-muted); }
+.ws-ask .dialog-actions { align-items: center; }
+.ws-path { font-size: var(--size-sm); }
+.ws-path .pb-icon { color: var(--text-muted); flex: none; }
+
+/* the picker: the orphans' group label, a warning in the preview */
+.files-group { padding: 10px 8px 4px; font: 500 var(--size-label) var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.open-prev .open-warn { display: inline-flex; gap: 6px; align-items: center; }
