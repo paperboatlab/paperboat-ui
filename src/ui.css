@@ -350,6 +350,8 @@ kbd.pb-kbd { font: var(--size-3xs) var(--font-mono); color: var(--text-muted); b
 .frame { background: var(--surface-panel); }
 /* only the frame's own parts: a pill's .bar stays, and a side panel inside the bay (Julix's Figure) stays a card */
 .frame > .bar, .frame .rail, .frame .panel.side:not(.bay .panel) { background: none; border-color: transparent; border-radius: 0; }
+/* the bar's first key sits on the gutter line, where the bay starts when no panel is on its left (inside its 1 px edge) */
+.frame > .bar { padding-left: calc(var(--gutter) - 1px); }
 .frame .panel.side:not(.bay .panel) > .panel-inner > .panel-head { border-bottom-color: transparent; }
 .bay { background: var(--surface-ground); border: 1px solid var(--line); border-radius: var(--radius-bay); padding: var(--gutter); box-shadow: var(--well-shadow); min-width: 0; min-height: 0; box-sizing: border-box; }
 
