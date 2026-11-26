@@ -32,6 +32,7 @@ export { runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, STATE_WORDS, 
 export { ago, record, LOG_MAX } from "./toast.ts";
 export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";
+export { Settings, SettingRow, SettingsSection, ShortcutList, ThemeSetting, type SettingsPage } from "./Settings.tsx";
 export { useDismiss, useFocusReturn } from "./dismiss.tsx";
 export * from "./commands.ts";
 // commands.ts's `Menu` (a menu of the bar) is shadowed by the Menu component above: export it by another name.

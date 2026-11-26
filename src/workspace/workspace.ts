@@ -119,7 +119,7 @@ export function fileMenu(o: FileMenuOptions): Command[] {
   return [
     c("new", `New ${o.noun}`, "open", o.onNew, { shortcut: "Ctrl N", chord: { key: "n", ctrl: true } }),
     c("open", "Open file…", "open", o.onOpenFile, { shortcut: "Ctrl O", chord: { key: "o", ctrl: true } }),
-    c("openFolder", "Open folder…", "open", o.onOpenFolder, { shortcut: "Ctrl K Ctrl O", chord: { key: "k", ctrl: true, then: { key: "o", ctrl: true } } }),
+    c("openFolder", "Open folder…", "open", o.onOpenFolder, { shortcut: "Ctrl Shift O", chord: { key: "o", ctrl: true, shift: true } }),
     c("recent", "Open recent", "open", () => {}, { sub: o.recent, quiet: true }),
     ...(o.hubs && o.onConnect ? [c("connect", o.hubOnly ? "Open a hub…" : "Connect to a hub…", "hub", o.onConnect, { icon: "mark-malachite" })] : []),
     c("save", "Save", "save", o.onSave, { shortcut: "Ctrl S", chord: { key: "s", ctrl: true }, ...noFile }),
