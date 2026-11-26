@@ -2,8 +2,8 @@
 // Variables card): by group, a row per variable with its name in mono, the type line under it in muted 12 px
 // (`typeLine`), and its value at the right (a live one in the accent's text). Hover tints the row; the selected
 // row is tinted, the open one a soft outline round it and what it holds (an editor, its uses), never a side bar.
-// What a variable is and how it is edited stay the app's.
-import type { DragEvent, ReactNode } from "react";
+// What a variable is and how it is edited stay the app's. An open row folds (`onDismiss`) on a click anywhere else.
+import { useEffect, useRef, type DragEvent, type ReactNode } from "react";
 
 /** The scroll of groups and rows. */
 export function VariableList({ label = "Variables", children }: { label?: string; children: ReactNode }) {
@@ -20,7 +20,7 @@ export function VariableGroup({ title, detail, children }: { title?: string; det
   );
 }
 
-export function VariableRow({ name, type, value, live, selected, open, off, why, error, onOpen, onDragStart, children }: {
+export function VariableRow({ name, type, value, live, selected, open, off, why, error, onOpen, onDismiss, onHover, onDragStart, children }: {
   name: string;
   /** Its type line: `number · N·s/rad`, `ƒ kp / 5 · number`, `matrix 2×2` (`typeLine`). */
   type: ReactNode;
@@ -37,13 +37,34 @@ export function VariableRow({ name, type, value, live, selected, open, off, why,
   /** What is wrong with it, in words, under the type line. */
   error?: string;
   onOpen?: () => void;
+  /** Open: a click outside the row folds it; a field being edited in it is left first, so its edit is kept. */
+  onDismiss?: () => void;
+  /** The pointer came onto the row (true) or left it: the app may show where the variable is used. */
+  onHover?: (on: boolean) => void;
   /** Makes the row draggable (to bind it to a field). */
   onDragStart?: (e: DragEvent<HTMLButtonElement>) => void;
   /** What an open row shows under its head. */
   children?: ReactNode;
 }) {
+  const row = useRef<HTMLDivElement>(null);
+  const dismiss = useRef(onDismiss);
+  dismiss.current = onDismiss;
+  // On click, not press (useDismiss): folding on press moves the rows under the pointer, and the click meant for the
+  // next row's head would land on another.
+  useEffect(() => {
+    if (!open || !dismiss.current) return;
+    const away = (e: MouseEvent) => {
+      if (row.current?.contains(e.target as Node)) return;
+      const field = document.activeElement;
+      if (field instanceof HTMLElement && row.current?.contains(field)) field.blur(); // its onBlur saves the edit
+      dismiss.current?.();
+    };
+    document.addEventListener("click", away, true);
+    return () => document.removeEventListener("click", away, true);
+  }, [open]);
   return (
-    <div className={`var-row${selected ? " on" : ""}${open ? " open" : ""}${live ? " live" : ""}${off ? " off" : ""}${error ? " bad" : ""}`}>
+    <div ref={row} onPointerEnter={onHover && (() => onHover(true))} onPointerLeave={onHover && (() => onHover(false))}
+      className={`var-row${selected ? " on" : ""}${open ? " open" : ""}${live ? " live" : ""}${off ? " off" : ""}${error ? " bad" : ""}`}>
       <button type="button" className="var-row-head" aria-expanded={onOpen ? !!open : undefined} title={why}
         onClick={onOpen} draggable={!!onDragStart} onDragStart={onDragStart}>
         <span className="var-row-name"><b>{name}</b><small>{type}</small></span>

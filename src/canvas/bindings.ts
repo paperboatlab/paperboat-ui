@@ -234,3 +234,33 @@ export function toToml(list: Variables): string {
     })
     .join("\n\n");
 }
+
+/** A variable as a param field suggests it: its name, its type line (`typeLine`) and its value as shown (`valueText`). */
+export type VarHint = { name: string; type: string; value: string };
+
+/** What a param field shows for `value`: a number, a variable's name, a formula. */
+export const paramText = (value: unknown): string =>
+  isRef(value) ? ("var" in value ? value.var : value.expr) : value === undefined || value === null ? "" : String(value);
+
+/** What the text typed into a param field means: a number, a variable (a name in `names`), else a formula; nothing if empty. */
+export function parseParam(text: string, names: readonly string[]): number | Ref | undefined {
+  const t = text.trim();
+  if (!t) return undefined;
+  const n = Number(t);
+  if (Number.isFinite(n)) return n;
+  return names.includes(t) ? { var: t } : { expr: t };
+}
+
+/** The name being typed before the caret (`ka` in `2*ka|`): where it starts; none inside a number (`1e`) or after a dot. */
+export function nameAt(text: string, caret: number): { from: number; word: string } | null {
+  const m = /[A-Za-z_]\w*$/.exec(text.slice(0, caret));
+  if (!m || /[\w.]/.test(text[m.index - 1] ?? "")) return null;
+  return { from: m.index, word: m[0] };
+}
+
+/** The variables a typed `word` may mean: those starting with it, then those containing it (any case); eight at most. */
+export function suggestVars<T extends { name: string }>(vars: readonly T[], word: string): T[] {
+  const w = word.toLowerCase();
+  const starts = vars.filter((v) => v.name.toLowerCase().startsWith(w));
+  return [...starts, ...vars.filter((v) => !starts.includes(v) && v.name.toLowerCase().includes(w))].slice(0, 8);
+}
