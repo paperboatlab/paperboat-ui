@@ -554,10 +554,10 @@ button.editor-tab-pin:focus-visible { outline: 2px solid var(--focus); }
 /* Settings (Settings.tsx): a rail of pages left, the page right; rows of name and hint left, the control right */
 .dialog.settings { width: min(880px, calc(100vw - 32px)); height: min(620px, calc(100vh - 64px)); padding-bottom: 0; }
 .settings-body { flex: 1; min-height: 0; display: flex; gap: 18px; }
-.settings-nav { flex: none; width: 168px; display: flex; flex-direction: column; gap: 2px; padding-bottom: 18px; }
+.settings-nav { flex: none; width: 176px; display: flex; flex-direction: column; gap: 2px; padding: 6px; margin-bottom: 18px; border-radius: var(--radius-lg); background: var(--surface-sunken); }   /* the rail's ground */
 .settings-nav button { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 9px; height: 32px; padding: 0 10px; border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; transition: background var(--motion), color var(--motion); }
-.settings-nav button:hover { background: var(--row-hover); color: var(--text); }
-.settings-nav button[aria-current="page"] { background: var(--surface-sunken); color: var(--text); font-weight: 500; }
+.settings-nav button:hover { color: var(--text); }
+.settings-nav button[aria-current="page"] { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); color: var(--text); font-weight: 500; }   /* sits up, as the rail's current page */
 .settings-nav button:focus-visible { outline: 2px solid var(--focus); }
 .settings-page { flex: 1; min-width: 0; overflow: auto; padding-bottom: 18px; }
 .settings-section { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface-raised); padding: 0 12px; margin-bottom: 12px; }
