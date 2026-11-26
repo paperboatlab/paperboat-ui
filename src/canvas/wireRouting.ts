@@ -32,9 +32,16 @@ export type WireRoute = {
   path: string;
   labelX: number;
   labelY: number;
+  /** Where wires from the same port branch off this one (branchPoints): a dot each, a square corner. */
+  branches?: Point[];
 };
 
 const byText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+/** `a` before `b`, comparing the first entry that differs. */
+const lexLess = (a: readonly number[], b: readonly number[]) => {
+  const i = a.findIndex((x, k) => x !== b[k]);
+  return i >= 0 && a[i] < b[i];
+};
 
 /** Wires grouped by the port they leave (`source`) or reach (`target`), each group in input order. */
 function byPort(wires: readonly RouteInput[], end: "source" | "target"): Map<string, RouteInput[]> {
@@ -60,9 +67,10 @@ export function backWireExitDistance(lane: number): number {
 
 /**
  * Produce an SVG path string for a sequence of points with rounded corners.
- * Corners use quadratic beziers (Q) connecting tangent lines at radius `r`.
+ * Corners use quadratic beziers (Q) connecting tangent lines at radius `r`; a corner in `sharp`
+ * (a branch point, where the wire leaves a trunk it shares) stays square.
  */
-export function roundedPolyline(points: readonly [number, number][], radius = 10): string {
+export function roundedPolyline(points: readonly [number, number][], radius = 10, sharp: readonly Point[] = []): string {
   if (points.length === 0) return "";
   if (points.length === 1) return `M ${points[0][0]},${points[0][1]}`;
   if (points.length === 2) return `M ${points[0][0]},${points[0][1]} L ${points[1][0]},${points[1][1]}`;
@@ -74,7 +82,7 @@ export function roundedPolyline(points: readonly [number, number][], radius = 10
     const [nx, ny] = points[i + 1];
     const d1 = Math.hypot(cx - px, cy - py);
     const d2 = Math.hypot(nx - cx, ny - cy);
-    const ra = Math.min(radius, d1 / 2, d2 / 2);
+    const ra = sharp.some((p) => Math.abs(p[0] - cx) < 0.5 && Math.abs(p[1] - cy) < 0.5) ? 0 : Math.min(radius, d1 / 2, d2 / 2);
     if (ra < 0.5) {
       d += ` L ${cx},${cy}`;
     } else {
@@ -198,8 +206,8 @@ function segmentsCollinearOverlap(a: PlacedSegment, b: PlacedSegment): boolean {
   if (a.axis !== b.axis) return false;
   if (Math.abs(a.pos - b.pos) >= OVERLAP_TOL) return false;
   if (Math.min(a.max, b.max) - Math.max(a.min, b.min) <= 2) return false;
-  // Intentional fan-out stem from the exact same source port or fan-in stub into the same target port.
-  if (a.sourceKey === b.sourceKey && a.isFirst && b.isFirst) return false;
+  // Wires from one port carry one signal: where they run together they are one line (a trunk that branches).
+  if (a.sourceKey === b.sourceKey) return false;
   if (a.targetKey === b.targetKey && a.isLast && b.isLast) return false;
   return true;
 }
@@ -262,7 +270,7 @@ export function scoreWireRoutes(
     const a = allSegs[i];
     for (let j = i + 1; j < allSegs.length; j++) {
       const b = allSegs[j];
-      if (a.wireId === b.wireId) continue;
+      if (a.wireId === b.wireId || a.sourceKey === b.sourceKey) continue;
       if (a.axis === b.axis) {
         if (segmentsCollinearOverlap(a, b)) collinearOverlaps++;
       } else {
@@ -349,6 +357,20 @@ export function dragSegment(points: readonly Point[], i: number, at: Point): Poi
   const k = pts[i][1] === pts[i + 1][1] ? 1 : 0; // a horizontal run moves in y
   pts[i][k] = pts[i + 1][k] = Math.round(at[k]);
   return simplify(pts);
+}
+
+/** The point on a square route nearest to `at` (where a branch is pulled out of it), whole numbers. */
+export function nearestOnRoute(points: readonly Point[], at: Point): Point {
+  let best: Point = points[0];
+  let dist = Infinity;
+  for (let i = 0; i + 1 < points.length; i++) {
+    const [p, q] = [points[i], points[i + 1]];
+    const x = Math.max(Math.min(p[0], q[0]), Math.min(Math.max(p[0], q[0]), at[0]));
+    const y = Math.max(Math.min(p[1], q[1]), Math.min(Math.max(p[1], q[1]), at[1]));
+    const d = Math.hypot(x - at[0], y - at[1]);
+    if (d < dist) [best, dist] = [[Math.round(x), Math.round(y)], d];
+  }
+  return best;
 }
 
 /** The middle of a route's longest segment: where its label (a delete button) goes. */
@@ -467,6 +489,43 @@ export function routeWires(
     });
   }
 
+  const placedSegments: PlacedSegment[] = [];
+
+  // Wires out of one port (left to right) share a trunk: one channel for them all, so they run as one line
+  // and branch off it, as in a block diagram. The channel sits halfway to the nearest reader, moved aside
+  // when that runs through a block or along another wire; chosen when the first of them is routed.
+  const trees = [...byPort(forwardWires, "source").values()].filter(
+    (list) => list.length > 1 && list.every((w) => (w.sourcePosition ?? "right") === "right" && (w.targetPosition ?? "left") === "left" && w.tx - w.sx >= 2 * STUB),
+  );
+  const treeOf = new Map(trees.flatMap((list) => list.map((w) => [w.id, list] as const)));
+  const treeChannel = new Map<readonly RouteInput[], number>();
+  const channelFor = (list: readonly RouteInput[]): number => {
+    const known = treeChannel.get(list);
+    if (known !== undefined) return known;
+    const sx = list[0].sx;
+    const lo = sx + STUB;
+    const hi = Math.min(...list.map((w) => w.tx)) - STUB;
+    const center = Math.max(lo, Math.min(hi, Math.round(Math.min(...list.map((w) => (w.sx + w.tx) / 2)))));
+    let best = center;
+    let bestCost: number[] | null = null;
+    for (const delta of [0, -12, 12, -24, 24, -36, 36, -48, 48]) {
+      const ch = Math.max(lo, Math.min(hi, center + delta));
+      const cost = [0, 0, 0];
+      for (const w of list) {
+        const pts = orthoPoints([w.sx, w.sy], "right", [w.tx, w.ty], "left", ch);
+        cost[0] += blockingObstacles(pts, w.source, w.target, obstacles, 0).length;
+        cost[1] += blockingObstacles(pts, w.source, w.target, obstacles, CLEARANCE).length;
+        cost[2] += countOverlaps(segmentsOf(pts, w.id, `${w.source}:${w.sourceHandle ?? ""}`, `${w.target}:${w.targetHandle ?? ""}`), placedSegments);
+      }
+      if (!bestCost || lexLess(cost, bestCost)) {
+        best = ch;
+        bestCost = cost;
+      }
+    }
+    treeChannel.set(list, best);
+    return best;
+  };
+
   const orderedForward = [...forwardWires].sort(
     (a, b) =>
       Math.min(a.sx, a.tx) - Math.min(b.sx, b.tx) ||
@@ -476,14 +535,13 @@ export function routeWires(
       byText(a.id, b.id),
   );
 
-  const placedSegments: PlacedSegment[] = [];
-
   for (const w of orderedForward) {
     const sSide = w.sourcePosition ?? "right";
     const tSide = w.targetPosition ?? "left";
     const sKey = `${w.source}:${w.sourceHandle ?? ""}`;
     const tKey = `${w.target}:${w.targetHandle ?? ""}`;
-    const baseChannel = baseChannelByWire.get(w.id);
+    const tree = treeOf.get(w.id);
+    const baseChannel = tree ? channelFor(tree) : baseChannelByWire.get(w.id);
 
     const candidates: Point[][] = [];
     const seen = new Set<string>();
@@ -591,7 +649,7 @@ export function routeWires(
       const rawHits = blockingObstacles(pts, w.source, w.target, obstacles, 0).length;
       const padHits = blockingObstacles(pts, w.source, w.target, obstacles, CLEARANCE).length;
       const overlaps = countOverlaps(segmentsOf(pts, w.id, sKey, tKey), placedSegments);
-      const cost = manhattanLength(pts) + 18 * Math.max(0, pts.length - 2);
+      const cost = Math.round(manhattanLength(pts)) + 18 * Math.max(0, pts.length - 2); // whole pixels: float noise picks no route
       const tuple: [number, number, number, number] = [rawHits, padHits, overlaps, cost];
       if (
         !bestTuple ||
@@ -619,4 +677,48 @@ export function routeWires(
   }
 
   return results;
+}
+
+/** Where `b` leaves `a`: both start at one port and run together up to here (null: they don't, or one ends). */
+function divergence(a: readonly Point[], b: readonly Point[]): Point | null {
+  if (a.length < 2 || b.length < 2 || a[0][0] !== b[0][0] || a[0][1] !== b[0][1]) return null;
+  let [i, j] = [0, 0];
+  let p: Point = a[0];
+  while (i + 1 < a.length && j + 1 < b.length) {
+    const [qa, qb] = [a[i + 1], b[j + 1]];
+    const da = [Math.sign(qa[0] - p[0]), Math.sign(qa[1] - p[1])];
+    const db = [Math.sign(qb[0] - p[0]), Math.sign(qb[1] - p[1])];
+    if (da[0] !== db[0] || da[1] !== db[1]) return p;
+    const [ra, rb] = [Math.abs(qa[0] - p[0]) + Math.abs(qa[1] - p[1]), Math.abs(qb[0] - p[0]) + Math.abs(qb[1] - p[1])];
+    const step = Math.min(ra, rb);
+    p = [p[0] + da[0] * step, p[1] + da[1] * step];
+    if (ra === step) i++;
+    if (rb === step) j++;
+  }
+  return null;
+}
+
+/**
+ * The branch points of wires drawn out of one port: where one leaves a line it shared with another
+ * (a block diagram's junction dot). Each wire gets the points on it, so it can draw the dot and keep
+ * that corner square; a split right at the port has none.
+ */
+export function branchPoints(wires: readonly { id: string; from: string; points: readonly Point[] }[]): Map<string, Point[]> {
+  const out = new Map<string, Point[]>();
+  const add = (id: string, p: Point) => {
+    const list = out.get(id) ?? [];
+    if (!list.some((q) => q[0] === p[0] && q[1] === p[1])) list.push(p);
+    out.set(id, list);
+  };
+  const groups = new Map<string, { id: string; points: Point[] }[]>();
+  for (const w of wires) groups.set(w.from, [...(groups.get(w.from) ?? []), { id: w.id, points: simplify(w.points) }]);
+  for (const list of groups.values())
+    for (let i = 0; i < list.length; i++)
+      for (let j = i + 1; j < list.length; j++) {
+        const p = divergence(list[i].points, list[j].points);
+        if (!p || (p[0] === list[i].points[0][0] && p[1] === list[i].points[0][1])) continue;
+        add(list[i].id, p);
+        add(list[j].id, p);
+      }
+  return out;
 }
