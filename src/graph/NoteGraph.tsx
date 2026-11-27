@@ -1,6 +1,8 @@
 // The note graph (Obsidian's graph): every note a dot sized by its links, every link a line, laid out by a
 // force that settles. It is drawn on one canvas, so a hub of thousands pans, zooms and drags smoothly, and it is
-// laid out before it is shown: it opens at rest, fitted once, with nothing jumping. Hover a note and the rest
+// laid out before it is shown: it opens fitted once, with nothing jumping, and takes one short breath to rest
+// (none with reduced motion), so it reads as live. Labels keep clear of other notes; where they still meet (a
+// dense hub zoomed out a little) the better-linked note's label wins. Hover a note and the rest
 // dims to its neighbours; drag one and the others follow; the focus (the note open) carries the accent ring.
 // Compact, it is the local graph beside a note: labels only for the focus and what the pointer is on, no wheel
 // zoom, no keys. One quiet key fits it to view.
@@ -32,7 +34,8 @@ type Props = {
 // with `keep`, also between visits (localStorage: a few hundred kB for a hub of 10 000 notes)
 type Places = Map<string, { x: number; y: number }>;
 const memory = new Map<string, Places>();
-const store = (keep: string) => `pb.graph.${keep}`;
+// v2: layouts from before labels took room (a v1 layout would keep its overlaps), dropped on the next write
+const store = (keep: string) => `pb.graph.v2.${keep}`;
 function recall(name: string, keep?: string): Places {
   let m = memory.get(name);
   if (!m && keep) try {
@@ -43,7 +46,7 @@ function recall(name: string, keep?: string): Places {
 }
 function keepPlaces(name: string, keep: string | undefined, m: Places) {
   memory.set(name, m);
-  if (keep) try { localStorage.setItem(store(keep), JSON.stringify(Object.fromEntries([...m].map(([id, p]) => [id, [Math.round(p.x), Math.round(p.y)]])))); } catch { /* full: kept for this visit only */ }
+  if (keep) try { localStorage.removeItem(`pb.graph.${keep}`); localStorage.setItem(store(keep), JSON.stringify(Object.fromEntries([...m].map(([id, p]) => [id, [Math.round(p.x), Math.round(p.y)]])))); } catch { /* full: kept for this visit only */ }
 }
 
 // an icon as a picture in one colour, drawn once and reused (the kit's icon rules, ui.css .pb-icon, inlined)
@@ -65,6 +68,8 @@ function picture(name: IconName, colour: string, redraw: () => void) {
 }
 
 type View = { x: number; y: number; k: number };  // screen = world × k + (x, y)
+type Label = [text: string, x: number, y: number, colour: string, state: string, id: string];
+const still = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 export function NoteGraph({ nodes, links, focus, onOpen, compact = false, ariaLabel, keep }: Props) {
   const box = useRef<HTMLDivElement>(null), canvas = useRef<HTMLCanvasElement>(null);
@@ -127,7 +132,7 @@ export function NoteGraph({ nodes, links, focus, onOpen, compact = false, ariaLa
     ctx.font = `${(small ? 10 : size) / k}px ${v("--font-sans") || "sans-serif"}`;
     ctx.textAlign = "center"; ctx.textBaseline = "top";
     const byId = new Map(f.nodes.map((n) => [n.id, n]));
-    const labels: [string, number, number, string][] = [];
+    const labels: Label[] = [];
     for (const g of ns) {
       const n = byId.get(g.id);
       if (!n || !seen(n)) continue;
@@ -146,11 +151,22 @@ export function NoteGraph({ nodes, links, focus, onOpen, compact = false, ariaLa
       if (img) ctx.drawImage(img, n.x - s / 2, n.y - s / 2, s, s);
       const state = g.id === fo ? "focus" : near?.has(g.id) ? "near" : far ? "far" : "";
       if (showAll ? !far : g.id === fo || g.id === at || state === "near")
-        labels.push([g.label, n.x, n.y + rr + 4 / k, state === "focus" || state === "near" ? text : muted]);
+        labels.push([g.label, n.x, n.y + rr + 4 / k, state === "focus" || state === "near" ? text : muted, state, g.id]);
     }
-    // labels over every dot, so a dot never hides a neighbour's name
+    // labels over every dot, so a dot never hides a neighbour's name; ringed in the ground's colour, so a link
+    // under one never crosses its letters; one that would meet a label already placed waits (the focus and the
+    // hovered neighbourhood first, then the best-linked)
     ctx.globalAlpha = 1;
-    for (const [s, x, y, c] of labels) { ctx.fillStyle = c; ctx.fillText(s, x, y); }
+    ctx.lineWidth = 3 / k; ctx.lineJoin = "round"; ctx.strokeStyle = sunken;
+    const lh = (small ? 10 : size) * 1.25 / k, placed: [number, number, number, number][] = [];
+    const rank = (l: Label) => (l[4] === "focus" ? 1e9 : l[4] === "near" ? 1e8 : 0) + (degree.get(l[5]) ?? 0);
+    for (const l of labels.sort((a, b) => rank(b) - rank(a))) {
+      const [s, x, y, c] = l, hw = ctx.measureText(s).width / 2;
+      // ponytail: every label against every placed one (fine for the few hundred on screen); a grid if it shows
+      if (placed.some(([a, b, cc, d]) => x - hw < cc && x + hw > a && y < d && y + lh > b)) continue;
+      placed.push([x - hw, y, x + hw, y + lh]);
+      ctx.strokeText(s, x, y); ctx.fillStyle = c; ctx.fillText(s, x, y);
+    }
   }
 
   // fits the layout to the view; a small hub opens at its own size, never blown up past 1.25
@@ -173,7 +189,16 @@ export function NoteGraph({ nodes, links, focus, onOpen, compact = false, ariaLa
   useEffect(() => {
     const name = `${keep ?? ""} ${ariaLabel}`, kept = recall(name, compact ? undefined : keep);
     for (const n of sim.current?.nodes ?? []) kept.set(n.id, { x: n.x, y: n.y });
-    const f = (sim.current = new Force(nodes.map((n) => n.id), links, kept, (id) => r.current(id) + (compact ? 0 : 6)));
+    // the labels' room at the zoom a small hub opens at (1: labels keep their screen size, so zooming in makes more)
+    let label: ((id: string) => { w: number; h: number }) | undefined;
+    const el = box.current, ctx = !compact && el ? document.createElement("canvas").getContext("2d") : null;
+    if (ctx && el) {
+      const css = getComputedStyle(el), size = parseFloat(css.getPropertyValue("--size-3xs")) || 11;
+      ctx.font = `${size}px ${css.getPropertyValue("--font-sans").trim() || "sans-serif"}`;
+      const text = new Map(nodes.map((n) => [n.id, n.label]));
+      label = (id) => ({ w: ctx.measureText(text.get(id) ?? "").width, h: size * 1.25 });
+    }
+    const f = (sim.current = new Force(nodes.map((n) => n.id), links, kept, (id) => r.current(id) + (compact ? 0 : 6), label));
     const fresh = !nodes.every((n) => kept.has(n.id));
     cancelAnimationFrame(run.current);
     const done = () => {
@@ -182,6 +207,7 @@ export function NoteGraph({ nodes, links, focus, onOpen, compact = false, ariaLa
       keepPlaces(name, compact ? undefined : keep, m);
       busy.current = false; setLaying(false);
       if (fresh || !touched.current) fit(); else redraw();
+      if (!still()) { f.breathe(); animate(); }   // places kept are the ones at rest, before the breath
     };
     if (f.settle(24)) return done();
     busy.current = true; setLaying(true);
