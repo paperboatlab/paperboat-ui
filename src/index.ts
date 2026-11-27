@@ -33,6 +33,8 @@ export { ago, record, LOG_MAX } from "./toast.ts";
 export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";
 export { Settings, SettingRow, SettingsSection, ScaleSetting, ShortcutList, ThemeSetting, type SettingsPage } from "./Settings.tsx";
+export { TransferDialog, TransferPreview, type TransferTarget } from "./Transfer.tsx";
+export * from "./transfer.ts";
 export { applyScale, isScale, pageZoom, SCALES, useScale, type Scale } from "./scale.ts";
 export { useDismiss, useFocusReturn } from "./dismiss.tsx";
 export * from "./commands.ts";
