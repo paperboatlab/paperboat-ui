@@ -42,7 +42,10 @@ export function WindowKeys() {
   // follow the room in the bar: after a render (the bar's keys changing), a resize
   const place = () => {
     const r = room.current?.getBoundingClientRect();
-    if (r) setAt((a) => (a && a.top === r.top && a.left === r.left ? a : { top: r.top, left: r.left }));
+    if (!r) return;
+    // a bar too full for its window (a narrow window, a large scale) pushes the room out: the keys stay in sight
+    const left = Math.min(r.left, innerWidth - r.width - 8);
+    setAt((a) => (a && a.top === r.top && a.left === left ? a : { top: r.top, left }));
   };
   useLayoutEffect(place);
   useLayoutEffect(() => {
