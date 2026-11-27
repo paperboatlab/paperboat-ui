@@ -2,11 +2,13 @@
 // settings, a language from lang/ (its grammar, and its lint and completion through the app's runtime
 // session when it has one), find (Ctrl+F, docked at the top), a git gutter and the cursor readout.
 // From the legacy kit's CodeEditor; the app no longer passes a grammar or a linter, only a language.
+// The keys are Standard, Vim's or Helix's (settings.keymap): the mode goes ahead of the other keymaps,
+// the app's own keys (`keys`) ahead of the mode, and `:w` runs the app's Save (its Mod-s key).
 import { useEffect, useRef } from "react";
 import { Compartment, EditorState, Prec, type Extension } from "@codemirror/state";
 import {
   EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter,
-  drawSelection, dropCursor, rectangularSelection, crosshairCursor, type KeyBinding,
+  drawSelection, dropCursor, rectangularSelection, crosshairCursor, runScopeHandlers, type KeyBinding,
 } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { bracketMatching, indentOnInput } from "@codemirror/language";
@@ -15,27 +17,10 @@ import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, t
 import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
 import { gitGutter } from "./gitGutter.ts";
 import type { Language, Session } from "./language.ts";
-import { paletteOf, themeExtension, type ThemeSpec } from "./themes/index.ts";
+import { paletteOf, themeExtension } from "./themes/index.ts";
+import { keymapMode, saveKey, type EditorSettings } from "./settings.ts";
 
-export type EditorSettings = {
-  /** A theme of the collection (fleet, paperboat) or one of the user's `themes`. */
-  theme: string;
-  fontSize: number;
-  font: "geist" | "system" | "serif";
-  lineHeight: number;
-  tabSize: number;
-  wrap: boolean;
-  autocomplete: boolean;
-  brackets: boolean;
-  lint: boolean;
-  /** The user's own themes: a base and the colours it changes. */
-  themes?: Record<string, ThemeSpec>;
-};
-
-export const DEFAULT_EDITOR_SETTINGS: EditorSettings = {
-  theme: "fleet", fontSize: 12.5, font: "geist", lineHeight: 20,
-  tabSize: 4, wrap: false, autocomplete: true, brackets: true, lint: true,
-};
+export { DEFAULT_EDITOR_SETTINGS, type EditorSettings } from "./settings.ts";
 
 const FONTS: Record<EditorSettings["font"], string> = {
   geist: "var(--font-mono)",
@@ -48,6 +33,9 @@ const geometry = (s: EditorSettings) => EditorView.theme({
   ".cm-content": { padding: "6px 0" },
   ".cm-lineNumbers .cm-gutterElement": { padding: "0 6px 0 12px" },
 });
+
+/** The app's keys run first, ahead of a mode that would take them (vim's own keydown handler included). */
+const appKeysFirst = Prec.highest(EditorView.domEventHandlers({ keydown: (e, view) => runScopeHandlers(view, e, "pb-app") }));
 
 const KIND: Record<string, string> = { function: "function", variable: "variable", keyword: "keyword", type: "type", constant: "constant", text: "text" };
 
@@ -116,7 +104,7 @@ export function Editor({
   const c = useRef({
     theme: new Compartment(), font: new Compartment(), wrap: new Compartment(), tab: new Compartment(),
     auto: new Compartment(), brackets: new Compartment(), lint: new Compartment(), git: new Compartment(),
-    extra: new Compartment(), readOnly: new Compartment(),
+    extra: new Compartment(), readOnly: new Compartment(), mode: new Compartment(),
   }).current;
 
   const themeExt = () => themeExtension(paletteOf(settings.theme, appTheme, settings.themes));
@@ -134,9 +122,12 @@ export function Editor({
       state: EditorState.create({
         doc: value,
         extensions: [
+          c.mode.of(keymapMode(settings.keymap)),  // first: ahead of the keymaps below
+          appKeysFirst,
+          keymap.of((keys ?? []).map((k) => ({ ...k, scope: "pb-app" }))),
+          saveKey.of(keys?.find((k) => k.key === "Mod-s")?.run ?? (() => false)),
           lineNumbers(), highlightActiveLineGutter(), highlightActiveLine(), history(), drawSelection(), dropCursor(),
           rectangularSelection(), crosshairCursor(), indentOnInput(), highlightSelectionMatches(), search({ top: true }),
-          Prec.high(keymap.of([...(keys ?? [])])),
           keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap, indentWithTab, ...closeBracketsKeymap, ...completionKeymap]),
           language.grammar(),
           c.theme.of(themeExt()),
@@ -183,6 +174,8 @@ export function Editor({
     });
   }, [settings, appTheme, session]);
 
+  // its own effect: a new mode starts afresh (in normal mode), so only a change of keys rebuilds it
+  useEffect(() => { view.current?.dispatch({ effects: c.mode.reconfigure(keymapMode(settings.keymap)) }); }, [settings.keymap]);
   useEffect(() => { view.current?.dispatch({ effects: c.git.reconfigure(gitExt()) }); }, [base]);
   useEffect(() => { view.current?.dispatch({ effects: c.extra.reconfigure(extra ?? []) }); }, [extra]);
   useEffect(() => { view.current?.dispatch({ effects: c.readOnly.reconfigure(readOnlyExt()) }); }, [readOnly]);
