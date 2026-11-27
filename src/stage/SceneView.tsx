@@ -345,7 +345,8 @@ function applyEntity(obj: THREE.Object3D, e: Entity) {
 
 /**
  * Renders the station's scene entities. Knows shapes, not domains. The camera is fixed
- * at mount from `view`, so the parent remounts this component when the view changes.
+ * at mount from `view`, so the parent remounts this component when the view changes; a
+ * rebuild in place (a theme switch, a new background) keeps the camera where the user left it.
  */
 export function SceneView({
   entities,
@@ -407,6 +408,8 @@ export function SceneView({
   const floorGrid = useRef<THREE.GridHelper | null>(null);
   const showGrid = useRef(grid);
   const switchProjection = useRef<((proj: "persp" | "iso") => void) | null>(null);
+  // The camera as the last build left it (orbit, pan, zoom), for the next build of this mount.
+  const kept = useRef<{ eye: THREE.Vector3; target: THREE.Vector3; zoom: number } | null>(null);
   useEffect(() => {
     showGrid.current = grid;
     if (floorGrid.current) floorGrid.current.visible = grid;
@@ -550,6 +553,14 @@ export function SceneView({
       ? viewAxes(el, renderer, () => camera, token)
       : null;
     renderer.autoClear = false;
+    // After the cube has taken the opening view as its Home: back where the user left it.
+    if (kept.current) {
+      camera.position.copy(kept.current.eye);
+      controls.target.copy(kept.current.target);
+      camera.zoom = kept.current.zoom;
+      camera.updateProjectionMatrix();
+      controls.update();
+    }
 
     const pickDot = new THREE.Mesh(
       new THREE.SphereGeometry(0.032, 16, 12),
@@ -634,6 +645,7 @@ export function SceneView({
     });
 
     return () => {
+      kept.current = { eye: camera.position.clone(), target: controls.target.clone(), zoom: camera.zoom };
       switchProjection.current = null;
       controls.removeEventListener("change", emitCamera);
       renderer.domElement.removeEventListener("pointerdown", onCanvasPointerDown);
