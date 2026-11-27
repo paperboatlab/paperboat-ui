@@ -10,6 +10,7 @@ import {
   nearXCursor, nearestSample, panXRange, panYRange, sampleSeriesAtX, zoomRangeAround,
 } from "../scope/interact.ts";
 import { seriesColor, token } from "./tokens.ts";
+import { useThemeVersion } from "../theme.tsx";
 import { drawPlotLayers, layersBounds, sampleLayersAtX, sampleLayersHover, type Plot2DLayer } from "./layers2d.ts";
 import { niceTicks } from "./ticks.ts";
 import { TexText, type Interpreter } from "./TexText.tsx";
@@ -320,7 +321,9 @@ export function Plot2D({ series, layers = [], axes, title, className, interactiv
     plot.current?.redraw(false);
   }, [initialGrid]);
 
-  // the paper and its ink from the theme (brand.html §14), unless the figure names its own background
+  // the paper and its ink from the theme (brand.html §14), unless the figure names its own background;
+  // read on every render, and a theme change renders (the background is in `shape`, so uPlot is rebuilt)
+  useThemeVersion();
   const ownBg = !!axes?.background && axes.background !== "transparent";
   const bgColor = ownBg ? axes!.background! : token("--surface-raised", "#ffffff");
   const dark = isDarkColor(bgColor);

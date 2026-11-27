@@ -26,6 +26,17 @@ export function useTheme(theme: Theme): "light" | "dark" {
   return shown;
 }
 
+/** A counter that changes with `<html data-theme>`: what reads CSS tokens once (a canvas, a scene) re-reads on it. */
+export function useThemeVersion(): number {
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    const observer = new MutationObserver(() => setVersion((value) => value + 1));
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
+  return version;
+}
+
 /* a miniature window in each theme, drawn with that theme's own greys (primitives: it is a picture of the theme) */
 function Thumb({ theme }: { theme: "light" | "dark" }) {
   const c = theme === "light"
