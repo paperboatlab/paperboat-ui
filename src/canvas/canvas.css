@@ -33,7 +33,7 @@
 .wire-image { stroke-dasharray: 5 3; }
 .react-flow__edge.selected .react-flow__edge-path { stroke-width: 3px !important; }
 /* a selected or focused wire keeps the ink (React Flow's own is #555, grey on the dark canvas); its --xy-x wins over --xy-x-default */
-.react-flow { --xy-edge-stroke-selected: var(--line-ink); }
+.react-flow { --xy-edge-stroke-selected: var(--line-ink); --xy-minimap-background-color: var(--surface-sunken); }
 .react-flow__edge-path { transition: stroke-width var(--glide); }
 .wire-drawing { fill: none; stroke: var(--line-ink); stroke-width: 1.2px; }  /* ConnectionLine: the wire being drawn, as it will be placed */
 

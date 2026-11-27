@@ -1,21 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { Entity, View } from "./types.ts";
 import { fieldColors, meshGeometry, meshLook, paintField, srgbToLinear } from "./meshes.ts";
 import { viewCube } from "./viewCube.ts";
 import { viewAxes } from "./viewAxes.ts";
+import { useThemeVersion } from "../theme.tsx";  // the scene reads CSS tokens only when it is built
 
-/** A counter that changes with `data-theme`: the scene reads CSS tokens only when it is built. */
-function useThemeVersion(): number {
-  const [version, setVersion] = useState(0);
-  useEffect(() => {
-    const observer = new MutationObserver(() => setVersion((value) => value + 1));
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => observer.disconnect();
-  }, []);
-  return version;
-}
 
 /** `look` is what the geometry and material were built from; when it changes, rebuild. */
 type World = { scene: THREE.Scene; objects: Map<string, { obj: THREE.Object3D; look: string }> };
