@@ -13,8 +13,9 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { bracketMatching, indentOnInput } from "@codemirror/language";
 import { linter, lintGutter, type Diagnostic } from "@codemirror/lint";
-import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, type CompletionContext, type CompletionSource } from "@codemirror/autocomplete";
+import { acceptCompletion, autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, completionStatus, type CompletionContext, type CompletionSource } from "@codemirror/autocomplete";
 import { highlightSelectionMatches, search, searchKeymap } from "@codemirror/search";
+import { abbreviationSource, expandAbbreviation } from "./abbreviations.ts";
 import { gitGutter } from "./gitGutter.ts";
 import type { Language, Session } from "./language.ts";
 import { paletteOf, themeExtension } from "./themes/index.ts";
@@ -33,6 +34,15 @@ const geometry = (s: EditorSettings) => EditorView.theme({
   ".cm-content": { padding: "6px 0" },
   ".cm-lineNumbers .cm-gutterElement": { padding: "0 6px 0 12px" },
 });
+
+/** Tab: take the completion on offer, else turn a `\name` before the cursor into its symbol; else it indents. */
+const tabKey = (language: Language): Extension => {
+  const table = language.abbreviations?.();
+  return Prec.high(keymap.of([{
+    key: "Tab",
+    run: (view) => (completionStatus(view.state) === "active" && acceptCompletion(view)) || (!!table && expandAbbreviation(view, table)),
+  }]));
+};
 
 /** The app's keys run first, ahead of a mode that would take them (vim's own keydown handler included). */
 const appKeysFirst = Prec.highest(EditorView.domEventHandlers({ keydown: (e, view) => runScopeHandlers(view, e, "pb-app") }));
@@ -54,9 +64,13 @@ const lintOf = (language: Language, session?: Session): Extension =>
 const completionOf = (language: Language, session?: Session): CompletionSource | null =>
   language.complete
     ? async (ctx: CompletionContext) => {
-        if (!ctx.explicit && !ctx.matchBefore(/[\w.]{2,}$/u)) return null;
+        // a `\name` is the language's own table's when it has one (abbreviationSource), else the runtime's
+        if (language.abbreviations && ctx.matchBefore(/\\[^\s\\]*$/u)) return null;
+        // a name of letters in any script (α_max, résumé), or a `\name` the runtime turns into its symbol
+        if (!ctx.explicit && !ctx.matchBefore(/(?:[\p{L}\p{M}\p{N}_.!]{2,}|\\[^\s\\]+)$/u)) return null;
         const r = await language.complete!(ctx.state.doc.toString(), ctx.pos, session).catch(() => null);
-        return r && { from: r.from, to: r.to, options: r.options.map((o) => ({ label: o.label, detail: o.detail, type: KIND[o.kind ?? ""] })) };
+        // the runtime has matched them: `\alpha`'s α would never match what was typed again here
+        return r && { from: r.from, to: r.to, filter: false, options: r.options.map((o) => ({ label: o.label, detail: o.detail, type: KIND[o.kind ?? ""] })) };
       }
     : null;
 
@@ -109,7 +123,8 @@ export function Editor({
 
   const themeExt = () => themeExtension(paletteOf(settings.theme, appTheme, settings.themes));
   const autoExt = () => {
-    const sources = [completionOf(language, session), ...(completions ?? [])].filter((s): s is CompletionSource => !!s);
+    const table = language.abbreviations?.();
+    const sources = [table && abbreviationSource(table), completionOf(language, session), ...(completions ?? [])].filter((s): s is CompletionSource => !!s);
     return settings.autocomplete && sources.length ? autocompletion({ override: sources, activateOnTyping: true, icons: true }) : [];
   };
   const bracketExt = () => (settings.brackets ? [bracketMatching(), closeBrackets()] : []);
@@ -128,6 +143,7 @@ export function Editor({
           saveKey.of(keys?.find((k) => k.key === "Mod-s")?.run ?? (() => false)),
           lineNumbers(), highlightActiveLineGutter(), highlightActiveLine(), history(), drawSelection(), dropCursor(),
           rectangularSelection(), crosshairCursor(), indentOnInput(), highlightSelectionMatches(), search({ top: true }),
+          tabKey(language),
           keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap, indentWithTab, ...closeBracketsKeymap, ...completionKeymap]),
           language.grammar(),
           c.theme.of(themeExt()),
