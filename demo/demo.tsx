@@ -4,7 +4,7 @@ import type { Runtime } from "../src/runtimes.ts";
 import { createRoot } from "react-dom/client";
 import "../src/tokens.css";
 import "../src/ui.css";
-import { Editor, EditorTabs, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, afterClose, languageFor, orderTabs, tabMenu } from "../src/editor/index.ts";
+import { Editor, EditorTabs, DEFAULT_EDITOR_SETTINGS, DEFAULT_EDITOR_THEME, EDITOR_THEMES, afterClose, languageFor, orderTabs, tabMenu, type EditorSettings } from "../src/editor/index.ts";
 import { About, AppMark, Dialog, Icon, Key, Menu, Notifications, Panel, PanelsKey, Pill, Rail, RemoveKey, RuntimesKey, Search, Segmented, Spinner, Switch, Tabs, Tag, ThemePicker, Toasts, useTheme, useToasts, type Theme } from "../src/index.ts";
 
 const RUNTIMES: Runtime[] = [
@@ -60,6 +60,8 @@ function Demo() {
   const notes = useToasts();
   const { toasts, show, dismiss } = notes;
   const [edTheme, setEdTheme] = useState(new URLSearchParams(location.search).get("ed") || DEFAULT_EDITOR_THEME);
+  const [edKeys, setEdKeys] = useState<EditorSettings["keymap"]>("standard");
+  const [saveKeys] = useState(() => [{ key: "Mod-s", preventDefault: true, run: () => { notes.show({ title: "Saved pendulum.jl" }); return true; } }]);
   const shown = useTheme(theme);
   return (
     <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gridTemplateRows: "48px 1fr", gap: 10, padding: 10, height: "100vh", boxSizing: "border-box", background: "var(--surface-ground)", color: "var(--text)", font: "13px var(--font-sans)" }}>
@@ -99,13 +101,14 @@ function Demo() {
         </Panel>
         <Panel name="pendulum.jl" count="Julia · Ink">
           <DemoTabs />
-          <div style={{ padding: "8px 12px" }}><Segmented label="Editor theme" value={edTheme} onChange={setEdTheme} options={EDITOR_THEMES.map((t) => ({ value: t.id, label: t.label }))} /></div>
+          <div style={{ padding: "8px 12px" }}><Segmented label="Editor theme" value={edTheme} onChange={setEdTheme} options={EDITOR_THEMES.map((t) => ({ value: t.id, label: t.label }))} />{" "}
+            <Segmented label="Editor keys" value={edKeys} onChange={setEdKeys} options={[{ value: "standard", label: "Standard" }, { value: "vim", label: "Vim" }, { value: "helix", label: "Helix" }]} /></div>
           <div style={{ height: 250, borderTop: "1px solid var(--line)" }}>
-            <Editor key={"jl"} ariaLabel="pendulum.jl" language={languageFor("pendulum.jl")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme }} appTheme={shown} base={JL.replace("0.3", "0.25").replace("using DifferentialEquations\n", "")}
+            <Editor key={"jl"} ariaLabel="pendulum.jl" language={languageFor("pendulum.jl")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme, keymap: edKeys }} appTheme={shown} keys={saveKeys} base={JL.replace("0.3", "0.25").replace("using DifferentialEquations\n", "")}
               value={JL} />
           </div>
           <div style={{ height: 120, borderTop: "1px solid var(--line)" }}>
-            <Editor key={"toml"} ariaLabel="Project.toml" language={languageFor("Project.toml")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme }} appTheme={shown}
+            <Editor key={"toml"} ariaLabel="Project.toml" language={languageFor("Project.toml")} settings={{ ...DEFAULT_EDITOR_SETTINGS, theme: edTheme, keymap: edKeys }} appTheme={shown}
               value={'name = "pendulum"\nversion = \n[deps]\nJulixPlot = "6f2a"\n'} />
           </div>
         </Panel>

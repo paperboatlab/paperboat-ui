@@ -6,8 +6,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { readStored, writeStored } from "../storage.ts";
 import { parseToml, patchToml, type TomlTable, type TomlValue } from "../toml.ts";
-import { DEFAULT_EDITOR_SETTINGS, type EditorSettings } from "./Editor.tsx";
-import { THEMES, type Theme } from "../theme.tsx";
+import { DEFAULT_EDITOR_SETTINGS, type EditorSettings } from "./settings.ts";
+import type { Theme } from "../theme.tsx";
 import { EDITOR_THEMES, type EditorPalette, type ThemeSpec } from "./themes/index.ts";
 
 /** The config file as the app's server reaches it. `text` is null while there is no file yet. */
@@ -21,9 +21,12 @@ export type ConfigFile = { path: string; error?: string };
 
 const KEYS: Record<string, keyof EditorSettings> = {
   theme: "theme", font: "font", font_size: "fontSize", line_height: "lineHeight", tab_size: "tabSize",
-  wrap: "wrap", autocomplete: "autocomplete", brackets: "brackets", lint: "lint",
+  wrap: "wrap", autocomplete: "autocomplete", brackets: "brackets", lint: "lint", keymap: "keymap",
 };
-const FONTS = ["geist", "system", "serif"];
+/** The values a string setting may take; another falls back to the default. */
+const CHOICES: Partial<Record<keyof EditorSettings, string[]>> = { font: ["geist", "system", "serif"], keymap: ["standard", "vim", "helix"] };
+// theme.tsx's THEMES, kept here so this file loads without JSX (the tests run it in Node)
+const THEMES: readonly Theme[] = ["light", "dark", "system"];
 const PALETTE_KEYS = Object.keys(EDITOR_THEMES[0].light!) as (keyof EditorPalette)[];
 const snake = (k: string) => k.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
 
@@ -33,7 +36,7 @@ function clean(raw: Record<string, unknown>, themes: unknown = raw.themes): Edit
   for (const key of Object.values(KEYS)) {
     const v = raw[key];
     if (key === "themes" || typeof v !== typeof DEFAULT_EDITOR_SETTINGS[key]) continue;
-    if (key === "font" && !FONTS.includes(v as string)) continue;
+    if (CHOICES[key] && !CHOICES[key].includes(v as string)) continue;
     (out as Record<string, unknown>)[key] = v;
   }
   // a retired built-in (ink, colour, paper, …) falls back to the default; a user theme of that name is kept
@@ -88,6 +91,7 @@ wrap = ${t.wrap}
 autocomplete = ${t.autocomplete}
 brackets = ${t.brackets}
 lint = ${t.lint}
+keymap = ${JSON.stringify(t.keymap)}  # standard, vim or helix
 
 # Your own theme: start from a built-in (base) and change any colour; then set theme = "mine".
 # Colours: ${PALETTE_KEYS.filter((k) => k !== "dark").map(snake).join(", ")}.

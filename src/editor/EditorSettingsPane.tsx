@@ -1,5 +1,5 @@
 // Settings › Editor: what the sliders key held (theme, font, size, line height, tab, wrap, autocomplete,
-// brackets, lint), as rows of the Settings window. The same EditorSettings, the same config file.
+// brackets, lint) and the keys, as rows of the Settings window. The same EditorSettings, the same config file.
 import { SettingRow, SettingsSection } from "../Settings.tsx";
 import { Switch } from "../controls.tsx";
 import type { EditorSettings } from "./Editor.tsx";
@@ -40,6 +40,11 @@ export function EditorSettingsPane({ settings, onSettings, lintNote, file }: {
         <SettingRow label="Line height">{choose("lineHeight", "Line height", [20, 22, 24, 26, 28], " px")}</SettingRow>
       </SettingsSection>
       <SettingsSection title="Typing">
+        <SettingRow label="Keys" hint="Vim and Helix show their mode and the : line under the code; :w saves">
+          <label className="well"><select aria-label="Keys" value={settings.keymap} onChange={(e) => set("keymap", e.target.value as EditorSettings["keymap"])}>
+            <option value="standard">Standard</option><option value="vim">Vim</option><option value="helix">Helix</option>
+          </select></label>
+        </SettingRow>
         <SettingRow label="Tab size">{choose("tabSize", "Tab size", [2, 4, 8])}</SettingRow>
         <SettingRow label="Wrap lines"><Switch label="Wrap lines" checked={settings.wrap} onChange={(v) => set("wrap", v)} /></SettingRow>
         <SettingRow label="Autocomplete"><Switch label="Autocomplete" checked={settings.autocomplete} onChange={(v) => set("autocomplete", v)} /></SettingRow>

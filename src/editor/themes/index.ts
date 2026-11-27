@@ -70,6 +70,18 @@ function buildTheme(p: EditorPalette): Extension {
     ".cm-lint-marker-error": { content: "none" },
     ".cm-panels": { backgroundColor: "var(--surface-raised)", color: "var(--text)", borderColor: "var(--line)" },
     ".cm-panels-top": { borderBottom: "1px solid var(--line)" },
+    ".cm-panels-bottom": { borderTop: "1px solid var(--line)" },
+    // Vim's and Helix's status line (settings.ts keymapMode): the mode, then the `:` line or the keys typed so far.
+    // `&.cm-editor`: above the modes' own colours, which come in at a higher precedence
+    "&.cm-editor .cm-vim-panel, &.cm-editor .cm-hx-status-panel, &.cm-editor .cm-hx-command-panel": {
+      font: "var(--size-2xs) var(--font-mono)", color: "var(--text-muted)", padding: "3px 10px", minHeight: "16px", gap: "12px", alignItems: "center",
+    },
+    "&.cm-editor .cm-vim-panel > span:first-child, &.cm-editor .cm-hx-status-panel > span:first-child": { color: "var(--text)", fontWeight: "600", letterSpacing: "0.04em" },
+    "&.cm-editor .cm-vim-panel input, &.cm-editor .cm-hx-command-input": { font: "var(--size-2xs) var(--font-mono)", color: "var(--text)" },
+    "&.cm-editor .cm-hx-selected-option": { backgroundColor: "color-mix(in srgb, var(--accent) var(--tint), transparent)", borderRadius: "var(--radius-sm)" },
+    // the block cursor of normal mode: the caret's colour, see-through so the letter under it reads
+    "&.cm-editor .cm-fat-cursor, &.cm-editor .cm-hx-block-cursor .cm-hx-cursor": { background: `color-mix(in srgb, ${p.cursor} 40%, transparent)` },
+    "&.cm-editor:not(.cm-focused) .cm-fat-cursor": { background: "none", outline: `1px solid ${p.cursor}` },
   }, { dark: p.dark });
   const highlight = HighlightStyle.define([
     { tag: [tags.comment, tags.lineComment, tags.blockComment, tags.docComment], color: p.comment, fontStyle: "italic" },
