@@ -17,7 +17,7 @@
 kbd.kbd { font: 500 var(--size-3xs) var(--font-mono); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: var(--radius-sm); padding: 0 5px; margin: 0 1px; color: var(--text); background: var(--surface-raised); }
 
 /* console: a window of what a run logged, on the black screen */
-.console-window { position: fixed; z-index: 50; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(760px, calc(100vw - 32px)); height: min(480px, calc(100vh - 140px)); display: flex; flex-direction: column; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-2); }
+.console-window { position: fixed; z-index: 50; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(760px, calc(100vw / var(--page-zoom, 1) - 32px)); height: min(480px, calc(100vh / var(--page-zoom, 1) - 140px)); display: flex; flex-direction: column; overflow: hidden; background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-2); }
 .console-head { display: flex; align-items: center; gap: 12px; padding: 8px 12px 8px var(--panel-pad); border-bottom: 1px solid var(--line); }
 .console-head h2 { margin: 0; font: 600 var(--size-md) var(--font-display); }
 .console-head .lbl { margin-left: auto; font: var(--size-3xs) var(--font-mono); color: var(--text-muted); }
@@ -66,12 +66,12 @@ span.msg-source { cursor: default; }
 .run-options input:disabled, .run-options select:disabled { opacity: 0.45; }
 
 /* tall windows (Dialog className="tall"): help, the value editor, the package manager */
-.dialog.tall { width: min(660px, calc(100vw - 32px)); height: min(760px, calc(100vh - 64px)); padding: 0; gap: 0; overflow: hidden; }
+.dialog.tall { width: min(660px, calc(100vw / var(--page-zoom, 1) - 32px)); height: min(760px, calc(100vh / var(--page-zoom, 1) - 64px)); padding: 0; gap: 0; overflow: hidden; }
 .dialog.tall > .dialog-head { padding: 14px 16px; border-bottom: 1px solid var(--line); }
 .dialog.tall > .dialog-actions { padding: 12px 16px; border-top: 1px solid var(--line); margin: 0; }
 
 /* help: search over a list and the chosen page; the chosen row rises (never a bar beside it) */
-.dialog.help-window { width: min(960px, calc(100vw - 32px)); }
+.dialog.help-window { width: min(960px, calc(100vw / var(--page-zoom, 1) - 32px)); }
 .help-search { flex: none; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 .help-search input { width: 100%; box-sizing: border-box; height: 30px; padding: 0 10px; font: var(--size-sm) var(--font-sans); color: var(--text); background: var(--surface-well); box-shadow: var(--well-shadow); border: 0; border-radius: var(--radius-md); }
 .help-search input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
@@ -103,8 +103,8 @@ span.msg-source { cursor: default; }
 .help-html dd { margin: 4px 0 12px 16px; }
 
 /* value table and variable editor: a grid with sticky numbers; the chosen cell a soft outline */
-.dialog.ve-window { width: min(900px, calc(100vw - 32px)); }
-.dialog.ve-text-window { width: min(640px, calc(100vw - 32px)); }
+.dialog.ve-window { width: min(900px, calc(100vw / var(--page-zoom, 1) - 32px)); }
+.dialog.ve-text-window { width: min(640px, calc(100vw / var(--page-zoom, 1) - 32px)); }
 .ve-tools { flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-bottom: 1px solid var(--line); }
 .ve-tools .sp { flex: 1; }
 .ve-scroll, .ve-text-scroll { flex: 1; min-height: 0; overflow: auto; background: var(--surface-panel); }

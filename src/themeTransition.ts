@@ -4,7 +4,7 @@
 // motion makes it instant. Where View Transitions are missing, colours glide on --glide instead.
 const GLIDE_MS = 300;
 
-type Doc = Document & { startViewTransition?: (update: () => void) => unknown };
+type Doc = Document & { startViewTransition?: (update: () => void) => { ready: Promise<unknown> } };
 
 export function applyTheme(shown: "light" | "dark", root: HTMLElement = document.documentElement): void {
   const before = root.dataset.theme;
@@ -13,7 +13,8 @@ export function applyTheme(shown: "light" | "dark", root: HTMLElement = document
   if (!before || before === shown || reduce) return set();  // the first paint, no change, or no motion
   const doc = document as Doc;
   if (doc.startViewTransition) {
-    doc.startViewTransition(set);
+    // a transition the page cuts short (the scale changing with it) only skips the fade: not an error
+    doc.startViewTransition(set).ready.catch(() => {});
     return;
   }
   root.classList.add("pb-theme-changing");

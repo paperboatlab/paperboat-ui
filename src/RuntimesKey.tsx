@@ -7,6 +7,7 @@ import { Icon } from "./Icon.tsx";
 import type { IconName } from "./icons.ts";
 import { Key } from "./Key.tsx";
 import { runtimeIcon, runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, type Runtime, type RuntimesSummary } from "./runtimes.ts";
+import { pageZoom } from "./scale.ts";
 import { Spinner } from "./Spinner.tsx";
 
 export type RuntimesKeyProps = {
@@ -58,7 +59,7 @@ function Peek({ trigger, onClose, scope, error, runtimes, footer }: { trigger: R
     if (!el) return;
     const r = el.getBoundingClientRect(), m = 8;
     const dx = r.left < m ? m - r.left : r.right > innerWidth - m ? innerWidth - m - r.right : 0;
-    if (dx) el.style.translate = `${dx}px 0`;
+    if (dx) el.style.translate = `${dx / pageZoom()}px 0`;
   }, []);
   return (
     <div ref={pop} className="popover runtimes" role="dialog" aria-label="Runtimes">

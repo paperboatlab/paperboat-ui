@@ -5,6 +5,7 @@
 import type { Command } from "../commands.ts";
 import type { MenuEntry } from "../Menu.tsx";
 import type { Theme } from "../theme.tsx";
+import { isScale, type Scale } from "../scale.ts";
 import { ago } from "../toast.ts";
 import { fileIconFor } from "../files/types.ts";
 
@@ -17,7 +18,7 @@ export type RecentKind = "folder" | "hub" | "file";
 /** One thing opened: `at` in seconds since 1970; `app` that opened it; `hub` the id of a hub (or of the hub a file lies in). */
 export type RecentEntry = { kind: RecentKind; path: string; hub?: string; app?: string; at: number };
 export type RecentStore = { version: 1; recent: RecentEntry[] };
-export type SharedSettings = { version: 1; theme: Theme };
+export type SharedSettings = { version: 1; theme: Theme; scale: Scale };
 
 /** One entry per (kind, path), newest first, this many at most. */
 export const RECENT_MAX = 40;
@@ -57,10 +58,10 @@ export function recentFor(store: RecentStore, app: string, { hubs = true, folder
   };
 }
 
-/** `settings.json` as read: the theme every app starts in ("system" when unset). */
+/** `settings.json` as read: the theme ("system" when unset) and the scale (1 when unset or unknown) every app starts in. */
 export function parseSettings(v: unknown): SharedSettings {
-  const t = (v as SharedSettings | null)?.theme;
-  return { version: 1, theme: t === "light" || t === "dark" ? t : "system" };
+  const t = (v as SharedSettings | null)?.theme, s = (v as SharedSettings | null)?.scale;
+  return { version: 1, theme: t === "light" || t === "dark" ? t : "system", scale: isScale(s) ? s : 1 };
 }
 
 /** How long ago, in words (`at`, `now` in seconds): "now", "5 min ago", "2 h ago", "yesterday", "3 d ago", then the day. */
