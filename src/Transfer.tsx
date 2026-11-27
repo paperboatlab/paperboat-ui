@@ -112,7 +112,7 @@ function KindRow({ k, on, onPick }: { k: TransferKind; on: boolean; onPick: () =
     <button type="button" role="option" aria-selected={on} data-kind={k.id} tabIndex={on ? 0 : -1} aria-disabled={!!k.why || undefined}
       title={k.why} onClick={() => !k.why && onPick()}>
       <span className="transfer-icon" style={{ color: k.icon ? undefined : `var(--file-${file.tone})` }}><Icon name={k.icon ?? file.icon} size={20} /></span>
-      <b>{k.name}<em>{typesText(k.types)}</em></b>
+      <b>{k.name}<em title={typesText(k.types)}>{typesText(k.types)}</em></b>
       <small>{k.why ?? k.line}</small>
     </button>
   );
