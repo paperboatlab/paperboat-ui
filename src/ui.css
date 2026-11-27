@@ -588,8 +588,8 @@ button.editor-tab-pin:focus-visible { outline: 2px solid var(--focus); }
 .transfer-kinds button[aria-selected="true"] { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); }   /* sits up, as Settings' current page */
 .transfer-kinds button[aria-disabled="true"] { opacity: 0.5; cursor: default; }
 .transfer-kinds button:focus-visible { outline: 2px solid var(--focus); }
-.transfer-kinds b { font-weight: 600; display: flex; gap: 6px; align-items: baseline; min-width: 0; }
-.transfer-kinds b em { font: normal var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.transfer-kinds b { font-weight: 600; display: flex; gap: 6px; align-items: baseline; min-width: 0; white-space: nowrap; }   /* the name stays on one line; the extensions give way */
+.transfer-kinds b em { flex: 1; min-width: 0; font: normal var(--size-2xs) var(--font-mono); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; }
 .transfer-kinds small { grid-column: 2; font-size: var(--size-2xs); line-height: 1.4; color: var(--text-muted); }
 .transfer-icon { display: inline-flex; margin-top: 1px; }
 .transfer-page { flex: 1; min-width: 0; overflow: auto; padding-bottom: 6px; }
