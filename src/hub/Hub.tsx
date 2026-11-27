@@ -8,7 +8,8 @@ import { useDismiss } from "../dismiss.tsx";
 import { Icon } from "../Icon.tsx";
 import { Key } from "../Key.tsx";
 import { Segmented, Switch } from "../controls.tsx";
-import { Spinner } from "../Spinner.tsx";
+import { SPIN_AFTER, Spinner, useAfter } from "../Spinner.tsx";
+import { isOpening, type Opening } from "../workspace/workspace.ts";
 import { FileTree, type FileEntry } from "../files/FileTree.tsx";
 import { byParent, folderOf, hubStatus, hubWhere, opens, pickable, PLACE_NAMES, saveName, type Hub } from "./hub.ts";
 import { fileIconFor } from "../files/types.ts";
@@ -110,24 +111,28 @@ export function PickRow({ glyph, name, line, fact, bad, onPick, disabled, title 
  * app's files it holds (`Hub.holds`), and New hub…. Choosing one makes it the app's workspace; the other
  * apps stay where they are. A hub-only app (Malachite) calls it Open a hub.
  */
-export function ConnectHub({ app, hubs, hubOnly, onConnect, onNew, onClose }: {
+export function ConnectHub({ app, hubs, hubOnly, opening, onConnect, onNew, onClose }: {
   app: string;
   hubs: readonly Hub[];
   hubOnly?: boolean;
+  /** A hub on its way (`useOpening`): its row says so, the others wait; a failure is said on its row. */
+  opening?: Opening | null;
   onConnect: (id: string) => void;
   onNew: () => void;
   onClose: () => void;
 }) {
+  const busy = !!opening && !opening.error, slow = useAfter(busy, SPIN_AFTER);
   return (
     <Dialog title={hubOnly ? "Open a hub" : "Connect to a hub"} tags={["the hubs Malachite knows"]} className="ws-ask" onClose={onClose}
       actions={<><span className="ws-hint">The hub becomes {app}'s workspace; the other apps stay where they are</span><span className="grow" /><Key shortcut="Esc" onClick={onClose}>Cancel</Key></>}>
       <div className="hub-picks" onKeyDown={(e) => arrows(e, ".hub-pick:not(:disabled)")}>
         {hubs.map((h) => {
-          const s = hubStatus(h);
-          return <PickRow key={h.id} glyph={glyph(h, 20)} name={h.name} line={hubWhere(h)} disabled={h.missing} title={hubWhere(h)}
-            fact={h.missing || s?.bad ? s?.text : h.holds} bad={s?.bad} onPick={() => onConnect(h.id)} />;
+          const s = hubStatus(h), mine = isOpening(opening, h);
+          return <PickRow key={h.id} glyph={mine && slow ? <Spinner size={20} /> : glyph(h, 20)} name={h.name} disabled={h.missing || busy} title={hubWhere(h)}
+            line={mine && opening?.error ? opening.error : mine && slow ? (opening?.detail ?? `Opening ${h.name}…`) : hubWhere(h)}
+            fact={mine && opening?.error ? "couldn't open" : h.missing || s?.bad ? s?.text : h.holds} bad={(mine && !!opening?.error) || s?.bad} onPick={() => onConnect(h.id)} />;
         })}
-        <PickRow glyph={<Icon name="add" size={20} />} name="New hub…" line="In a folder on this computer, or one a sync app keeps" onPick={onNew} />
+        <PickRow glyph={<Icon name="add" size={20} />} name="New hub…" line="In a folder on this computer, or one a sync app keeps" disabled={busy} onPick={onNew} />
       </div>
     </Dialog>
   );

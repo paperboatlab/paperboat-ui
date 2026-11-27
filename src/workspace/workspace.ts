@@ -20,6 +20,15 @@ export type RecentEntry = { kind: RecentKind; path: string; hub?: string; app?: 
 export type RecentStore = { version: 1; recent: RecentEntry[] };
 export type SharedSettings = { version: 1; theme: Theme; scale: Scale };
 
+/** A workspace on its way (`useOpening`): what was chosen (a recent entry's path or a hub's id, so that entry
+ *  shows it), and for a long open what is happening (`detail`, "Indexing 4 812 files") and how to stop it. A
+ *  failure ends it: `error`, said where the open was asked. */
+export type Opening = { name: string; path?: string; hub?: string; detail?: string; onCancel?: () => void; error?: string };
+
+/** Whether `o` is the open of this entry (a recent row, a hub of the list). */
+export const isOpening = (o: Opening | null | undefined, e: { kind?: RecentKind; path?: string; hub?: string; id?: string }): boolean =>
+  !!o && ((!!o.hub && (o.hub === e.id || (e.kind === "hub" && o.hub === e.hub))) || (!!o.path && o.path === e.path));
+
 /** One entry per (kind, path), newest first, this many at most. */
 export const RECENT_MAX = 40;
 

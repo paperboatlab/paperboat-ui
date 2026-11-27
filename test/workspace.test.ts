@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { keyAction, type Command } from "../src/commands.ts";
-import { addRecent, fileMenu, parseRecent, parseSettings, recentFor, recentMenu, RECENT_MAX, tilde, when, type RecentEntry } from "../src/workspace/workspace.ts";
+import { addRecent, fileMenu, isOpening, parseRecent, parseSettings, recentFor, recentMenu, RECENT_MAX, tilde, when, type RecentEntry } from "../src/workspace/workspace.ts";
 
 const R = (kind: RecentEntry["kind"], path: string, at: number, app?: string): RecentEntry => ({ kind, path, at, app });
 const store = { version: 1 as const, recent: [R("file", "/p/a.jl", 50, "julix"), R("folder", "/p", 40, "julix"), R("hub", "/h/lab", 30, "malachite"), R("file", "/p/b.psf", 20, "simplicial")] };
@@ -84,4 +84,14 @@ test("Open recent tells two files of the same name apart by their folder", () =>
     store = addRecent(store, { kind: "file", path, app: "julix", at: 1 });
   const items = recentMenu(recentFor(store, "julix"), () => {}, () => {}).filter((e) => typeof e === "object" && "label" in e) as { label: string; meta?: string }[];
   assert.deepEqual(items.filter((i) => i.label !== "Clear recent").map((i) => [i.label, i.meta]), [["sweep.jl", undefined], ["identify.jl", "pendulum"], ["identify.jl", "tank-level"]]);
+});
+
+test("an open shows on its own entry: a hub by its id (not a file in it), anything by its path", () => {
+  const hub: RecentEntry = { kind: "hub", path: "/h/lab", hub: "h_1", at: 1 }, file: RecentEntry = { kind: "file", path: "/h/lab/a.md", hub: "h_1", at: 1 };
+  assert.equal(isOpening({ name: "lab", hub: "h_1" }, hub), true);
+  assert.equal(isOpening({ name: "lab", hub: "h_1" }, file), false);
+  assert.equal(isOpening({ name: "lab", hub: "h_1" }, { id: "h_1" }), true);   // ConnectHub's rows
+  assert.equal(isOpening({ name: "a.md", path: "/h/lab/a.md" }, file), true);
+  assert.equal(isOpening(null, hub), false);
+  assert.equal(isOpening({ name: "p", path: "/p" }, { kind: "folder", path: "/q" }), false);
 });
