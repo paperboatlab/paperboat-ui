@@ -5,7 +5,7 @@
 // the app draws it whole (`cells`: its own cell, outputs and all) until the caret goes into its code. The
 // front matter can hide, for an app that shows the properties itself (`frontMatter: "hide"`).
 import { ensureSyntaxTree, syntaxTree } from "@codemirror/language";
-import { RangeSetBuilder, StateField, type EditorState, type Extension, type Range } from "@codemirror/state";
+import { RangeSetBuilder, StateField, type EditorState, type Extension, type Range, type Text } from "@codemirror/state";
 import { Decoration, EditorView, ViewPlugin, WidgetType, type DecorationSet, type ViewUpdate } from "@codemirror/view";
 import { INLINE_MATH, mathHtml } from "../math.ts";
 
@@ -201,7 +201,7 @@ class CellBlock extends WidgetType {
 /** The blocks: the front matter hidden, cells drawn by the app. Block decorations must come from a field,
  *  and they are found in the text (as the app's server reads cells), not in a parse that may not be done. */
 function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
-  const out: Range<Decoration>[] = [], doc = state.doc;
+  const out: Range<Decoration>[] = [], doc = lineTable(state.doc);
   let n = 1;
   if (o.frontMatter === "hide" && doc.lines > 1 && doc.line(1).text === "---") {
     let end = 2;
@@ -247,6 +247,15 @@ function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
     }
   }
   return Decoration.set(out, true);
+}
+
+/** The document's lines, read in one pass: `Text.line(n)` walks the text's tree for each line, and the blocks
+ *  ask for every line three times on every key (a 5 000-line note spent most of a key there). */
+function lineTable(text: Text) {
+  const lines: string[] = [], from: number[] = [];
+  let at = 0;
+  for (const it = text.iterLines(); !it.next().done; ) { lines.push(it.value); from.push(at); at += it.value.length + 1; }
+  return { lines: lines.length, line: (n: number) => ({ from: from[n - 1], to: from[n - 1] + lines[n - 1].length, text: lines[n - 1] }) };
 }
 
 /** A line inside a $$ … $$ block: its $ signs are the block's, not inline math. */
