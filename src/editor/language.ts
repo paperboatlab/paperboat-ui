@@ -22,6 +22,8 @@ export type Language = {
   grammar: () => Extension;
   lint?: (code: string, session?: Session) => Promise<Problem[]>;
   complete?: (code: string, pos: number, session?: Session) => Promise<Completions | null>;
+  /** Its `\name` abbreviations (Julia's \alpha → α): Tab expands one, typing `\al` offers them; no session needed. */
+  abbreviations?: () => ReadonlyMap<string, string>;
 };
 
 // paperboat-runtime/0 counts bytes (UTF-8); the editor counts UTF-16 units.
