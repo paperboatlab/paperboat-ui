@@ -1,28 +1,60 @@
 // The one file workflow's parts (mockup agent-docs/rebrand/apps/files): the Start page, the bar's
 // workspace well and its menu, and the dialogs (Open asks, not a hub, unsaved changes, a typed path).
 // They only draw and report: the app's server opens, saves and switches the workspace.
-import { useRef, useState, type DragEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 import { Dialog } from "../Dialog.tsx";
 import { Icon } from "../Icon.tsx";
 import { Key } from "../Key.tsx";
 import { Menu, type MenuEntry } from "../Menu.tsx";
-import { Spinner } from "../Spinner.tsx";
+import { SAY_AFTER, SPIN_AFTER, Spinner, useAfter } from "../Spinner.tsx";
 import { fileIconFor } from "../files/types.ts";
 import { arrows, HubMark, PickRow } from "../hub/Hub.tsx";
 import { hubStatus, hubWhere, type Hub } from "../hub/hub.ts";
-import { baseName, recentFor, shell, tilde, when, type RecentEntry, type Workspace } from "./workspace.ts";
+import { baseName, isOpening, recentFor, shell, tilde, when, type Opening, type RecentEntry, type Workspace } from "./workspace.ts";
 
 function FileGlyph({ path, kind }: { path: string; kind: "file" | "folder" }) {
   const { icon, tone } = fileIconFor(path, kind);
   return <span className="ws-glyph" style={{ color: `var(--file-${tone})` }}><Icon name={icon} /></span>;
 }
+
+/**
+ * The open of a workspace, for `Start`, `WorkspaceWell` and `ConnectHub` (`opening`): `open(what, work)` shows
+ * `what` as opening until `work` settles; a second open while one runs does nothing. A failure stays shown
+ * (`error`) and is thrown on, for the app's toast; `detail` says what is happening, `clear` ends it.
+ */
+export function useOpening() {
+  const [opening, setOpening] = useState<Opening | null>(null);
+  const busy = useRef(false);
+  const open = useCallback(async (what: Omit<Opening, "error" | "detail">, work: () => Promise<unknown>) => {
+    if (busy.current) return;
+    busy.current = true;
+    setOpening(what);
+    try { await work(); setOpening(null); }
+    catch (e) { setOpening({ ...what, error: String((e as Error)?.message ?? e) }); throw e; }
+    finally { busy.current = false; }
+  }, []);
+  const detail = useCallback((d?: string) => setOpening((o) => (o && !o.error ? { ...o, detail: d } : o)), []);
+  const clear = useCallback(() => setOpening(null), []);
+  return { opening, open, detail, clear };
+}
+
+/** Under an entry that opens, past 2 s: what is happening, and Cancel where the app can stop. */
+function OpenMore({ opening, className }: { opening: Opening; className: string }) {
+  return (opening.detail || opening.onCancel) ? (
+    <div className={className} role="status">
+      {opening.detail && <span>{opening.detail}</span>}
+      {opening.onCancel && <Key size="sm" kind="quiet" onClick={opening.onCancel}>Cancel</Key>}
+    </div>
+  ) : null;
+}
+
 const glyphOf = (e: RecentEntry) => (e.kind === "hub" ? <HubMark /> : <FileGlyph path={e.path} kind={e.kind === "folder" ? "folder" : "file"} />);
 
 /**
  * The Start page, in the bay while the app has no workspace: what it can open (one primary: Open folder…;
  * a hub-only app's is Open a hub…), the drop hint, and Recent: Folders, Hubs, Files, newest first.
  */
-export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, now = Date.now() / 1000, onOpenFolder, onOpenFile, onNew, onConnect, onNewHub, onRecent, onDrop }: {
+export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, now = Date.now() / 1000, opening, onOpenFolder, onOpenFile, onNew, onConnect, onNewHub, onRecent, onDrop }: {
   /** The app's name: "Julix". */
   app: string;
   /** "script" (New script) and "scripts" (what the line under the title says it keeps). */
@@ -40,6 +72,8 @@ export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, no
   home?: string;
   /** Seconds since 1970, for "2 h ago". */
   now?: number;
+  /** A workspace on its way (`useOpening`): its entry says so, the other keys wait; a failure is said there. */
+  opening?: Opening | null;
   onOpenFolder: () => void;
   onOpenFile: () => void;
   onNew: () => void;
@@ -51,18 +85,24 @@ export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, no
 }) {
   const [over, setOver] = useState(false);
   const shown = recentFor({ version: 1, recent: [...recent] }, app.toLowerCase(), { hubs: hubs || !!hubOnly, folders: !hubOnly });
-  const folderKey = <Key key="folder" kind={hubOnly ? undefined : "primary"} icon="folder-opened" shortcut="Ctrl Shift O" onClick={onOpenFolder}
+  const busy = !!opening && !opening.error, slow = useAfter(busy, SPIN_AFTER), long = useAfter(busy, SAY_AFTER);
+  const listed = [...(hubOnly ? shown.hubs : shown.folders), ...(hubOnly ? [] : shown.hubs), ...shown.files].some((e) => isOpening(opening, e));
+  const folderKey = <Key key="folder" kind={hubOnly ? undefined : "primary"} icon="folder-opened" shortcut="Ctrl Shift O" onClick={onOpenFolder} disabled={busy}
     title={hubOnly ? "A plain folder asks: make it a hub, or open a hub" : undefined}>Open folder…</Key>;
   const group = (title: string, rows: RecentEntry[], side = "") => rows.length > 0 && (
     <div className="start-group">
       <div className="start-glab">{title}{side && <span>{side}</span>}</div>
-      {rows.map((e) => (
-        <button key={`${e.kind}:${e.path}`} type="button" className="start-rec" title={e.path} onClick={() => onRecent(e)}>
-          {glyphOf(e)}
-          <span><b>{baseName(e.path)}</b><small>{tilde(e.path, home)}</small></span>
-          <em>{when(e.at, now)}</em>
-        </button>
-      ))}
+      {rows.map((e) => {
+        const mine = isOpening(opening, e), said = mine && opening && (opening.error ?? (slow ? `Opening ${opening.name}…` : ""));
+        return [
+          <button key={`${e.kind}:${e.path}`} type="button" className={`start-rec${mine ? " opening" : ""}`} title={e.path} disabled={busy} aria-busy={(mine && busy) || undefined} onClick={() => onRecent(e)}>
+            {mine && slow ? <Spinner size={16} /> : glyphOf(e)}
+            <span><b>{baseName(e.path)}</b><small className={mine && opening?.error ? "bad" : undefined} role={mine && opening?.error ? "alert" : undefined}>{said || tilde(e.path, home)}</small></span>
+            <em>{when(e.at, now)}</em>
+          </button>,
+          mine && long && opening && <OpenMore key={`${e.kind}:${e.path}:more`} opening={opening} className="start-more" />,
+        ];
+      })}
     </div>
   );
   const none = !shown.folders.length && !shown.hubs.length && !shown.files.length;
@@ -75,13 +115,20 @@ export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, no
         <p>{about ?? (hubOnly ? `${app} works in a hub: your notes, runs, models and data, linked, with their history.`
           : `${app} works in a folder${hubs ? " or a hub" : ""}: its ${nouns} and what they make stay together.`)}</p>
         <div className="start-acts">
-          {hubOnly && onConnect && <Key kind="primary" onClick={onConnect}><HubMark />Open a hub…</Key>}
-          {hubOnly && onNewHub && <Key icon="add" onClick={onNewHub}>New hub…</Key>}
+          {hubOnly && onConnect && <Key kind="primary" onClick={onConnect} disabled={busy}><HubMark />Open a hub…</Key>}
+          {hubOnly && onNewHub && <Key icon="add" onClick={onNewHub} disabled={busy}>New hub…</Key>}
           {folderKey}
-          <Key icon="file" shortcut="Ctrl O" onClick={onOpenFile}>Open file…</Key>
-          <Key icon="new-file" shortcut="Ctrl N" onClick={onNew}>New {noun}</Key>
-          {!hubOnly && hubs && onConnect && <Key onClick={onConnect}><HubMark />Connect to a hub…</Key>}
+          <Key icon="file" shortcut="Ctrl O" onClick={onOpenFile} disabled={busy}>Open file…</Key>
+          <Key icon="new-file" shortcut="Ctrl N" onClick={onNew} disabled={busy}>New {noun}</Key>
+          {!hubOnly && hubs && onConnect && <Key onClick={onConnect} disabled={busy}><HubMark />Connect to a hub…</Key>}
         </div>
+        {opening && !listed && (opening.error || slow) && (
+          <div className={`start-opening${opening.error ? " bad" : ""}`} role={opening.error ? "alert" : "status"}>
+            {opening.error ? <Icon name="error" size={16} /> : <Spinner size={16} />}
+            <span><b>{opening.error ? `Couldn't open ${opening.name}` : `Opening ${opening.name}…`}</b>{opening.error && <small>{opening.error}</small>}</span>
+          </div>
+        )}
+        {opening && !listed && long && <OpenMore opening={opening} className="start-more" />}
         {onDrop && <div className="start-drop">or drop a folder or a file here</div>}
       </div>
       <div className="start-recent">
@@ -100,8 +147,10 @@ export function Start({ app, noun, nouns, about, hubs, hubOnly, recent, home, no
  * mark). Its menu opens, switches, connects and closes; closing goes back to Start. No Disconnect: Close hub
  * and Use a local folder instead… replace it. Reveal shows only in a Paperboat window (`shell()`).
  */
-export function WorkspaceWell({ workspace, home, recent, hubs = [], onOpenFolder, onConnect, onClose, onSwitchHub, onNewHub, onOpenInMalachite, onUseFolder }: {
+export function WorkspaceWell({ workspace, home, recent, hubs = [], opening, onOpenFolder, onConnect, onClose, onSwitchHub, onNewHub, onOpenInMalachite, onUseFolder }: {
   workspace: Workspace;
+  /** Another workspace on its way (`useOpening`): the well says so and its menu waits; a failure is said here. */
+  opening?: Opening | null;
   home?: string;
   /** Open recent's items (`recentMenu`). */
   recent: MenuEntry[];
@@ -121,6 +170,8 @@ export function WorkspaceWell({ workspace, home, recent, hubs = [], onOpenFolder
 }) {
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
+  const busy = !!opening && !opening.error, slow = useAfter(busy, SPIN_AFTER), long = useAfter(busy, SAY_AFTER);
+  useEffect(() => { if (busy) setOpen(false); }, [busy]);
   const inHub = workspace.kind === "hub";
   const hub = inHub ? hubs.find((h) => h.id === workspace.hub) : undefined;
   const st = hub && hubStatus(hub);
@@ -148,13 +199,18 @@ export function WorkspaceWell({ workspace, home, recent, hubs = [], onOpenFolder
   const where = inHub ? (hub ? (hub.sync ? `${hubWhere(hub)} · ${hub.sync.text}` : hubWhere(hub)) : tilde(workspace.root, home)) : tilde(workspace.root, home);
   return (
     <span className="ws-well-wrap">
-      <button ref={trigger} type="button" className={`ws-well${st?.bad ? " bad" : ""}`} aria-haspopup="menu" aria-expanded={open}
-        title={`${inHub ? "Hub" : "Folder"}: ${workspace.name} · switch, connect or close`} onClick={() => setOpen((o) => !o)}>
-        {inHub ? <HubMark /> : <FileGlyph path={workspace.root} kind="folder" />}
-        <span className="nm">{workspace.name}</span>
-        {st && <>{st.busy && <span className="app-malachite"><Spinner size={12} /></span>}<span className="st">{st.text}</span></>}
+      <button ref={trigger} type="button" className={`ws-well${st?.bad || opening?.error ? " bad" : ""}`} aria-haspopup="menu" aria-expanded={open}
+        aria-disabled={busy || undefined} aria-busy={busy || undefined}
+        title={opening?.error ? `Couldn't open ${opening.name}: ${opening.error}` : busy ? `Opening ${opening!.name}…${opening!.detail ? ` · ${opening!.detail}` : ""}` : `${inHub ? "Hub" : "Folder"}: ${workspace.name} · switch, connect or close`}
+        onClick={() => !busy && setOpen((o) => !o)}>
+        {busy && slow ? <Spinner size={14} /> : inHub ? <HubMark /> : <FileGlyph path={workspace.root} kind="folder" />}
+        <span className="nm">{busy && slow ? `Opening ${opening!.name}…` : workspace.name}</span>
+        {opening?.error ? <span className="st" role="alert">couldn't open {opening.name}</span>
+          : busy ? null
+          : st && <>{st.busy && <span className="app-malachite"><Spinner size={12} /></span>}<span className="st">{st.text}</span></>}
         <Icon name="chevron-down" size={14} className="chev" />
       </button>
+      {long && opening?.onCancel && <Key size="sm" kind="quiet" onClick={opening.onCancel}>Cancel</Key>}
       {open && <Menu label={inHub ? "Hub" : "Folder"} items={items} onClose={() => setOpen(false)} triggerRef={trigger} className="ws-menu"
         head={<>{inHub ? <HubMark size={14} /> : <FileGlyph path={workspace.root} kind="folder" />}<span>{where}</span></>} />}
     </span>

@@ -9,7 +9,7 @@ import { useShortcuts } from "../src/commands.ts";
 import { useTheme, type Theme } from "../src/theme.tsx";
 import type { FileEntry } from "../src/files/index.ts";
 import { ConnectHub, HubSettings, OpenFile, SaveFile, type Hub, type HubSettingsValues } from "../src/hub/index.ts";
-import { addRecent, AskOpen, fileMenu, NotAHub, parseRecent, recentFor, recentMenu, Start, TypedPath, Unsaved, WorkspaceWell, type RecentEntry, type Workspace } from "../src/workspace/index.ts";
+import { addRecent, AskOpen, baseName, fileMenu, NotAHub, parseRecent, recentFor, recentMenu, Start, TypedPath, Unsaved, useOpening, WorkspaceWell, type RecentEntry, type Workspace } from "../src/workspace/index.ts";
 
 const q = new URLSearchParams(location.search);
 if (q.has("shell")) (window as { paperboatShell?: unknown }).paperboatShell = {
@@ -47,7 +47,18 @@ function Demo() {
   const [vals, setVals] = useState<HubSettingsValues>({ author: "lab", keep: "1y", ignore: ".malachite/out/ *.tmp", sync: true });
   const [said, say] = useState("");
   const hub = ws?.kind === "hub" ? HUBS.find((h) => h.id === ws.hub) : undefined;
-  const open = (e: RecentEntry) => { say(`open ${e.kind} ${e.path}`); if (e.kind !== "file") setWs(e.kind === "hub" ? inHub(HUBS[0]) : FOLDER); setFile(e.kind === "file"); };
+  // ?slow=<ms>: an open takes that long (?fail: then fails), with what it does past 2 s and Cancel
+  const opener = useOpening(), slow = Number(q.get("slow") ?? 0);
+  const opened = (what: { name: string; path?: string; hub?: string }, then: () => void) => {
+    let stop = () => {};
+    opener.open({ ...what, onCancel: () => stop() }, () => new Promise<void>((ok, no) => {
+      const t = setTimeout(() => (q.has("fail") ? no(new Error("can't read .malachite/hub.toml")) : ok()), slow);
+      const d = setTimeout(() => opener.detail("Indexing 4 812 files"), 2000);
+      stop = () => { clearTimeout(t); clearTimeout(d); no(new Error("cancelled")); };
+    })).then(then, (e) => say(String(e.message)));
+  };
+  const open = (e: RecentEntry) => opened({ name: baseName(e.path), path: e.path }, () => { say(`open ${e.kind} ${e.path}`); if (e.kind !== "file") setWs(e.kind === "hub" ? inHub(HUBS[0]) : FOLDER); setFile(e.kind === "file"); });
+  const switchHub = (id: string) => { const h = HUBS.find((x) => x.id === id)!; opened({ name: h.name, hub: id }, () => { setWs(inHub(h)); setShow(""); }); };
   const recent = recentMenu(recentFor(RECENT, "simplicial", { hubs }), open, () => say("clear recent"));
   const openFile = () => setShow(ws?.kind === "hub" ? "open" : hubs ? "ask" : "path");
   const commands = fileMenu({
@@ -62,14 +73,14 @@ function Demo() {
         <b style={{ font: "600 17px var(--font-display)" }}>Simplicial</b>
         <MenuBar commands={commands} menus={[{ id: "file", label: "File" }]} />
         {ws && <WorkspaceWell workspace={ws} home={HOME} recent={recent} hubs={hubs ? HUBS : []} onOpenFolder={() => setShow("path")} onConnect={() => setShow("connect")}
-          onClose={() => setShow("unsaved-ws")} onSwitchHub={(id) => setWs(inHub(HUBS.find((h) => h.id === id)!))} onNewHub={() => say("new hub")}
+          onClose={() => setShow("unsaved-ws")} opening={opener.opening} onSwitchHub={switchHub} onNewHub={() => say("new hub")}
           onOpenInMalachite={hubOnly ? undefined : () => say("open in Malachite")} onUseFolder={hubOnly ? undefined : () => setShow("path")} />}
         <span style={{ marginLeft: "auto", font: "12px var(--font-mono)", color: "var(--text-muted)" }}>{said}</span>
         {["open", "save", "connect", "ask", "nothub", "path"].map((s) => <button key={s} className="key sm" onClick={() => setShow(s)}>{s}</button>)}
       </header>
       <main className="bay" style={{ flex: 1, margin: "0 12px 12px", display: "flex" }}>
         <div className="panel" style={{ flex: 1, display: "flex" }}>
-          {!ws ? <Start app={hubOnly ? "Malachite" : "Simplicial"} noun="flow" nouns="flows and stations" hubs={hubs} hubOnly={hubOnly} recent={RECENT.recent} home={HOME}
+          {!ws ? <Start app={hubOnly ? "Malachite" : "Simplicial"} noun="flow" nouns="flows and stations" hubs={hubs} hubOnly={hubOnly} recent={RECENT.recent} home={HOME} opening={opener.opening}
             onOpenFolder={() => setShow(hubOnly ? "nothub" : "path")} onOpenFile={openFile} onNew={() => say("new flow")} onConnect={() => setShow("connect")}
             onNewHub={() => say("new hub")} onRecent={open} onDrop={() => say("dropped")} />
             : <div style={{ padding: 24, width: "100%", maxWidth: 900 }}>
@@ -78,7 +89,7 @@ function Demo() {
             </div>}
         </div>
       </main>
-      {show === "connect" && <ConnectHub app="Simplicial" hubOnly={hubOnly} hubs={HUBS} onConnect={(id) => { setWs(inHub(HUBS.find((h) => h.id === id)!)); setShow(""); }}
+      {show === "connect" && <ConnectHub app="Simplicial" hubOnly={hubOnly} hubs={HUBS} opening={opener.opening} onConnect={switchHub}
         onNew={() => say("new hub")} onClose={() => setShow("")} />}
       {show === "ask" && <AskOpen what="a flow or a station" types={["psf", "pst"]} hubs={HUBS.length} onLocal={() => setShow("path")} onConnect={() => setShow("connect")} onClose={() => setShow("")} />}
       {show === "open" && <OpenFile what="a flow or a station" types={["psf", "pst"]} hub={hub ?? HUBS[0]} list={list} byParent={{ label: "By station", orphans: "No station" }}
