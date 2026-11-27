@@ -41,6 +41,14 @@ export type Command = {
   run: () => void;
 };
 
+/** One example, as `paperboat example list --app <app> --json` gives it (paperboat#72). */
+export type Example = { id: string; app: string; kind: string; name: string; description: string; path: string };
+
+/** Ctrl+K's **Open example: <name>**, one per example of the app (paperboat#72). They sit in no menu of the bar,
+ *  so only the command search lists them; `open` runs `paperboat example open <id>` (through the app's server). */
+export const exampleCommands = (examples: Example[], open: (id: string) => void): Command[] =>
+  examples.map((e) => ({ id: `example:${e.id}`, label: `Open example: ${e.name}`, menu: "examples", group: "examples", run: () => open(e.id) }));
+
 export const isEnabled = (c: Command): boolean => (typeof c.enabled === "function" ? c.enabled() : c.enabled ?? true);
 
 /** The key the command search opens with. One place to change it. */
