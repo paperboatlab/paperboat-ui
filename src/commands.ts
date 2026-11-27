@@ -169,3 +169,14 @@ export function useShortcuts(commands: Command[]) {
     return () => { clearTimeout(timer); window.removeEventListener("keydown", onKey); };
   }, []);
 }
+
+/** What `paperboat example open` put in the page's URL: `?example=<id>&name=<name>[&to=<folder>][&cache=1]`. */
+export type OpenedExample = { id: string; name: string; to?: string; cache: boolean };
+
+/** The example this page opened, or null when it opened no example. */
+export function exampleFromUrl(search: string): OpenedExample | null {
+  const q = new URLSearchParams(search), id = q.get("example");
+  if (!id) return null;
+  const to = q.get("to");
+  return { id, name: q.get("name") || id, ...(to ? { to } : {}), cache: q.get("cache") === "1" };
+}

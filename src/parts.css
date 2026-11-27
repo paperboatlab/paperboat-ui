@@ -119,3 +119,8 @@ span.msg-source { cursor: default; }
 .ve-grid td input.bad { color: var(--danger-text); }
 .ve-more { margin: 6px 16px 10px; }
 .ve-text { margin: 0; padding: 12px 16px; font: var(--size-xs) / 1.5 var(--font-mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* ExampleBanner: an example's line at the top of its bay (Julix's read-only line, paperboat#75) */
+.example-banner { flex: none; padding: 7px 16px; border-bottom: 1px solid var(--line); font-size: var(--size-2xs); color: var(--text-muted); background: var(--surface-sunken); }
+.example-banner button { all: unset; color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; cursor: pointer; }
+.example-banner button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
