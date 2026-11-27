@@ -4,10 +4,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { CompletionContext } from "@codemirror/autocomplete";
 import { EditorState, type TransactionSpec } from "@codemirror/state";
-import type { EditorView } from "@codemirror/view";
+import { EditorView } from "@codemirror/view";
 import { abbreviationAt, abbreviationSource, expandAbbreviation, parseAbbreviations } from "../../src/editor/abbreviations.ts";
 import { fromBytes, runtimeComplete, runtimeLint, toBytes } from "../../src/editor/language.ts";
 import { julia } from "../../src/editor/lang/index.ts";
+import { livePreview } from "../../src/editor/livePreview.ts";
 
 const TEXT = ["é", "α", "∑", "中文", "😀", "x̂", "👩‍🔬", "\uFEFF", "ß∀ℝ₁²"];
 
@@ -104,4 +105,16 @@ test("the runtime's completions and problems land on the right characters in non
   const [p] = await runtimeLint(code, session);
   assert.equal(code.slice(p.from, p.to), "\\alpha");
   assert.equal(fromBytes(code, toBytes(code, code.indexOf("+"))), code.indexOf("+"));
+});
+
+test("Live hides a note's front matter after a byte order mark, as without one", () => {
+  const hidden = (doc: string) => {
+    const state = EditorState.create({ doc, extensions: livePreview({ frontMatter: "hide" }) });
+    const out: [number, number][] = [];
+    for (const d of state.facet(EditorView.decorations)) if (typeof d !== "function") for (let c = d.iter(); c.value; c.next()) out.push([c.from, c.to]);
+    return out;
+  };
+  const note = "---\nid: n_1\ntitle: Ünï 😀\n---\n# Ünïcode\n";
+  assert.deepEqual(hidden(note), [[0, note.indexOf("\n# ")]]);
+  assert.deepEqual(hidden(`\uFEFF${note}`), [[0, note.indexOf("\n# ") + 1]]);
 });

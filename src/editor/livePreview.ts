@@ -203,7 +203,8 @@ class CellBlock extends WidgetType {
 function blocks(state: EditorState, o: LivePreviewOptions): DecorationSet {
   const out: Range<Decoration>[] = [], doc = lineTable(state.doc);
   let n = 1;
-  if (o.frontMatter === "hide" && doc.lines > 1 && doc.line(1).text === "---") {
+  // after a byte order mark too (a note saved on Windows): the properties stay hidden
+  if (o.frontMatter === "hide" && doc.lines > 1 && doc.line(1).text.replace(/^\uFEFF/, "") === "---") {
     let end = 2;
     while (end <= doc.lines && doc.line(end).text !== "---") end++;
     if (end <= doc.lines) { out.push(Decoration.replace({ block: true }).range(0, doc.line(end).to)); n = end + 1; }
