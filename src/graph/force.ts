@@ -82,8 +82,8 @@ export class Force {
   }
 }
 
-/** Two notes' footprints (the dot, and the label under it) pushed apart where they overlap, along the shorter
- *  way out; boxes swept along x, so it is cheap at every step. Like forceCollide, it acts at full strength
+/** Two notes' footprints (the dot, and the label under it) pushed apart where they overlap, along the line
+ *  between them; boxes swept along x, so it is cheap at every step. Like forceCollide, it acts at full strength
  *  whatever the layout's heat. */
 function footprints(radius: (id: string) => number, label: (id: string) => { w: number; h: number }) {
   const PAD = 3, GAP = 4;   // room around a footprint; the label's gap under its dot (NoteGraph draws it there)
@@ -99,8 +99,13 @@ function footprints(radius: (id: string) => number, label: (id: string) => { w: 
         const ox = Math.min(right, q.x + half[j]) - left(j);
         const oy = Math.min(p.y + down[i], q.y + down[j]) - Math.max(p.y - up[i], q.y - up[j]);
         if (ox <= 0 || oy <= 0) continue;
-        if (ox < oy) { const d = ((q.x >= p.x ? 1 : -1) * ox) / 2; p.vx! -= d; q.vx! += d; }
-        else { const d = ((q.y >= p.y ? 1 : -1) * oy) / 2; p.vy! -= d; q.vy! += d; }
+        // apart along the line between the footprints' middles (not the shorter axis, which stacks wide labels
+        // into a column): as far along it as frees one axis, half each
+        let ux = q.x - p.x, uy = q.y + (down[j] - up[j]) / 2 - (p.y + (down[i] - up[i]) / 2);
+        if (!ux && !uy) ux = 1;   // one on top of the other: apart sideways
+        const len = Math.hypot(ux, uy); ux /= len; uy /= len;
+        const t = Math.min(Math.abs(ux) > 1e-6 ? ox / Math.abs(ux) : Infinity, Math.abs(uy) > 1e-6 ? oy / Math.abs(uy) : Infinity) / 2;
+        p.vx! -= ux * t; p.vy! -= uy * t; q.vx! += ux * t; q.vy! += uy * t;
       }
     }
   };
