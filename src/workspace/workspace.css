@@ -1,7 +1,7 @@
 /* The one file workflow (agent-docs/rebrand/apps/files): the Start page, the workspace well, the dialogs. */
 
 /* the Start page, in the bay's card while there is no workspace: what to open, and Recent */
-.start-page { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 560px); justify-content: center; align-content: center; gap: 56px; padding: 40px; }
+.start-page { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 560px); justify-content: center; align-content: safe center; gap: 56px; padding: 40px; }
 .start-page.over { background: color-mix(in srgb, var(--accent) var(--tint), transparent); }
 .start-page h2 { margin: 0 0 6px; font: 600 22px var(--font-display); }
 .start-page p { margin: 0 0 20px; color: var(--text-muted); font-size: var(--size-sm); }
