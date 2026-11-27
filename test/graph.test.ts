@@ -58,3 +58,31 @@ test("a big hub lays out in a moment", () => {
   assert.ok(ms < 8000, `3000 notes, 6000 links: ${ms.toFixed(0)} ms`);
   console.log(`# 3000 notes, 6000 links: ${ms.toFixed(0)} ms`);
 });
+
+test("labels take room: a note's label never runs under a neighbour (malachite#48)", () => {
+  // tank-lab's shape: a hub note and five around it, some with long labels
+  const ids = ["hub", "a", "b", "c", "d", "e"], long = new Set(["a", "c"]);
+  const label = (id: string) => ({ w: long.has(id) ? 180 : 60, h: 14 }), radius = () => 14;
+  const f = new Force(ids, ids.slice(1).map((id) => ({ source: id, target: "hub" })), undefined, radius, label);
+  f.settle();
+  const box = (n: { id: string; x: number; y: number }) => { const hw = Math.max(14, label(n.id).w / 2); return [n.x - hw, n.y - 14, n.x + hw, n.y + 14 + 4 + 14]; };
+  for (const p of f.nodes) for (const q of f.nodes) {
+    if (p === q) continue;
+    const [a, b, c, d] = box(p), [e, g, h, i] = box(q);
+    assert.ok(!(a < h - 1 && e < c - 1 && b < i - 1 && g < d - 1), `${p.id} and ${q.id} overlap`);
+  }
+});
+
+test("a breath moves the notes and comes back to rest in about a second (malachite#53)", () => {
+  const f = new Force(["a", "b", "c"], [{ source: "a", target: "b" }, { source: "b", target: "c" }]);
+  f.settle();
+  const before = f.nodes.map((n) => [n.x, n.y]);
+  f.breathe();
+  let steps = 0;
+  while (f.step()) steps++;
+  assert.ok(steps > 30 && steps < 90, `rests after ${steps} steps`);
+  assert.ok(f.nodes.some((n, i) => Math.hypot(n.x - before[i][0], n.y - before[i][1]) > 0.5), "it moved");
+  f.hold("a", 0, 0); f.release("a");
+  steps = 0; while (f.step()) steps++;
+  assert.ok(steps > 90, "a drag cools at the usual pace after a breath");
+});
