@@ -574,3 +574,28 @@ button.editor-tab-pin:focus-visible { outline: 2px solid var(--focus); }
 .set-row .well { min-width: 120px; }
 .set-row.key-row { justify-content: space-between; padding: 7px 0; }
 .set-row.key-row kbd { font: var(--size-2xs) var(--font-mono); color: var(--text-muted); }
+
+/* ── export and import (Transfer.tsx): the kinds on the rail's ground, the chosen one raised; its options as Settings rows ── */
+.dialog.transfer { width: min(980px, calc(100vw / var(--page-zoom, 1) - 32px)); height: min(700px, calc(100vh / var(--page-zoom, 1) - 64px)); }
+.transfer-body { flex: 1; min-height: 0; display: flex; gap: 18px; }
+.transfer-side { flex: none; width: 252px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.transfer-side > .seg { align-self: flex-start; }
+.transfer-kinds { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: var(--radius-lg); background: var(--surface-sunken); }
+.transfer-kinds .group-label { padding: 10px 8px 4px; }
+.transfer-kinds [role="group"]:first-child .group-label { padding-top: 4px; }
+.transfer-kinds button { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 20px 1fr; gap: 3px 10px; align-items: start; padding: 8px; border-radius: var(--radius-md); cursor: pointer; transition: background var(--motion); }
+.transfer-kinds button:hover { background: color-mix(in srgb, var(--surface-raised) 60%, transparent); }
+.transfer-kinds button[aria-selected="true"] { background: var(--surface-raised); box-shadow: 0 0 0 1px var(--line), var(--shadow-key); }   /* sits up, as Settings' current page */
+.transfer-kinds button[aria-disabled="true"] { opacity: 0.5; cursor: default; }
+.transfer-kinds button:focus-visible { outline: 2px solid var(--focus); }
+.transfer-kinds b { font-weight: 600; display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+.transfer-kinds b em { font: normal var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.transfer-kinds small { grid-column: 2; font-size: var(--size-2xs); line-height: 1.4; color: var(--text-muted); }
+.transfer-icon { display: inline-flex; margin-top: 1px; }
+.transfer-page { flex: 1; min-width: 0; overflow: auto; padding-bottom: 6px; }
+.transfer-preview { margin: 10px 0 12px; padding: 10px 12px; max-height: 220px; overflow: auto; background: var(--surface-sunken); border: 1px solid var(--line); border-radius: var(--radius-md); font: var(--size-2xs)/1.65 var(--font-mono); color: var(--text); white-space: pre; }
+.transfer-path { min-width: 260px; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; line-height: 30px; }
+.transfer-cli { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--surface-panel); border: 1px solid var(--line); font: var(--size-2xs) var(--font-mono); color: var(--text-muted); white-space: nowrap; }
+.transfer-cli code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--text); font: inherit; }
+.dialog.transfer .dialog-actions { align-items: center; }
+.transfer-say { margin-right: auto; font-size: var(--size-2xs); color: var(--text-muted); }
