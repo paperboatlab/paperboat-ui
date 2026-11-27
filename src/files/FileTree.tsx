@@ -5,8 +5,13 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState, 
 
 import { Icon } from "../Icon.tsx";
 import { Menu, type MenuEntry } from "../Menu.tsx";
+import { pageZoom } from "../scale.ts";
 import { fileIconFor } from "./types.ts";
 import { dropTarget, parentsOf, within } from "./tree.ts";
+
+/** A menu at the pointer (screen pixels), kept on screen; `w`, `h` its room in the page's pixels. */
+const placed = ({ x, y }: { x: number; y: number }, w: number, h: number, z = pageZoom()) =>
+  ({ left: Math.min(x / z, innerWidth / z - w), top: Math.min(y / z, innerHeight / z - h) });
 
 export type FileEntry = {
   path: string;
@@ -215,7 +220,7 @@ export const FileTree = forwardRef<FileTreeHandle, {
       })}
 
       {menu && menuFor && (
-        <div className="file-menu own" style={{ left: Math.min(menu.x, window.innerWidth - 290), top: Math.min(menu.y, window.innerHeight - 460) }}>
+        <div className="file-menu own" style={placed(menu, 290, 460)}>
           {menu.entry && <div className="file-menu-head"><TypeIcon entry={menu.entry} open={false} />{menu.entry.name}</div>}
           <Menu label={menu.entry ? `${menu.entry.name}: actions` : "New"} items={menuFor(menu.entry)} onClose={close} />
         </div>
@@ -227,7 +232,7 @@ export const FileTree = forwardRef<FileTreeHandle, {
             className="file-menu"
             role="menu"
             aria-label="File actions"
-            style={{ left: Math.min(menu.x, window.innerWidth - 230), top: Math.min(menu.y, window.innerHeight - 280) }}
+            style={placed(menu, 230, 280)}
             onPointerDown={(e) => e.stopPropagation()}
           >
             {actions.onNewFile && item(labels.newFile ?? "New file…", () => actions.onNewFile?.(parentOf(menu.entry)))}

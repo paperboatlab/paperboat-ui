@@ -5,6 +5,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon.tsx";
+import { pageZoom } from "./scale.ts";
 
 /** What a Paperboat window gives its page: `window.paperboatWindow` (paperboat/apps/launcher/electron/bridge.ts). */
 export interface WindowControls {
@@ -13,6 +14,8 @@ export interface WindowControls {
   minimize(): void;
   toggleMaximize(): void;
   close(): void;
+  /** The window's zoom (the interface scale, useScale); not in a Launcher older than it. */
+  setZoom?(factor: number): void;
   /** `fn` now and on every maximize or restore; returns stop. */
   onMaximized(fn: (maximized: boolean) => void): () => void;
 }
@@ -70,7 +73,7 @@ export function WindowKeys() {
       <span className="sep" />
       <span className="window-keys-room" ref={room} aria-hidden="true" />
       {at && createPortal(
-      <span className="window-keys" role="group" aria-label="Window" style={{ top: at.top, left: at.left }}>
+      <span className="window-keys" role="group" aria-label="Window" style={{ top: at.top / pageZoom(), left: at.left / pageZoom() }}>
         <button type="button" className="wk" title="Minimize" aria-label="Minimize" onClick={() => w.minimize()}><Icon name="chrome-minimize" /></button>
         <button type="button" className="wk" title={max ? "Restore" : "Maximize"} aria-label={max ? "Restore" : "Maximize"} onClick={() => w.toggleMaximize()}>
           <Icon name={max ? "chrome-restore" : "chrome-maximize"} />

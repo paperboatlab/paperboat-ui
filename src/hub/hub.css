@@ -43,7 +43,7 @@
 .hub-cmd::before { content: "$ "; }
 
 /* the file picker (it is a tall window too: .tall.open-file wins over .dialog.tall wherever the bundle puts it) */
-.dialog.tall.open-file { width: min(960px, calc(100vw - 32px)); height: min(540px, calc(100vh - 64px)); }
+.dialog.tall.open-file { width: min(960px, calc(100vw / var(--page-zoom, 1) - 32px)); height: min(540px, calc(100vh / var(--page-zoom, 1) - 64px)); }
 .open-file .dialog-actions { align-items: center; }
 .open-file-hint { font-size: var(--size-2xs); color: var(--text-muted); }
 .open-where { flex: 1; min-height: 0; padding: 12px 16px; overflow: auto; }

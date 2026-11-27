@@ -15,7 +15,7 @@ test("every token the components use is defined", () => {
   const defined = new Set([...(read("tokens.css") + all).matchAll(/(--[\w-]+)\s*:/g)].map((m) => m[1]));
   const used = new Set([...(all + read("theme.tsx")).matchAll(/var\((--[\w-]+)/g)].map((m) => m[1]));
   // set by the component that uses them (inline style), each with its fallback
-  const own = new Set(["--s", "--ip-color", "--lr", "--search-x", "--search-y"]);
+  const own = new Set(["--s", "--ip-color", "--lr", "--search-x", "--search-y", "--page-zoom"]);
   assert.deepEqual([...used].filter((v) => !defined.has(v) && !own.has(v)), []);
 });
 

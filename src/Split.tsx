@@ -5,6 +5,7 @@
 // focus, the arrow keys move it (Shift: further), Home and End go to the limits. The app keeps the size.
 import { useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import { keySize, maxSize, resolveSize, type SplitLimits } from "./split.ts";
+import { pageZoom } from "./scale.ts";
 
 export function Split({ direction = "row", sized = "end", size, defaultSize, min = 200, max, otherMin = 240, onSize, onHidden, label, children, className = "" }: {
   /** row: side by side (a vertical gutter); column: one above the other. */
@@ -31,7 +32,7 @@ export function Split({ direction = "row", sized = "end", size, defaultSize, min
   const row = direction === "row";
   const limits = (): SplitLimits => {
     const r = box.current?.getBoundingClientRect();
-    return { min, max, otherMin, total: (row ? r?.width : r?.height) ?? size + otherMin };
+    return { min, max, otherMin, total: r ? (row ? r.width : r.height) / pageZoom() : size + otherMin };
   };
   const apply = (wanted: number) => {
     const r = resolveSize(wanted, limits(), !!onHidden);
@@ -47,7 +48,7 @@ export function Split({ direction = "row", sized = "end", size, defaultSize, min
   };
   const move = (e: PointerEvent<HTMLDivElement>) => {
     if (!start.current) return;
-    const d = (row ? e.clientX : e.clientY) - start.current.at;
+    const d = ((row ? e.clientX : e.clientY) - start.current.at) / pageZoom();   // screen pixels to the page's
     apply(start.current.size + (sized === "end" ? -d : d));
   };
   const up = () => { start.current = null; setDragging(false); };

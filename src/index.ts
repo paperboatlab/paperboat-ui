@@ -32,7 +32,8 @@ export { runtimeIcon, runtimeLine, runtimeLogo, runtimesLabel, runtimesSummary, 
 export { ago, record, LOG_MAX } from "./toast.ts";
 export { applyTheme } from "./themeTransition.ts";
 export { ThemePicker, ThemePreview, THEMES, useTheme, type Theme } from "./theme.tsx";
-export { Settings, SettingRow, SettingsSection, ShortcutList, ThemeSetting, type SettingsPage } from "./Settings.tsx";
+export { Settings, SettingRow, SettingsSection, ScaleSetting, ShortcutList, ThemeSetting, type SettingsPage } from "./Settings.tsx";
+export { applyScale, isScale, pageZoom, SCALES, useScale, type Scale } from "./scale.ts";
 export { useDismiss, useFocusReturn } from "./dismiss.tsx";
 export * from "./commands.ts";
 // commands.ts's `Menu` (a menu of the bar) is shadowed by the Menu component above: export it by another name.

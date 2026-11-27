@@ -7,6 +7,8 @@ import type { Command } from "./commands.ts";
 import { Dialog } from "./Dialog.tsx";
 import { Icon } from "./Icon.tsx";
 import type { IconName } from "./icons.ts";
+import { Segmented } from "./controls.tsx";
+import { SCALES, type Scale } from "./scale.ts";
 import { THEMES, ThemePreview, type Theme } from "./theme.tsx";
 
 export type SettingsPage = { id: string; label: string; icon: IconName; body: ReactNode };
@@ -66,6 +68,20 @@ export function ThemeSetting({ theme, onTheme }: { theme: Theme; onTheme: (t: Th
         ))}
       </div>
       <p className="settings-note">Applies to every Paperboat app</p>
+    </SettingsSection>
+  );
+}
+
+const SIZE: Record<string, string> = { "0.75": "Compact", "1": "Default", "1.25": "Large" };
+
+/** General › Size: the whole interface at 75, 100 or 125 % (one setting for every Paperboat app; useScale applies it). */
+export function ScaleSetting({ scale, onScale }: { scale: Scale; onScale: (s: Scale) => void }) {
+  return (
+    <SettingsSection title="Size">
+      <SettingRow label="Interface scale" hint="Applies to every Paperboat app">
+        <Segmented label="Interface scale" value={String(scale)} onChange={(v) => onScale(Number(v) as Scale)}
+          options={SCALES.map((s) => ({ value: String(s), label: <>{SIZE[String(s)]} <span className="muted">{s * 100} %</span></> }))} />
+      </SettingRow>
     </SettingsSection>
   );
 }
