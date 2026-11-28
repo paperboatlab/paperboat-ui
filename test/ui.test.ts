@@ -158,3 +158,34 @@ test("about: the app's credits first, the kit's after without repeats; one line 
   assert.equal(versionInfo("julix", "0.2.0", null), "Julix 0.2.0 · Paperboat not installed");
   assert.equal(versionInfo("paperboat", "0.1.0-alpha.3", "x", "commit abc"), "Paperboat 0.1.0-alpha.3 · commit abc");
 });
+
+test("an example's banner: it is read-only, Copy is a key, and it sits in the bay like a toast or a panel", () => {
+  const b = read("ExampleBanner.tsx");
+  assert.match(b, /This example is read-only\. Copy it to make changes\./);
+  assert.match(b, /<Key size="sm" icon="copy"/, "Copy is a key beside the words, not a link inside them");
+  assert.doesNotMatch(b, /aren't kept/, "an example opened in place is read-only, not a scratch copy");
+  const rule = css("parts.css").match(/\.example-banner \{([^}]*)\}/)?.[1] ?? "";
+  assert.match(rule, /border: 1px solid var\(--line\)/, "the line all round, as a toast");
+  assert.match(rule, /border-radius: var\(--radius-lg\)/, "the panels' and toasts' radius, never square");
+  assert.match(rule, /background: var\(--surface-raised\)/, "the toasts' and pills' surface");
+  assert.doesNotMatch(rule, /border-bottom|margin/, "no edge-to-edge strip: the app gives it its place");
+});
+
+test("the shared fields take readOnly: the value shows, nothing changes it", () => {
+  const ctl = read("controls.tsx");
+  for (const fn of ["Segmented", "Switch"]) {
+    const body = ctl.slice(ctl.indexOf(`export function ${fn}`));
+    assert.match(body, /readOnly\?: boolean/, `${fn} takes readOnly`);
+    assert.match(body, /aria-readonly=\{readOnly \|\| undefined\}/, `${fn} says it is read-only`);
+  }
+  assert.match(ctl, /if \(!fixed\) step\(/, "read-only, the arrows don't move the choice");
+  assert.match(read("NumberField.tsx"), /if \(readOnly\) return;/);
+  assert.match(read("canvas/ParamField.tsx"), /readOnly=\{readOnly\}/);
+  const row = read("canvas/ParamRow.tsx");
+  assert.equal(row.match(/readOnly=\{readOnly\}/g)?.length, 4, "every kind of param: formula, number, switch, text");
+  assert.match(row, /disabled=\{disabled \|\| readOnly\}/, "a select has no readonly: it is disabled, drawn read-only");
+  assert.match(read("Key.tsx"), /export function RemoveKey\(\{ label, onClick, disabled, title \}/);
+  const ui = css("ui.css");
+  assert.match(ui, /input\.read-only[^{]*\{[^}]*background: transparent/, "a read-only field is out of its well");
+  assert.match(ui, /\.seg\.read-only button \{ cursor: default; \}/);
+});

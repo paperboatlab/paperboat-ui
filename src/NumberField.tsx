@@ -10,27 +10,34 @@ export function parseNumber(text: string, valid: (v: number) => boolean = () => 
 /**
  * A number you type freely: what you type stays while you edit (`-`, `-0.`, `1e-`, an empty
  * field), and the value changes whenever the text is a number `valid` accepts. Leaving the
- * field (or Enter) shows the value again; Escape too.
+ * field (or Enter) shows the value again; Escape too. `readOnly` (an example opened read-only): the value
+ * shows, selectable and copyable, out of its well (`.read-only`), and never changes.
  */
 export function NumberField({
   value,
   onChange,
   valid,
+  readOnly,
+  className,
   ...rest
 }: {
   value: number;
   onChange: (v: number) => void;
   valid?: (v: number) => boolean;
+  readOnly?: boolean;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type">) {
   const [text, setText] = useState<string | null>(null); // null: not editing, show the value
   return (
     <input
       {...rest}
+      className={readOnly ? [className, "read-only"].filter(Boolean).join(" ") : className}
+      readOnly={readOnly}
       type="text"
       inputMode="decimal"
       spellCheck={false}
       value={text ?? String(value)}
       onChange={(e) => {
+        if (readOnly) return;
         setText(e.target.value);
         const v = parseNumber(e.target.value, valid);
         if (v !== undefined && v !== value) onChange(v);

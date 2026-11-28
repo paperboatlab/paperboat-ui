@@ -28,10 +28,10 @@ export function Key({ kind, size, icon, round, busy, shortcut, label, children, 
   );
 }
 
-/** Remove: the round ×. */
-export function RemoveKey({ label, onClick }: { label: string; onClick: () => void }) {
+/** Remove: the round ×. `disabled` (an example opened read-only): greyed, with `title` saying why. */
+export function RemoveKey({ label, onClick, disabled, title }: { label: string; onClick: () => void; disabled?: boolean; title?: string }) {
   return (
-    <button type="button" className="remove" aria-label={label} title={label} onClick={onClick}>
+    <button type="button" className="remove" aria-label={label} title={title ?? label} disabled={disabled} onClick={onClick}>
       <svg viewBox="0 0 8 8" aria-hidden="true"><path d="M1 1l6 6M7 1L1 7" /></svg>
     </button>
   );
