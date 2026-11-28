@@ -1,6 +1,7 @@
 // Choices: a segmented control (the chosen segment rises), tabs (underlined in the accent), a switch. The
 // raised thumb and the underline are one element each that glides to the choice (REBRAND "Motion":
-// a choice moving glides on --glide); the first placement doesn't move.
+// a choice moving glides on --glide); the first placement doesn't move. `readOnly` (an example, articula#57):
+// the choice shows, focusable and read out, but can't change (no hover, no click, no arrows); `disabled`: greyed.
 import { useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 
 function step<T>(e: KeyboardEvent, options: { value: T }[], value: T, onChange: (v: T) => void) {
@@ -27,8 +28,11 @@ function useGlide() {
   return { box, mark };
 }
 
-export function Segmented<T extends string>({ label, options, value, onChange, size }: {
+export function Segmented<T extends string>({ label, options, value, onChange, size, readOnly, disabled }: {
   label: string;
+  /** Shows the choice but doesn't change it (an example opened read-only). */
+  readOnly?: boolean;
+  disabled?: boolean;
   /** "sm": in a panel head or a tool strip. */
   size?: "sm";
   options: { value: T; label: ReactNode; hint?: string }[];
@@ -36,11 +40,15 @@ export function Segmented<T extends string>({ label, options, value, onChange, s
   onChange: (v: T) => void;
 }) {
   const { box, mark } = useGlide();
+  const fixed = readOnly || disabled;
+  const cls = ["seg", size, readOnly && "read-only", disabled && "disabled"].filter(Boolean).join(" ");
   return (
-    <div ref={box} className={size ? `seg ${size}` : "seg"} role="radiogroup" aria-label={label} onKeyDown={(e) => step(e, options, value, onChange)}>
+    <div ref={box} className={cls} role="radiogroup" aria-label={label} aria-readonly={readOnly || undefined} aria-disabled={disabled || undefined}
+      onKeyDown={(e) => { if (!fixed) step(e, options, value, onChange); }}>
       <span ref={mark} className="seg-thumb" aria-hidden="true" />
       {options.map((o) => (
-        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} tabIndex={o.value === value ? 0 : -1} title={o.hint} onClick={() => onChange(o.value)}>
+        <button key={o.value} type="button" role="radio" aria-checked={o.value === value} tabIndex={o.value === value ? 0 : -1} title={o.hint}
+          disabled={disabled} onClick={() => { if (!fixed) onChange(o.value); }}>
           {o.label}
         </button>
       ))}
@@ -68,6 +76,15 @@ export function Tabs<T extends string>({ label, tabs, value, onChange }: {
   );
 }
 
-export function Switch({ label, checked, onChange }: { label: string; checked: boolean; onChange: (on: boolean) => void }) {
-  return <button type="button" className="switch" role="switch" aria-checked={checked} aria-label={label} onClick={() => onChange(!checked)} />;
+export function Switch({ label, checked, onChange, readOnly, disabled }: {
+  label: string;
+  checked: boolean;
+  onChange: (on: boolean) => void;
+  /** Shows on or off but doesn't change (an example opened read-only). */
+  readOnly?: boolean;
+  disabled?: boolean;
+}) {
+  const cls = ["switch", readOnly && "read-only"].filter(Boolean).join(" ");
+  return <button type="button" className={cls} role="switch" aria-checked={checked} aria-label={label} aria-readonly={readOnly || undefined} disabled={disabled}
+    onClick={() => { if (!readOnly && !disabled) onChange(!checked); }} />;
 }

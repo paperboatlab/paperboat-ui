@@ -2,6 +2,7 @@
 // Typing a name lists the variables it may mean, each with its type line and value; ↑ ↓ pick, Tab or Enter takes
 // one, Esc hides the list (again: undoes the edit). Leaving the field or Enter sets the param: a number, `{ var }`
 // for a variable's name alone, `{ expr }` for anything else. Bound, it shows the name or formula in an ink outline.
+// `readOnly` (an example opened read-only): the text shows, selectable, out of its well, with no list and no change.
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { isRef, nameAt, paramText, parseParam, suggestVars, type VarHint } from "./bindings.ts";
@@ -9,13 +10,14 @@ import type { ParamValue } from "./types.ts";
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
-export function ParamField({ value, fallback, vars, onChange, disabled, label }: {
+export function ParamField({ value, fallback, vars, onChange, disabled, readOnly, label }: {
   value: ParamValue | undefined;
   /** Shown while `value` is unset: the param's default. */
   fallback: number;
   vars: readonly VarHint[];
   onChange: (v: ParamValue) => void;
   disabled?: boolean;
+  readOnly?: boolean;
   label: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
@@ -25,7 +27,7 @@ export function ParamField({ value, fallback, vars, onChange, disabled, label }:
   const [hidden, setHidden] = useState(false); // Esc hid the list
   const undo = useRef(false);
   const shown = text ?? paramText(value ?? fallback);
-  const at = text !== null && !hidden ? nameAt(text, caret) : null;
+  const at = text !== null && !hidden && !readOnly ? nameAt(text, caret) : null;
   const hits = at ? suggestVars(vars, at.word) : [];
   const sel = Math.min(pick, Math.max(0, hits.length - 1));
 
@@ -47,21 +49,22 @@ export function ParamField({ value, fallback, vars, onChange, disabled, label }:
     <>
       <input
         ref={input}
-        className={`param-well param-expr nodrag nowheel${isRef(value) && text === null ? " bound" : ""}`}
+        className={`param-well param-expr nodrag nowheel${isRef(value) && text === null ? " bound" : ""}${readOnly ? " read-only" : ""}`}
         aria-label={label}
         aria-autocomplete="list"
         aria-expanded={hits.length > 0}
         disabled={disabled}
+        readOnly={readOnly}
         spellCheck={false}
         autoComplete="off"
         value={shown}
         style={{ width: `${Math.min(24, Math.max(8, shown.length + 2))}ch` }}
         title={isRef(value) ? ("var" in value ? `Bound to ${value.var}` : `ƒ ${value.expr}`) : undefined}
         onFocus={(e) => (edit(e.currentTarget.value, e.currentTarget.selectionStart ?? 0), setHidden(true))} // the list waits for typing
-        onChange={(e) => edit(e.target.value, e.target.selectionStart ?? e.target.value.length)}
+        onChange={(e) => !readOnly && edit(e.target.value, e.target.selectionStart ?? e.target.value.length)}
         onSelect={(e) => setCaret(e.currentTarget.selectionStart ?? 0)}
         onBlur={() => {
-          const v = text === null || undo.current ? undefined : parseParam(text, vars.map((x) => x.name));
+          const v = text === null || undo.current || readOnly ? undefined : parseParam(text, vars.map((x) => x.name));
           undo.current = false;
           setText(null);
           if (v !== undefined && !same(v, value)) onChange(v);

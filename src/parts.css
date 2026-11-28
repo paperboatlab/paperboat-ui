@@ -120,7 +120,13 @@ span.msg-source { cursor: default; }
 .ve-more { margin: 6px 16px 10px; }
 .ve-text { margin: 0; padding: 12px 16px; font: var(--size-xs) / 1.5 var(--font-mono); color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; }
 
-/* ExampleBanner: an example's line at the top of its bay (Julix's read-only line, paperboat#75) */
-.example-banner { flex: none; padding: 7px 16px; border-bottom: 1px solid var(--line); font-size: var(--size-2xs); color: var(--text-muted); background: var(--surface-sunken); }
-.example-banner button { all: unset; color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; cursor: pointer; }
-.example-banner button:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+/* ExampleBanner: an example's line at the top of its bay (Julix's read-only line, paperboat#75; paperboat-ui#85).
+   It sits in the bay like a panel, a gutter from the panels around it (the app's layout): the toasts' raised
+   surface, line, --radius-lg and padding, and the pills' type; the Copy key on the right. Narrow (a bay under ~40em),
+   the key goes under the words, still at the right, rather than squeezing them a word a line. */
+.example-banner { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); min-width: 0; box-sizing: border-box; padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3); background: var(--surface-raised); border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--text-muted); font: var(--size-2xs) / 1.4 var(--font-sans); }
+.example-banner p { flex: 1 1 22em; min-width: 0; margin: 0; padding-left: 22px; text-indent: -22px; }  /* the lock hangs left of every line */
+.example-banner-mark { width: 14px; height: 14px; margin-right: 8px; vertical-align: -3px; color: var(--text-muted); }
+.example-banner p b { font-weight: 600; color: var(--text); margin-right: var(--space-1); }
+.example-banner .key { flex: none; max-width: 100%; margin-left: auto; }
+.example-banner .key > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
